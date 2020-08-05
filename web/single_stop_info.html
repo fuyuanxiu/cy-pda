@@ -1,0 +1,494 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<script src="../js/template-web.js"></script>
+		<script src="../js/mui.picker.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link href="../css/mui.picker.min.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<style>
+			.dialog-title{
+			font-size: 22px;
+			color: #000000;
+			margin:0 auto;
+			width:100px
+		}
+		.dialog-title-close{
+			float: right;
+			background-color: red;
+			color: white;
+		}
+		.dialog-p{
+			font-size: large;
+			color: #000000;
+			padding: 1rem;
+		}
+		.dialog-window{
+			 position: fixed ;
+			 margin-top: 5.25rem;
+		}
+	</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav  mui-bar-transparent colorBg">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title" id="title">SMT机台停机信息</h1>
+			<a class="mui-pull-right"><span class="title-right" id="usr"></span></a>
+		</header>
+		<div class="mui-content">
+			<div class="mui-row">
+				<dialog id="addItemDialog" class="dialog-window" style="width: 85%;">
+					<div>
+						<p class="dialog-title"><span>停机信息</span></p>
+						<br>
+					</div>
+					<table width="100%" class="table" id="dialogTable">
+						<thead>
+							<tr>
+								<th hidden="true">ID_HIDE</th>
+								<th>停机类型</th>
+								<th width="40%">停机原因</th>
+								<th width="20%">标准停机时长</th>
+								<th>是否转线</th>
+								<th>是否停机</th>
+							</tr>
+						</thead>
+						<tbody id="dialoglist">
+							<script id='template' type="text/template">
+								<% for(var i in record){ var item=record[i];var f = $imports.checkFocus(item.ID_HIDE) %>
+								{{if f}}
+								<tr style="background-color: #FFFF66;" onclick="SelectReason(this)">
+								{{else}}
+								<tr onclick="SelectReason(this)">
+								{{/if}}												
+									<td hidden="true"><%=(item.ID_HIDE)%></td>
+									<td><%=(item.停机类型)%></td>
+									<td><%=(item.停机原因)%></td>
+									<td><%=(item.标准停机时长)%></td>
+									<td><%=(item.是否转线)%></td>
+									<td><%=(item.是否停机)%></td>
+								</tr>				
+								<% } %>
+							</script>
+						</tbody>
+					</table>
+					<div class="mui-button-row">
+						<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('addItemDialog').style.display='none'">关闭</button>
+					</div>
+				</dialog>
+				<dialog id="splitDialog" class="dialog-window" style="width: 65%;">
+					<div style="display: flex;justify-content:flex-end">
+						<p class="dialog-title"><span>拆分选项</span></p>
+						<br>
+					</div>
+					<div style="display: flex;justify-content:space-between">
+						<p class="dialog-p" id="splitbeg"><span>开始时间:2020-7-9 09:00</span></p>
+						<p class="dialog-p" id="splitend"><span>结束时间:2020-7-9 09:00</span></p>
+					</div>
+					<div>
+						<div style="display: flex;">
+							<div style="margin: 10px;"><input type="radio" name="time" value="T" checked="checked"> <span>时间</span></div>
+							<input type="text" style="width: 70%;" name="selecttime" id="selecttime" placeholder="点击选择时间">
+						</div>
+						<div style="display: flex;">
+							<div style="margin: 10px;"><input type="radio" name="time" value="L"> <span>时长</span></div>
+							<input type="text" style="width: 70%;" id="durationInput" name="duration" disabled="true"><span style="margin: 10px;">分钟</span>
+						</div>
+					</div>
+					<div class="mui-button-row">
+						<button style="margin-right:80px;" type="button" id="submit" class="mui-btn mui-btn-primary">确认</button>
+						<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('splitDialog').style.display='none';">关闭</button>
+					</div>
+				</dialog>
+				<table width="100%" class="table" id="tablevalue">
+					<thead>
+						<tr>
+							<th hidden="true">ID_HIDE</th>
+							<th hidden="true">STOP_CODE_HIDE</th>
+							<th hidden="true">线体</th>
+							<th width="15%">贴片机</th>
+							<th width="15%">开始时间</th>
+							<th width="15%">结束时间</th>
+							<th width="5%">停机时长</th>
+							<th width="5%">停机类型</th>
+							<th width="10%">停机原因</th>
+							<th width="10%">标准停机时长</th>
+							<th width="5%">是否转线</th>
+							<th width="5%">是否停机</th>
+							<th width="5%">超时分钟</th>
+							<th id="operate">操作</th>
+						</tr>
+					</thead>
+					<div id="tab1" class="mui-control-content mui-active">
+						<!--下拉刷新容器-->
+						<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+							<div class="mui-scroll">
+								<!--数据列表-->
+								<tbody id="list">
+								</tbody>
+							</div>
+						</div>
+					</div>
+				</table>
+			</div>
+		</div>
+		<script id='tr-template' type="text/template">
+			<% for(var i in record){ var item=record[i]; var check = $imports.checkOperate()%>		
+				{{if item.停机类型=="-"}}
+				<tr style="background-color: #FF3366;" width="100%" onclick="addType(this)">
+				{{else}}
+				<tr  width="100%" onclick="addType(this)">
+				{{/if}}	
+						<td hidden="true"><%=(item.ID_HIDE)%></td>
+						<td hidden="true"><%=(item.STOP_CODE_HIDE)%></td>
+						<td hidden="true"><%=(item.线体)%></td> 
+						<td width='15%'><%=(item.贴片机)%></td>
+						<td width="15%"><%=(item.开始时间)%></td>
+						<td width="15%"><%=(item.结束时间)%></td>
+						<td width="5%"><%=(item.停机时长)%></td>								
+						<td width="5%"><%=(item.停机类型)%></td>
+						<td width="10%"><%=(item.停机原因)%></td>
+						<td width="10%"><%=(item.标准停机时长)%></td>
+						<td width="5%"><%=(item.是否转线)%></td>
+						<td width="5%"><%=(item.是否停机)%></td>
+						<td width="5%"><%=(item.超时分钟)%></td>		
+						{{if check}}
+						<td><button type="button" onclick="split(this)" class="mui-btn">拆分</button></td>	
+						{{/if}}	
+					</tr>				
+				<% } %>
+			</script>
+		</div>
+		</div>
+		<script src="js/mui.js"></script>
+		<script type="text/javascript">
+			mui.init({
+				pullRefresh: {
+					container: '#pullrefresh',
+					down: { //下拉刷新
+						auto: true, //可选,默认false.自动下拉刷新一次
+						contentdown: "下拉可以刷新", //可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
+						contentover: "释放立即刷新", //可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+						contentrefresh: "正在刷新...", //可选，正在刷新状态时，下拉刷新控件上显示的标题内容
+						callback: pulldownRefresh
+					},
+					up: { //上拉加载
+						//auto:true,//可选,默认false.自动上拉加载一次
+						contentrefresh: '正在加载...',
+						contentnomore: '没有更多数据了', //可选，请求完毕若没有更多数据时显示的提醒内容；
+						callback: pullupRefresh
+					}
+				},
+				beforeback: function() { //页面返回时触发
+					var list = plus.webview.currentWebview().opener();
+					mui.fire(list, 'refresh'); //refresh是A页面自定义事件
+					return true; //返回true,继续页面关闭逻辑
+				}
+			});
+			var line_code = ""; //线体编号
+			var line_name = ""; //线体名称
+			var a_stop_code_hide = "";
+			var a_id_hide = "";
+			mui.plusReady(function() {
+				byId("usr").innerHTML = setUsrCode();
+				var param = plus.webview.currentWebview(); //获取父页面传递过来的参数
+				line_code = param.line_code;
+				power = api_localStorageGet("power_operate_smt");
+				//power="N"
+				if (power != "Y") {
+					byId("operate").style.display = "none";
+				}
+				getLineStopInfo(1, 2);
+			});
+			var count = 1;
+
+			function pulldownRefresh() {
+				count = 1; //第一页
+				type = 1; //代表下拉刷新
+				getLineStopInfo(count, type); //具体取数据的方法
+			}
+
+			function pullupRefresh() {
+				//setTimeout(function() {
+				count++; //翻下一页
+				type = 2; //代表上拉加载
+				getLineStopInfo(count, type); //具体取数据的方法
+				//}, 100);
+			}
+			template.defaults.imports.checkFocus = function(item_id) {
+				if (item_id == a_stop_code_hide) {
+					return true;
+				}
+				return false;
+			};
+			template.defaults.imports.checkOperate = function() {
+				if (power=="Y") {
+					return true;
+				}
+				return false;
+			};
+			//拆分事件
+			function split(obj) {
+				event.stopPropagation(); //表示阻止向父元素冒泡(阻止行点击事件触发)
+				event.preventDefault(); //阻止 方法阻止元素发生默认的行为（例如，当点击提交按钮时阻止对表单的提交或者a标签）。
+				var tr = obj.parentNode.parentNode; //获取父节点
+				var cells = tr.cells; //获取单元格对象
+				a_id_hide = cells[0].innerHTML; //ID_HIDE
+				var begtime = cells[4].innerHTML;
+				var endtime = cells[5].innerHTML;
+				$('#splitbeg').text("开始时间：" + begtime);
+				$('#splitend').text("结束时间：" + endtime);
+				byId("splitDialog").style.display = "block"; //显示
+			}
+			//拆分框-选择时间监听事件
+			var selecttime = byId("selecttime");
+			selecttime.addEventListener("tap", function() {
+				var dtPicker = new mui.DtPicker({
+					type: 'datetime'
+				});
+				dtPicker.show(function(e) {
+					$("#selecttime").val(e.value);
+				})
+			});
+			//拆分框-单选框点击事件
+			$(document).ready(function() {
+				$('input[type=radio][name=time]').change(function() {
+					if (this.value == 'T') { //选择时间
+						$("#durationInput").attr('disabled', 'disabled'); //添加
+						$("#durationInput").val("");
+						$("#selecttime").removeAttr('disabled'); //取消
+					} else if (this.value == 'L') { //选择时长
+						$("#selecttime").attr('disabled', 'disabled');
+						$("#selecttime").val("");
+						$("#durationInput").removeAttr('disabled'); //取消
+					}
+				});
+			});
+			//拆分框-提交确认事件
+			byId("submit").addEventListener("tap", function() {
+				var type = $('input[name="time"]:checked').val(); //获取单选框值
+				var value = "";
+				if (type == "T") { //单选按钮为时间
+					if ($('[name=selecttime]').val() != "") {
+						value = $('[name=selecttime]').val(); //获取时间
+					} else {
+						mui.alert("请选择时间");
+						return false;
+					}
+				} else {
+					if (!isNumber($("#durationInput").val())) { //校验时长
+						$("#durationInput").val("");
+						mui.alert("不是有效的数字内容");
+						return false;
+					} else {
+						value = $('[name=duration]').val(); //获得时长
+					}
+				}
+				var btnArray = ['否', '是'];
+				mui.confirm('停机信息拆分不可逆，是否确定拆分？', '警告', btnArray, function(e) {
+					if (e.index == 1) {
+						//console.log("a_id_hide:" + a_id_hide + "type:" + type + "value:" + value)
+						MachStopInfo_Split(a_id_hide, type, value, api_localStorageGet("code"));
+					}
+				})
+			});
+			//拆分框-校验输入时长[正数、小数]
+			function isNumber(value) { //验证是否为数字
+				var patrn = /^0\.\d+$|^[0-9]+(\.\d+)?$/;
+				if (patrn.exec(value) == null || value == "") {
+					return false
+				} else {
+					return true
+				}
+			}
+
+			function getLineStopInfo(page, type) {
+				jQueryWeb("SMT_Get_LineStopInfo", {
+					"Line_Code": line_code,
+					"page_no": page,
+					"page_row": 12,
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.DocumentElement;
+						listData = [];
+						if (data != undefined) {
+							if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+								listData = [data.Table]
+							} else {
+								listData = data.Table
+							}
+						}
+						if (type == 2) { //下拉加载
+							if (data) {
+								var html = '';
+								if (page != 1) {
+									html = document.getElementById("list").innerHTML;
+								}
+								document.getElementById('list').innerHTML = html + template('tr-template', {
+									"record": listData
+								});
+
+							}
+							mui('#pullrefresh').pullRefresh().endPulldownToRefresh(); //结束下拉刷新
+							/*结束上拉加载，并根据情况切换“下拉显示更多数据”，以及“没有更多数据了”。执行endPullupToRefresh()方法，结束转雪花进度条的“正在加载...”过程,若还有更多数据，则传入false; 否则传入true，之后滚动条滚动到底时*/
+							if (data) {
+								mui('#pullrefresh').pullRefresh().endPullupToRefresh(false);
+							} else {
+								mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+							}
+						}
+						if (type == 1) { //上拉刷新
+							/*下面这句很关键！*/
+							mui('#pullrefresh').pullRefresh().refresh(true); //有重新触发上拉加载的需求（比如当前类别已无更多数据，但切换到另外一个类别后，应支持继续上拉加载）
+							//vm.companylist = data.company_list;
+							//plus.nativeUI.closeWaiting();//数据渲染完毕，关闭加载框
+							mui.currentWebview.show(); //显示当前页面
+							var html = '';
+							//console.log(page != 1)
+							if (page != 1) {
+								html = document.getElementById("list").innerHTML;
+							}
+
+							document.getElementById('list').innerHTML = html + template('tr-template', {
+								"record": listData
+							});
+						}
+					} else {
+						mui.alert("SMT_GET_STOP_INFO 连接失败");
+					}
+				});
+			}
+
+			function StopInfoWriteReason(b_id_hide, switch_data) { //修改停机信息
+				jQueryWeb('StopInfoWriteReason', {
+					"Stop_id": a_id_hide,
+					"Stop_TypeCode": b_id_hide,
+					"UserCode": api_localStorageGet("code")
+				}, function(xmlHttpRequest, statu) {
+					if (statu == "success") {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = JSON.parse(json_obj);
+						//console.log(json_obj);
+						//console.log(data[0].result)
+						if (data[0].result == "true") {
+							SMT_CheckChangeLineByStopInfo();
+						} else {
+							mui.alert(data.table01.msg)
+							byId("addItemDialog").style.display = "none";
+						}
+					}
+				});
+			}
+
+			function SMT_CheckChangeLineByStopInfo() { //转线
+				jQueryWeb('SMT_CheckChangeLineByStopInfo', {
+					"StopInfoId": a_id_hide
+				}, function(xmlHttpRequest, statu) {
+					if (statu == "success") {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = JSON.parse(json_obj);
+						console.log(json_obj);
+						console.log(a_id_hide)
+						if (data[0].result == "true") {
+							//console.log("转线：" + data[0].msg);
+							var btnArray = ['否', '是'];
+							mui.confirm('当前停机包含转线，且未维护转线信息。是否到转线界面?', '提示', btnArray, function(e) {
+								if (e.index == 1) {
+									byId("addItemDialog").style.display = "none";
+									OpenWindow('switchline', 'switchline.html', {
+										"line_code": line_code,
+										"line_name": line_code,
+										"time": data[0].msg,
+									}); //跳转到转线页面
+								} else {
+									mui.alert("停机信息修改成功");
+									byId("addItemDialog").style.display = "none";
+									window.location.reload();
+								}
+							})
+						} else {
+							mui.alert("停机信息修改成功");
+							byId("addItemDialog").style.display = "none";
+							window.location.reload();
+						}
+					}
+				})
+			}
+
+			function addType(table_obj) { //行点击事件
+				if (power != "Y") {
+					return false
+				}
+				var cells = table_obj.cells; //获取单元格对象
+				a_id_hide = cells[0].innerHTML; //ID_HIDE
+				a_stop_code_hide = cells[1].innerHTML; //STOP_CODE_HIDE
+				line_name = cells[2].innerHTML; //线体名
+				jQueryWeb("SMT_Get_MachStopType", "", function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.NewDataSet;
+						document.getElementById('dialoglist').innerHTML = template('template', {
+							"record": data.Table
+						});
+					} else {
+						mui.alert("SMT_Get_MachStopType 连接失败");
+					}
+				})
+				var d2 = byId("addItemDialog");
+				d2.style.display = "block"; //显示
+			}
+
+			function SelectReason(table_obj) { //选择停机原因
+				var cells = table_obj.cells; //获取单元格对象
+				var b_id_hide = cells[0].innerHTML; //B页面的ID_HIDE
+				var switch_data = cells[4].innerHTML; //转线数据
+				//console.log(b_id_hide)
+				var btnArray = ['否', '是'];
+				mui.confirm('【停机类型：' + cells[1].innerHTML + '】【停机原因：' + cells[2].innerHTML + '】', '确认添加', btnArray, function(e) {
+					if (e.index == 1) {
+						StopInfoWriteReason(b_id_hide, switch_data);
+					}
+				})
+			}
+
+			function MachStopInfo_Split(a_id, type, value, UserCode) { //拆分停机信息
+				jQueryWeb("MachStopInfo_Split", {
+					"Stop_id": a_id,
+					"Type": type,
+					"Value": value,
+					"UserCode": UserCode
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = JSON.parse(json_obj);
+						//console.log(data[0].RESULT);
+						if (data[0].RESULT == "true") {
+							mui.alert("拆分成功");
+							byId("splitDialog").style.display = "none";
+							window.location.reload();
+						} else {
+							mui.alert(data[0].MSG);
+							$("#selecttime").val("");
+							$("#durationInput").val("");
+							byId("splitDialog").style.display = "none";
+						}
+					} else {
+						mui.alert("MachStopInfo_Split 连接失败");
+					}
+				})
+			}
+		</script>
+	</body>
+
+</html>

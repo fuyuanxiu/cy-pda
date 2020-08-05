@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script src="js/mui.min.js"></script>
+		<script src="js/jquery-1.11.1.js"></script>
+		<script src="js/jquery.xml2json.js.js"></script>
+		<script src="js/api.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="css/iconfont.css" />
+		<style type="text/css">
+			.mui-content {
+				margin-top: 2px;
+			}
+
+			.badge {
+				position: absolute;
+				top: 0;
+				right: 0;
+				z-index: 99;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- <header class="mui-bar mui-bar-nav">
+			<h1 class="mui-title">PMS</h1>
+		</header> -->
+		<div class="mui-content">
+			<div class="mui-slider">
+				<div class="mui-slider-group">
+					<div class="mui-slider-item"><a href="#"><img src="img/bg1.jpg" /></a></div>
+					<div class="mui-slider-item"><a href="#"><img src="img/bg2.jpg" /></a></div>
+					<div class="mui-slider-item"><a href="#"><img src="img/bg3.jpg" /></a></div>
+				</div>
+			</div>
+			<ul class="mui-table-view mui-grid-view mui-grid-9" id="list">
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="smt">
+					<a href="main_smt.html">
+						<span class="mui-icon iconfont icon-SMT" style="color: #87CEFA;"></span>
+						<div class="mui-media-body">SMT车间</div>
+					</a>
+				</li>
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="zhusu">
+					<a href="main_zhusu.html" id="zhusu">
+						<span class="mui-icon iconfont icon-zhusuji-" style="color: #90EE90;"></span>
+						<div class="mui-media-body">注塑车间</div>
+					</a>
+				</li>
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
+					<a href="login.html" id="login">
+						<span class="mui-icon iconfont icon-tuichu2" style="color:#de1312"></span>
+						<div class="mui-media-body">退出登录</div>
+					</a>
+				</li>
+
+			</ul>
+		</div>
+		<script type="text/javascript" charset="utf-8">
+			// 重写移动端返回键 
+			var first = null;
+			mui.back = function() {
+				mui.plusReady(function() {
+					//首页返回键处理
+					//处理逻辑：1秒内，连续两次按返回键，则退出应用；
+					if (!first) {
+						first = new Date().getTime();
+						mui.toast('再按一次退出登录');
+						setTimeout(function() {
+							first = null;
+						}, 1000);
+					} else {
+						if (new Date().getTime() - first < 1000) {
+							plus.runtime.restart();
+						}
+					}
+				});
+			}
+			mui.plusReady(function() {
+				var gallery = mui('.mui-slider');
+				gallery.slider({
+					interval: 5000 //自动轮播周期，若为0则不自动播放，默认为0；
+				});
+				jQueryWeb("UserPower", {
+					"UI_TYPE": "平板",
+					"UserId": api_localStorageGet("code")
+				}, function(xmlHttpRequest, status) {
+					if (status == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.NewDataSet;
+						var arr = data.Table;
+						//console.log(JSON.stringify(arr))
+						//console.log(arr)
+						for (var i = 0; i < arr.length; i++) {
+							//console.log(JSON.stringify(arr[i]))
+							if (arr[i].UI_NAME == "SMT车间") {
+								if (arr[i].POWER_RUN == "Y") {
+									api_localStorageSave("power_operate_smt", arr[i].POWER_OPERATE);
+								} else {
+									byId("smt").style.display = "none";//无权限则隐藏
+								}
+							} else {
+								if (arr[i].POWER_RUN == "Y") {
+									api_localStorageSave("power_operate_zhusu", arr[i].POWER_OPERATE);
+								} else {
+									byId("zhusu").style.display = "none";//无权限则隐藏
+								}
+							}
+						}
+					} else {
+						mui.alert("获取权限连接超时");
+					}
+				});
+			})
+			mui("#list").on("tap", "a", function() {
+				var id = this.getAttribute('href');
+				var href = this.href;
+				if (id == 'login') {
+					plus.runtime.restart();
+				}
+				OpenWindow(id, href, {});
+			})
+		</script>
+	</body>
+</html>

@@ -1,0 +1,337 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<script src="../js/template-web.js"></script>
+		<script src="../js/mui.picker.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link href="../css/mui.picker.min.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<style>
+			.headlabel{
+				margin: 0.5125rem;
+				padding: 0.5125rem;
+				font-size: large;
+				font-weight: 800;
+				color: #000000;
+			}
+			.addbutton{
+				margin:0.5rem;
+				padding: 0.5rem;
+			}
+			.mui-select{padding:0px; width:60%; float:right; line-height:35px; font-size:14px;}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav  mui-bar-transparent colorBg">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title" id="title"></h1>
+			<a class="mui-pull-right"><span class="title-right" id="usr"></span></a>
+		</header>
+		<div class="mui-content">
+			<div class="mui-row">
+				<div style="display: flex;justify-content:space-between">
+					<div style="display: flex;flex-direction: row;">
+						<p class="headlabel" id="title_code"><span>线体编码:加载中。。</span></p>
+						<p class="headlabel" id="title_name"><span>线体名称:加载中。。</span></p>
+					</div>
+					<div>
+						<button type="button" id="additembt" class="addbutton mui-btn mui-btn-success mui-icon mui-icon-plusempty">新增</button>
+					</div>
+				</div>
+				<dialog id="addItemDialog" style="width: 60%;">
+					<p style="font-size: 20px;color: #000000;margin:0 auto;width:100px"><span>新增项目</span></p>
+					<br>
+					<form id="addItemDialogFrom">
+						<div class="mui-input-group">
+							<div class="mui-input-row">
+								<label>开始时间：</label>
+								<input type="text" name="begtime" class="mui-input-clear" id="selecttime" placeholder="点击选择时间">
+							</div>
+							<div class="mui-input-row">
+								<label>物料品号：</label>
+								<input name="ItemName" type="text" class="mui-input-clear" id="InputItemName">
+							</div>
+							<div class="mui-input-group">
+								<div class="mui-input-row">
+									<label>品号工序：</label>
+									<a class="mui-navigate-right">
+										<span class="mui-select">
+											<select class="mui-h5" style="margin:auto; color:#000;" id="selectItem">
+											</select>
+										</span>
+									</a>
+								</div>
+							</div>
+							<script id='option-template' type="text/template">
+								<% for(var i in record){ var item=record[i]; %> 
+							           <option value="<%=(item.ITEM_INFO)%>"><%=(item.ITEM_INFO)%></option>
+							          <%}%>
+							         </script>
+							<div class="mui-input-row">
+								<label>工序点数：</label>
+								<input name="point" type="number" class="mui-input-clear" placeholder="必为整数,且大于0" onkeyup="value=(value.replace(/\D/g,'')==''?'':parseInt(value))">
+							</div>
+						</div>
+						<div class="mui-button-row">
+							<button type="button" id="submit" class="mui-btn mui-btn-primary">确认</button>
+							<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('addItemDialog').style.display='none'">取消</button>
+						</div>
+					</form>
+				</dialog>
+				<div>
+					<table width="100%" class="table" id="tablevalue">
+						<thead>
+							<tr>
+								<th>开始时间</th>
+								<th>品号</th>
+
+								<th>工序名称</th>
+								<th>工序点数</th>
+								<th>修改人</th>
+								<th>修改时间</th>
+								<th id="operate">操作</th>
+							</tr>
+						</thead>
+						<tbody id="list">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<script id='tr-template' type="text/template">
+			<% for(var i in record){ var item=record[i];  var check = $imports.checkOperate()%>	
+			<tr>
+				<td><%=(item.开始时间)%></td>
+				<td><%=(item.品号)%></td>
+				
+				<td><%=(item.工序名称)%></td>
+				<td><%=(item.工序点数)%></td>
+				<td><%=(item.修改人)%></td>
+				<td><%=(item.修改时间)%></td>
+				{{if check}}
+				<td><button onclick="deleteRecord(this,<%=(item.ID_HIDE)%>)" class="mui-btn mui-btn-danger">删除</button></td>			
+				{{/if}}	
+			</tr>
+			<%}%>
+		</script>
+
+		<script src="js/mui.js"></script>
+		<script type="text/javascript">
+			mui.init({
+				beforeback: function() { //页面返回时触发
+					var list = plus.webview.currentWebview().opener();
+					mui.fire(list, 'refresh'); //refresh是A页面自定义事件
+					return true; //返回true,继续页面关闭逻辑
+				}
+			});
+			var userCode = "";
+			var line_code = "";
+			var line_name = "";
+			var time = ""; //从机台停机信息页面传来的开始时间
+			mui.plusReady(function() {
+				byId("usr").innerHTML = setUsrCode();
+				var param = plus.webview.currentWebview(); //获取上一页面传递过来的参数
+				line_code = param.line_code;
+				line_name = param.line_name;
+				time = param.time;
+				$('#title_code').text("线体编码：" + line_code);
+				$('#title_name').text("线体名称：" + line_name);
+				$('#title').text(line_name + " 转线");
+				getProdInfoByLineCode(line_code);
+				userCode = api_localStorageGet("code");
+				power=api_localStorageGet("power_operate_smt");
+				//power="N"
+				if(power!="Y"){
+					byId("additembt").style.display="none";
+					byId("operate").style.display="none";
+				}
+			});
+			template.defaults.imports.checkOperate = function() {
+				if (power=="Y") {
+					return true;
+				}
+				return false;
+			};
+			var btn = byId("additembt");
+			//添加按钮监听点击事件
+			btn.addEventListener("tap", function() {
+				var d2 = byId("addItemDialog");
+				//console.log(time)
+				if (time != "" || time != undefined) {
+					$('[name=begtime]').val(time); //默认开始时间
+				}
+				d2.style.display = "block";
+			}); //选择时间监听事件
+			var selecttime = byId("selecttime");
+			selecttime.addEventListener("tap", function() {
+				var dtPicker = new mui.DtPicker({
+					type: 'datetime'
+				});
+				dtPicker.show(function(e) {
+					$("#selecttime").val(e.value);
+				})
+			});
+			//下拉菜单点击加载事件
+			$("#InputItemName").blur(function() {
+				var item_name = $("#InputItemName").val();
+				getItemProdInfo(item_name)
+			});
+
+			//删除事件
+			function deleteRecord(obj, id_hide) {
+				var btnArray = ['否', '是'];
+				mui.confirm('是否删除此纪录', '提示', btnArray, function(e) {
+					if (e.index == 1) {
+						SMT_Set_PROD_WLCODE_REMOVE(id_hide, api_localStorageGet("code"), obj)
+					}
+				})
+			}
+			//添加事件
+			$('#submit').click(function() {
+				var begtime = $('[name=begtime]').val(); //开始时间
+				var ItemName = $('[name=ItemName]').val(); //品号名
+				var point = $('[name=point]').val(); //工序点数
+				var options = $("#selectItem option:selected").text();
+				if (begtime == '' || ItemName == '' || point == '' || options == '') {
+					mui.alert("请完善添加表单");
+					return false;
+				} else {
+					SMT_Set_PROD_WLCODE_ADD(line_code, begtime, ItemName, options, point, userCode)
+					//(string LINE_CODE, string 开始时间, string 物料品号, string 品号工序, int 工序点数, string userCode)
+				}
+			})
+
+			function getProdInfoByLineCode(line_code) { //获取列表数据
+				jQueryWeb("SMT_Get_ProdInfoByLineCode", {
+					"Line_Code": line_code,
+					//"Line_Code": "006",
+					"page_row": 10,
+					"page_no": 1
+				}, function(xmlHttpRequest, statu) {
+					if (statu == "success") {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.DocumentElement;
+						// data = eval('(' + data + ')'); //string->JSON格式
+						//console.log(JSON.stringify(json_obj))
+						if (data != undefined) {
+							var listData = [];
+							if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+								listData = [data.Table]
+							} else {
+								listData = data.Table
+							}
+							document.getElementById('list').innerHTML = template('tr-template', {
+								"record": listData
+							});
+						} else {
+							mui.alert("线体： " + line_name + "无数据")
+						}
+					} else {
+						mui.alert("SMT_GET_LineStopInfo 连接失败")
+					}
+				});
+			}
+
+			function SMT_Set_PROD_WLCODE_REMOVE(id_hide, userCode, table_obj) { //删除记录
+				jQueryWeb("SMT_Set_PROD_WLCODE_REMOVE", {
+					"REMOVE_ID": id_hide,
+					"userCode": userCode
+				}, function(xmlHttpRequest, statu) {
+					if (statu == "success") {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.DocumentElement;
+						//console.log(data.table01.result);
+						//console.log()
+						if (data.table01.result == "true") {
+							//通过this找到父级元素节点
+							var tr = table_obj.parentNode.parentNode;
+							// //找到表格
+							var tbody = tr.parentNode;
+							// //删除行
+							tbody.removeChild(tr);
+							// //只剩行首时删除表格
+							if (tbody.rows.length == 1) {
+								tbody.parentNode.removeChild(tbody);
+							}
+							mui.alert("删除成功")
+						} else {
+							//console.log(JSON.stringify(data.table01.result));
+							mui.alert(data.table01.msg)
+						}
+
+					} else {
+						mui.alert("删除失败")
+					}
+				});
+			}
+
+			function getItemProdInfo(Item_name) { //获取下拉菜单数据，Item_name为物料品号
+				jQueryWeb("SMT_Get_ItemProdInfo", {
+					"ITEM_NO": Item_name
+					//"ITEM_NO": "204141100001"
+				}, function(xmlHttpRequest, statu) {
+					if (statu == "success") {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						//console.log(json_obj)
+						var data = JSON.parse(json_obj);
+						//console.log(data[0].result)
+						if (data[0].result) {
+							data.shift() //删掉数组的第一个元素
+							document.getElementById('selectItem').innerHTML = template('option-template', {
+								"record": data
+							});
+						} else {
+							mui.alert(data[0].msg);
+						}
+
+					} else {
+						mui.alert("SMT_Get_ItemProdInfo 连接失败")
+					}
+				});
+			}
+
+			function SMT_Set_PROD_WLCODE_ADD(Line_no, begtime, ItemName, options, point, userCode) { //提交增加项目表单			
+				jQueryWeb("SMT_Set_PROD_WLCODE_ADD", {
+					"LINE_no": Line_no, //LINE_CODE
+					"Start_Time": begtime, //开始时间
+					"WLCODE": ItemName, //物料品号
+					"PROC_NO": options, //品号工序
+					"PROC_POINT": point, //工序点数
+					"userCode": userCode
+				}, function(xmlHttpRequest, statu) {
+					if (statu == "success") {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.DocumentElement;
+						console.log(data.table01.result)
+						if (data.table01.result == "true") {
+							mui.alert("添加成功");
+							byId("addItemDialogFrom").reset();
+							byId("addItemDialog").style.display = "none";
+							window.location.reload();
+						} else {
+							mui.alert(data.table01.msg)
+							byId("addItemDialogFrom").reset();
+							byId("addItemDialog").style.display = "none";
+						}
+						document.getElementById('selectItem').innerHTML = template('option-template', {
+							"record": []
+						});
+					} else {
+						mui.alert("添加失败")
+					}
+				})
+			}
+		</script>
+	</body>
+
+</html>

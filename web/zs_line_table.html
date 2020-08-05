@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<script src="../js/template-web.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<style>
+			.table td,
+			.table th {
+				font-size: large;
+				} 
+		</style>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav  mui-bar-transparent colorBg">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title" id="title">注塑产出信息</h1>
+			<a class="mui-pull-right"><span class="title-right" id="usr"></span></a>
+		</header>
+		<div class="mui-content">
+			<div class="mui-row">
+				<table width="100%" class="table" id="tablevalue">
+					<thead>
+						<tr>
+							<!-- <th>ID</th> -->
+							<!-- <th>线体编码</th> -->
+							<th>线体名称</th>
+							<th>时间</th>
+							<th>班次</th>
+							<th>品号</th>
+							<th>品号周期</th>
+							<th>穴数</th>
+							<th>产出模数</th>
+							<th>产出数</th>
+							<!-- <th>耗时</th> -->
+						</tr>
+					</thead>
+					<div id="tab1" class="mui-control-content mui-active">
+						<!--下拉刷新容器-->
+						<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+							<div class="mui-scroll">
+								<!--数据列表-->
+								<tbody id="list">
+								</tbody>
+							</div>
+						</div>
+					</div>
+				</table>
+			</div>
+		</div>
+		<script id='tr-template' type="text/template">
+			<% for(var i in record){ var item=record[i]; %>		
+							<tr width="100%">
+								<!-- <td><%=(item.ID)%></td> -->
+								<td><%=(item.线体名称)%></td>
+								<td><%=(item.时间)%></td>
+								<td><%=(item.班次)%></td>								
+								<td><%=(item.品号)%></td>
+								<td><%=(item.品号周期)%></td>
+								<td><%=(item.穴数)%></td>
+								<td><%=(item.产出模数)%></td>
+								<td><%=(item.产出数)%></td>						
+							</tr>				
+					<% } %>
+		</script>
+		<script type="text/javascript" charset="utf-8">
+			mui.init({
+				beforeback: function() { //页面返回时触发
+					var list = plus.webview.currentWebview().opener();
+					mui.fire(list, 'refresh'); //refresh是A页面自定义事件
+					return true; //返回true,继续页面关闭逻辑
+				},
+				pullRefresh: {
+					container: '#pullrefresh',
+					down: { //下拉刷新
+						auto: true, //可选,默认false.自动下拉刷新一次
+						contentdown: "下拉可以刷新", //可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
+						contentover: "释放立即刷新", //可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+						contentrefresh: "正在刷新...", //可选，正在刷新状态时，下拉刷新控件上显示的标题内容
+						callback: pulldownRefresh
+					},
+					up: { //上拉加载
+						//auto:true,//可选,默认false.自动上拉加载一次
+						contentrefresh: '正在加载...',
+						contentnomore: '没有更多数据了', //可选，请求完毕若没有更多数据时显示的提醒内容；
+						callback: pullupRefresh
+					}
+				}
+			});
+			mui.plusReady(function() {
+				byId("usr").innerHTML = setUsrCode();
+				getZS_ProductionInfoPAD(1, 2);
+			});
+			var count = 1;
+
+			function pulldownRefresh() {
+				count = 1; //第一页
+				type = 1; //代表下拉刷新
+				getZS_ProductionInfoPAD(count, type); //具体取数据的方法
+			}
+
+			function pullupRefresh() {
+				//setTimeout(function() {
+				count++; //翻下一页
+				type = 2; //代表上拉加载
+				getZS_ProductionInfoPAD(count, type); //具体取数据的方法
+				//}, 100);
+			}
+
+			function getZS_ProductionInfoPAD(page, type) {
+				jQueryWeb("ZS_GET_ProductionInfo_PAD", {
+					page_no: page,
+					page_row: 24
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.DocumentElement;
+						listData = [];
+						if (data != undefined) {
+							if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+								listData = [data.Table]
+							} else {
+								listData = data.Table
+							}
+						}
+						if (type == 2) { //下拉加载
+							if (data) {
+								var html = '';
+								if (page != 1) {
+									html = document.getElementById("list").innerHTML;
+								}
+								document.getElementById('list').innerHTML = html + template('tr-template', {
+									"record": data.Table
+								});
+
+							}
+							mui('#pullrefresh').pullRefresh().endPulldownToRefresh(); //结束下拉刷新
+							//结束上拉加载，并根据情况切换“下拉显示更多数据”，以及“没有更多数据了”。执行endPullupToRefresh()方法，结束转雪花进度条的“正在加载...”过程,若还有更多数据，则传入false; 否则传入true，之后滚动条滚动到底时
+							if (data) {
+								mui('#pullrefresh').pullRefresh().endPullupToRefresh(false);
+							} else {
+								mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+							}
+						}
+						if (type == 1) { //上拉刷新
+							/*下面这句很关键！*/
+							mui('#pullrefresh').pullRefresh().refresh(true); //有重新触发上拉加载的需求（比如当前类别已无更多数据，但切换到另外一个类别后，应支持继续上拉加载）
+							//vm.companylist = data.company_list;
+							//plus.nativeUI.closeWaiting();//数据渲染完毕，关闭加载框
+							mui.currentWebview.show(); //显示当前页面
+							var html = '';
+							//console.log(page != 1)
+							if (page != 1) {
+								html = document.getElementById("list").innerHTML;
+							}
+							document.getElementById('list').innerHTML = html + template('tr-template', {
+								"record": data.Table
+							});
+						}
+					} else {
+						mui.alert("ZS_GET_ProductionInfo_PAD 连接失败");
+					}
+				});
+			}
+		</script>
+	</body>
+
+</html>
