@@ -239,10 +239,5 @@
             "resources" : [ "js/mui.js", "css/mui.css" ]
         }
     },
-    "screenOrientation" : [
-        "portrait-primary",
-        "portrait-secondary",
-        "landscape-primary",
-        "landscape-secondary"
-    ]
+    "screenOrientation" : [ "portrait-primary", "portrait-secondary" ]
 }

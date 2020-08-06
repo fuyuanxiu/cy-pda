@@ -49,13 +49,14 @@
  
 		<script type="text/javascript">
 			scan = null; //扫描对象
-			var urlId = '';
+			var urlId = '';var inputId="";
 			var ws=null,wo=null;
     var scan=null,domready=false;
 			mui.plusReady(function() {
 				mui.init();
 				//urlId = plus.webview.currentWebview().urlId;
-				
+				inputId = plus.webview.currentWebview().inputId;
+				//console.log(inputId)
 				startRecognize();
 			});
  
@@ -98,7 +99,7 @@
 			};
  
 			function onmarked(type, result) {
-				console.log('12357')
+
 				var text = '';
 				switch (type) {
 					case plus.barcode.QR:
@@ -123,7 +124,8 @@
 				mui.back(); */
 				var view = plus.webview.currentWebview().opener();
 				mui.fire(view,'changeBar',{
-					barcode:result
+					barcode:result,
+					inputId:inputId
 				});
 				mui.back()
 				}
