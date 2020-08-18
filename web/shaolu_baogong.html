@@ -16,7 +16,7 @@
 	<body>
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-			<h1 class="mui-title">丝印报工</h1>
+			<h1 class="mui-title">烧录报工</h1>
 		</header>
 		<div class="mui-content" id="divid">
 			<form class="mui-input-group" id="formId">
@@ -53,21 +53,22 @@
 					<input id="qty" placeholder="数量" type="text" class="mui-input-clear"   style="width: 30%;">
 				</div>
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','order','web/zhusu_baogong.html');">工单</label>
-				    <input id="order" placeholder="请扫描" type="text" class="mui-input-clear">
-				</div>
-				<div class="mui-input-row">
 					<label>是否尾数</label>
 					<div class="mui-switch" id="weishu_switch">
 					  <div class="mui-switch-handle"></div>
 					</div>
 				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','order','web/zhusu_baogong.html');">工单</label>
+				    <input id="order" placeholder="请扫描" type="text" class="mui-input-clear">
+				</div>
+				
 				<div class="mui-input-row ">
-					<label >丝印工序</label>
+					<label >烧录工序</label>
 					<a class="mui-navigate-right">
 						<span class="mui-badge1">
 							<select class="mui-h5" style="margin:auto; color:#000;" id="selectId" >
-								<option value="">请点击选择丝印工序</option>
+								<option value="">请点击选择烧录工序</option>
 								<option value="1">津</option> 
 								<option value="2">津2</option> 
 							</select>
@@ -84,34 +85,7 @@
 				    <input id="lingban" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
 					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
 				</div>
-				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','siyin_pl','web/zhusu_baogong.html');">丝印员工号</label>
-				    <input id="siyin_pl" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
-					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
-				</div>
-				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','iqc_pl','web/zhusu_baogong.html');">质检员工号</label>
-				    <input id="iqc_pl" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
-					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
-				</div>
 
-				<div class="mui-input-row mui-hidden" id="silk_row1">
-					<label >丝印工序</label>
-					<a class="mui-navigate-right">
-						<span class="mui-badge1">
-							<select class="mui-h5" style="margin:auto; color:#000;" id="selectId" >
-								<option value="">请点击选择丝印工序</option>
-								<option value="1">津</option> 
-								<option value="2">津2</option> 
-							</select>
-						</span>
-					</a>
-				</div>
-				<div class="mui-input-row mui-hidden" id="silk_row2">
-					<label>丝印工号</label>
-				    <input  placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
-					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
-				</div>
 				<div class="mui-input-row">
 					<label>总数量</label>
 				    <input  placeholder="请输入总数量" type="text" class="mui-input-clear">

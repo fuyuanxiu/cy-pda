@@ -9,58 +9,8 @@
 		<script src="../js/template-web.js"></script>
 		<link href="../css/mui.min.css" rel="stylesheet" />
 		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
 		<style type="text/css">
-			body {}
-			.mui-content {
-				margin-top: 2px;
-			}
-
-			.mui-btn {
-				width: 80px;
-			}
-
-			/** 自定义文字*/
-			.mui-switch {
-				width: 7.5rem;
-			}
-			.mui-switch.mui-active .mui-switch-handle {
-				transform: translate(88px, 0px);
-			}
-			.mui-switch:before {
-				content: '否';
-				color: #999;
-			}
-
-			.mui-switch.mui-active:before {
-				content: '是';
-				color: #fff;
-			}
-			 .radio_inline{  
-					display: inline-block;  
-					width: 60%;  
-				}  
-				.radio_inline label{  
-					width: 49%;  
-					padding-left: 1.875rem;  
-					padding-right: 20px;  
-				}  
-				.radio_inline input[type=radio]{  
-					width: 15%;               
-					right: auto;  
-				} 
-				.mui-badge1 {
-					padding: 0px;
-					width: 65%;
-					float: right;
-					line-height: 42px;
-					font-size: 14px;
-				}
-				.mui-btn{
-					width: 100%;
-				}
-				.mui-input-row .mui-icon{
-					color:#79CDCD;
-				}
 		</style>
 	</head>
 	<body>
@@ -71,7 +21,7 @@
 		<div class="mui-content" id="divid">
 			<form class="mui-input-group" id="formId">
 				<div class="mui-input-row">  
-					<label><span class="mui-icon iconfont icon-banci1"  ></span>班次</label>  
+					<label>班次</label>  
 					<span class="radio_inline mui-radio">  
 						<input name="radio1" type="radio" id="A" checked value="A">  
 						<label for="A">A</label>  
@@ -80,7 +30,7 @@
 					</span>               
 				</div>
 				<div class="mui-input-row ">
-					<label><span class="mui-icon iconfont icon-wangong" ></span>完工类型</label>  
+					<label>完工类型</label>  
 					<span class="radio_inline mui-radio">  
 						<input name="radio2"  type="radio" id="process_radio" checked value="工序完工">  
 						<label for="process_radio">工序完工</label>  
@@ -89,7 +39,7 @@
 					</span>               
 				</div>
 				<div class="mui-input-row " id="print_row">
-					<label><span class="mui-icon iconfont icon-dayin" ></span>打印类型</label>  
+					<label>打印类型</label>  
 					<span class="radio_inline mui-radio">  
 						<input name="radio3"  type="radio" id="normal_radio" checked value="正常标">  
 						<label for="normal_radio">正常标</label>  
@@ -98,43 +48,38 @@
 					</span>               
 				</div>
 				<div class="mui-input-row" id="jiaojie_row">
-					<label onclick="clicked('commom/saomiao.html','handover','web/zhusu_baogong.html');"><span class="mui-icon iconfont icon-saomiao" ></span>交接标</label>
+					<label onclick="clicked('commom/saomiao.html','handover','web/zhusu_baogong.html');">交接标</label>
 				    <input id="handover" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
 					<input id="qty" placeholder="数量" type="text" class="mui-input-clear"   style="width: 30%;">
 				</div>
 				<div class="mui-input-row">
-					<label><span class="mui-icon iconfont icon-saomiao" ></span>工单</label>
-				    <input  placeholder="请扫描" type="text" class="mui-input-clear">
+					<label>是否尾数</label>
+					<div class="mui-switch" id="weishu_switch">
+					  <div class="mui-switch-handle"></div>
+					</div>
 				</div>
 				<div class="mui-input-row">
-					<label><span class="mui-icon iconfont icon-saomiao" ></span>机台编码</label>
-				    <input  placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
+					<label  onclick="clicked('commom/saomiao.html','order','web/zhusu_baogong.html');">工单</label>
+				    <input id="order" placeholder="请扫描" type="text" class="mui-input-clear">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','machine','web/zhusu_baogong.html');">机台编码</label>
+				    <input id="machine"  placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
 					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
 				</div>
 				<div class="mui-input-row">
-					<label><span class="mui-icon iconfont icon-saomiao" ></span>领班工号</label>
-				    <input  placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
+					<label onclick="clicked('commom/saomiao.html','lingban','web/zhusu_baogong.html');">领班工号</label>
+				    <input id="lingban" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
 					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
 				</div>
-				<!-- <div class="mui-input-row mui-checkbox mui-left">
-				  <label>是否丝印</label>
-				  <input name="checkbox1" value="Item 1" type="checkbox">
-				</div> -->
 				<div class="mui-input-row">
 					<label>是否丝印</label>
 					<div class="mui-switch" id="silk_switch">
 					  <div class="mui-switch-handle"></div>
 					</div>
 				</div>
-				 <!-- <div class="mui-input-row ">
-					<label><span class="mui-icon iconfont icon-siyinUVbaogong" ></span>是否丝印</label>  
-					<span class="radio_inline mui-checkbox">  
-						<input name="radio4"  type="checkbox" id="silk_checkbox"  value="1">  
-						<label for="silk_checkbox"></label>        
-					</span>               
-				</div> -->
 				<div class="mui-input-row mui-hidden" id="silk_row1">
-					<label ><span class="mui-icon iconfont icon-gongxu" ></span>丝印工序</label>
+					<label >丝印工序</label>
 					<a class="mui-navigate-right">
 						<span class="mui-badge1">
 							<select class="mui-h5" style="margin:auto; color:#000;" id="selectId" >
@@ -146,12 +91,12 @@
 					</a>
 				</div>
 				<div class="mui-input-row mui-hidden" id="silk_row2">
-					<label><span class="mui-icon iconfont icon-saomiao" ></span>丝印工号</label>
-				    <input  placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
+					<label onclick="clicked('commom/saomiao.html','siyin_pl','web/zhusu_baogong.html');">丝印工号</label>
+				    <input id="siyin_pl" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
 					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
 				</div>
 				<div class="mui-input-row">
-					<label><span class="mui-icon iconfont icon-shuliang" ></span>总数量</label>
+					<label>总数量</label>
 				    <input  placeholder="请输入总数量" type="text" class="mui-input-clear">
 				</div>
 			</form>
