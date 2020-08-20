@@ -29,28 +29,39 @@
 						<label for="B">B</label>        
 					</span>               
 				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','line_code','web/zhusu_baogong.html');">线体编码</label>
+				    <input id="line_code" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
+					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
+				</div>
 				<div class="mui-input-row ">
 					<label>完工类型</label>  
-					<span class="radio_inline mui-radio">  
-						<input name="radio2"  type="radio" id="process_radio" checked value="工序完工">  
-						<label for="process_radio">工序完工</label>  
-						<input name="radio2" type="radio" id="order_radio" value="工单完工">         
-						<label  for="order_radio">工单完工</label>        
-					</span>               
+					<a class="mui-navigate-right">
+						<span class="mui-badge1">
+							<select class="mui-h5" style="margin:auto; color:#000;" id="selectProces">
+								<option value="">请选择</option>
+								<option value="工序完工">工序完工</option>
+								<option value="工单完工">工单完工</option>
+							</select>
+						</span>
+					</a>              
 				</div>
 				<div class="mui-input-row " id="print_row">
 					<label>打印类型</label>  
-					<span class="radio_inline mui-radio">  
-						<input name="radio3"  type="radio" id="normal_radio" checked value="正常标">  
-						<label for="normal_radio">正常标</label>  
-						<input name="radio3" type="radio" id="handover_radio" value="交接标">         
-						<label  for="handover_radio">交接标</label>        
-					</span>               
+					<a class="mui-navigate-right">
+						<span class="mui-badge1">
+							<select class="mui-h5" style="margin:auto; color:#000;" id="selectType">
+								<option value="">请选择</option>
+								<option value="正常标">正常标</option>
+								<option value="交接标">交接标</option>
+							</select>
+						</span>
+					</a>              
 				</div>
-				<div class="mui-input-row" id="jiaojie_row">
+				<div class="mui-input-row mui-hidden" id="jiaojie_row">
 					<label onclick="clicked('commom/saomiao.html','handover','web/zhusu_baogong.html');">交接标</label>
 				    <input id="handover" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
-					<input id="qty" placeholder="数量" type="text" class="mui-input-clear"   style="width: 30%;">
+					<input id="qty" placeholder="数量" type="text" class="mui-input-clear" disabled  style="width: 30%;">
 				</div>
 				<div class="mui-input-row">
 					<label onclick="clicked('commom/saomiao.html','order','web/zhusu_baogong.html');">工单</label>
@@ -73,11 +84,6 @@
 							</select>
 						</span>
 					</a>
-				</div>
-				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','line_code','web/zhusu_baogong.html');">线体编码</label>
-				    <input id="line_code" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
-					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
 				</div>
 				<div class="mui-input-row">
 					<label onclick="clicked('commom/saomiao.html','lingban','web/zhusu_baogong.html');">领班工号</label>
@@ -138,7 +144,7 @@
 				/* document.querySelector('.mui-table-view .mui-table-view-radio').addEventListener('selected',function(e){
 				     console.log("当前选中的文本值为："+e.detail.el.innerText);
 				}); */
-				mui('#print_row').on('change', 'input', function() {  
+				mui('#print_row').on('change', 'select', function() {  
 					if(this.value == '正常标'){
 						document.getElementById('jiaojie_row').classList.remove('mui-hidden');
 					}else{
