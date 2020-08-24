@@ -102,8 +102,8 @@
 				</div>
 			</form>
 			<div class="mui-content-padded" align="center">
-				<button type="button" class="mui-btn mui-btn-green">打印</button>
-				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-warning">重新打印</button>
+				<button type="button" class="mui-btn mui-btn-green" id="print">打印</button>
+				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-warning" id="reprint">重新打印</button>
 			</div>
 		</div>
 
@@ -214,7 +214,7 @@
 									getLingBan(lingban);
 								}
 							}
-							console.log(json_obj)
+							//console.log(json_obj)
 						} else {
 							alert("连接PDA_SMT_GET_INFO_BY_MO_0失败")
 						}
@@ -245,7 +245,7 @@
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
 						var data = JSON.parse(json_obj)
 						$('#points').val(data[0].VALUE);
-						console.log(json_obj)
+						//console.log(json_obj)
 					}
 				})
 			}
@@ -262,12 +262,84 @@
 				})
 			}
 
-			function clicked(url, f1, urlId) {
+			function clicked(url, f1, urlId) { //扫描触发
 				OpenWindow(f1, url, {
 					urlId: urlId,
 					inputId: f1
 				});
 			};
+			$("#print").click(function() {
+				var weishu = "";
+				var isActive = byId("weishu_switch").classList.contains("mui-active");
+				if (isActive) {
+					weishu = "1"
+				} else {
+					weishu = "0"
+				}
+
+				jQueryWeb("PDA_CHECK_CLASSTYPE",{
+					"ClassType":$("input[name='radio1']:checked").val()
+				},function(xmlHttpRequest, statu){
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = JSON.stringify(json_obj)
+						if(data.substring(0,1)!="{"){
+							//console.log("no null")
+							var btnArray = ['否', '是'];
+							mui.confirm(data, '提示', btnArray, function(e) {
+								if (e.index == 1) {
+									printInfo(weishu)
+								}
+							})
+						}else{
+							printInfo(weishu)
+							//console.log(" null")
+						}
+					}
+				});
+			})
+
+			function printInfo(weishu) {				
+				jQueryWeb("PDA_SMT_PRINT_01", {
+					"inClassType": $("input[name='radio1']:checked").val(), //班次
+					"inWGtype": $("#selectProces").val(), //完工类型
+					"inPrintType": $("#selectType").val(), //打印类型
+					"inJJbarCode": $("#handover").val(), //交接标
+					"inISws": weishu, //是否尾数
+					"inMo": $("#order").val(), //工单
+					"inProcCode": $("#selectId").val(), //贴片工序
+					"inProcPoint": $("#points").val(), //工序点数
+					"inLineCode": $("#line_code").val(), //线体编码
+					"inLbCode": $("#lingban").val(), //领班工号
+					"inQTY": $("#total").val(), //总数量
+					"inUser": api_localStorageGet("code") //用户账号
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = JSON.parse(json_obj)
+						if(data[0].VALUE=="true"){
+							console.log(json_obj)
+							/*[{"ITEM":"result","VALUE":"true"},{"ITEM":"msg","VALUE":"OK"},
+							{"ITEM":"条码","VALUE":"MES20200821-00003"},{"ITEM":"完工类型","VALUE":"工序完工"},
+							{"ITEM":"标签类型","VALUE":"交接标"},{"ITEM":"箱类型","VALUE":"交接"},
+							{"ITEM":"报工类型","VALUE":"SMT"},{"ITEM":"班次","VALUE":"A"},
+							{"ITEM":"工作中心编码","VALUE":"003"},{"ITEM":"工作中心名称","VALUE":"SMT车间"},
+							{"ITEM":"线体编码","VALUE":"006"},{"ITEM":"线体名称","VALUE":"S1"},
+							{"ITEM":"工单","VALUE":"5103-202007200008"},{"ITEM":"品号","VALUE":"204411800005"},
+							{"ITEM":"品名","VALUE":"SMT SRC-4118"},{"ITEM":"品号规格","VALUE":"S4118A3537"},
+							{"ITEM":"工序编码","VALUE":"132"},{"ITEM":"工序名称","VALUE":"SMT A面"},
+							{"ITEM":"质检状态","VALUE":"PASS"},{"ITEM":"数量","VALUE":"1"},{"ITEM":"是否有效","VALUE":"Y"},
+							{"ITEM":"状态码","VALUE":"0"},{"ITEM":"状态","VALUE":"刚生成"},{"ITEM":"ERP批号","VALUE":""},
+							{"ITEM":"是否尾数","VALUE":"N"},{"ITEM":"参与交接箱标","VALUE":""}]*/
+						}else{
+							mui.alert(data[1].VALUE);
+						}
+					}
+				})
+			}
+			function toPrint(){//执行蓝牙打印
+				
+			}
 		</script>
 	</body>
 </html>
