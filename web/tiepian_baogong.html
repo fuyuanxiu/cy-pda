@@ -10,10 +10,28 @@
 		<script src="../js/jquery-1.11.1.js"></script>
 		<script src="../js/jquery.xml2json.js.js"></script>
 		<script src="../js/template-web.js"></script>
+		<script src="../js/mui.picker.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="../css/mui.picker.min.css" />
 		<link href="../css/mui.min.css" rel="stylesheet" />
 		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
 		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
 		<style type="text/css">
+			.select-dialog {
+				position: fixed;
+				margin-top: 1.25rem;
+				z-index: 999;
+			}
+
+			.result-dialog {
+				position: fixed;
+				margin-top: 0.85rem;
+				z-index: 999;
+			}
+
+			.dialog-label {
+				font-size: 16px;
+			}
 		</style>
 	</head>
 	<body>
@@ -21,6 +39,94 @@
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
 			<h1 class="mui-title">贴片报工</h1>
 		</header>
+		<dialog id="selectDialog" class="select-dialog" style="width: 90%;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询记录</span></p>
+			<br>
+			<form id="selectDateFrom">
+				<div class="mui-input-group">
+					<div class="mui-input-row">
+						<label class="dialog-label">时间：</label>
+						<input type="text" name="se_time" class="mui-input-clear" id="selecttime" placeholder="点击选择时间">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">工单：</label>
+						<input name="se_order" type="text" class="mui-input-clear" id="selet_order">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">条码：</label>
+						<input name="se_code" type="text" class="mui-input-clear" id="select_code">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">账号：</label>
+						<input name="se_usr" type="text" class="mui-input-clear" id="select_usr">
+					</div>
+				</div>
+				<div class="mui-button-row">
+					<button type="button" id="search_record" style="width: 45%;float: left;" class="mui-btn mui-btn-primary">确认</button>
+					<button type="reset" class="mui-btn mui-btn-danger" style="width: 45%;" onclick="closeSelectDialog()">取消</button>
+				</div>
+			</form>
+		</dialog>
+		<dialog id="resultDialog" class="result-dialog" style="width: 99%;height: 500px; overflow:auto;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询结果</span></p>
+			<br>
+			<div id="list">
+
+			</div>
+			<script id='template' type="text/template">
+				<% for(var i in record){ var item=record[i];%>
+				<div class="mui-card">
+				<div class="mui-card-header">
+				条码:<%=(item.条码)%> 
+				</div>
+				<div class="mui-card-content">
+					<ul class="mui-table-view">
+						<li class="mui-table-view-cell mui-media">
+							<a href="javascript:;">
+								<span class="mui-media-object mui-pull-left mui-icon iconfont" style="color: #ADD8E6;font-size:1.875rem"></span>
+								<div class="mui-media-body">
+									<span>工单： <%=(item.工单)%></span><br>
+									<span>时间： <%=(item.时间)%></span><br>
+									<span>线体： <%=(item.线体)%></span><br>
+									<span>箱类： <%=(item.箱类)%></span><br>
+									<span>操作人： <%=(item.操作人)%></span>
+								</div>
+							</a>
+						</li>
+					</ul>
+					<div class="mui-card-footer">
+						<span></span>
+						<span><button onclick="reprintRecord('<%=(item)%>')" class="mui-btn-green">重新打印</button></span>
+					</div>
+				</div>
+				</div>
+				<%}%>
+			</script>
+			<div class="mui-button-row">
+				<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('resultDialog').style.display = 'none';">关闭</button>
+			</div>
+		</dialog>
+		<dialog id="processDialog" class="result-dialog" style="width: 80%;height: 500px; overflow:auto;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>工序查看</span></p>
+			<br>
+			<div class="mui-card">
+				<div class="mui-card-content">
+					<ul class="mui-table-view" id="pro_list">
+						<script id='pr-template' type="text/template">
+							<% for(var i in record){ var item=record[i];%>
+						<li class="mui-table-view-cell mui-media">
+							// 加入工序记录
+						</li>
+						<%}%>
+						</script>
+					</ul>
+				</div>
+			</div>
+
+			<div class="mui-button-row">
+				<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('processDialog').style.display = 'none';">关闭</button>
+			</div>
+		</dialog>
 		<div class="mui-content" id="divid">
 			<form class="mui-input-group" id="formId">
 				<div class="mui-input-row">
@@ -33,9 +139,15 @@
 					</span>
 				</div>
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','line_code','web/zhusu_baogong.html');">线体编码</label>
+					<label onclick="clicked('commom/saomiao.html','line_code','web/tiepian_baogong.html');">线体编码</label>
 					<input id="line_code" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 35%;float: left;">
 					<input disabled type="text" class="mui-input-clear" style="width: 30%;background-color: #F5F5F5;">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','order','web/tiepian_baogong.html');">工单</label>
+					<input id="order" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 52%;float: left;">
+					<!-- <input type="button" style="width:10%; height: inherit;color: #FFFFFF;background-color: #0e82f5;text-align: center;" value="..."> -->
+					<button id="order_detail" style="width:12%; height: inherit;" class="mui-btn-primary">...</button>
 				</div>
 				<div class="mui-input-row ">
 					<label>完工类型</label>
@@ -62,7 +174,7 @@
 					</a>
 				</div>
 				<div class="mui-input-row mui-hidden" id="jiaojie_row">
-					<label onclick="clicked('commom/saomiao.html','handover','web/zhusu_baogong.html');">交接标</label>
+					<label onclick="clicked('commom/saomiao.html','handover','web/tiepian_baogong.html');">交接标</label>
 					<input id="handover" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 35%;float: left;">
 					<input id="qty" placeholder="数量" type="text" class="mui-input-clear" disabled style="width: 30%;">
 				</div>
@@ -72,10 +184,7 @@
 						<div class="mui-switch-handle"></div>
 					</div>
 				</div>
-				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','order','web/zhusu_baogong.html');">工单</label>
-					<input id="order" placeholder="请扫描" type="text" class="mui-input-clear">
-				</div>
+
 				<div class="mui-input-row ">
 					<label>贴片工序</label>
 					<a class="mui-navigate-right">
@@ -91,7 +200,7 @@
 				</div>
 
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','lingban','web/zhusu_baogong.html');">领班工号</label>
+					<label onclick="clicked('commom/saomiao.html','lingban','web/tiepian_baogong.html');">领班工号</label>
 					<input id="lingban" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 35%;float: left;">
 					<input disabled type="text" class="mui-input-clear" style="width: 30%;background-color: #F5F5F5;">
 				</div>
@@ -100,10 +209,16 @@
 					<label>总数量</label>
 					<input id="total" placeholder="请输入总数量" type="text" class="mui-input-clear">
 				</div>
+				<div class="mui-input-row">
+					<label>生成条码</label>
+					<input id="bar_code" style="color: #959595;" disabled type="text" class="mui-input-clear">
+				</div>
 			</form>
+
 			<div class="mui-content-padded" align="center">
-				<button type="button" class="mui-btn mui-btn-green" id="print">打印</button>
+				<button type="button" class="mui-btn mui-btn-green" data-loading-icon="mui-spinner mui-spinner-custom" id="print">打印</button>
 				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-warning" id="reprint">重新打印</button>
+				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-primary" id="his_record">历史记录</button>
 			</div>
 		</div>
 
@@ -123,6 +238,62 @@
 						document.getElementById('jiaojie_row').classList.add('mui-hidden');
 					}
 				});
+				//初始化打印
+				try {
+					var main = plus.android.runtimeMainActivity();
+					var BluetoothAdapter = plus.android.importClass("android.bluetooth.BluetoothAdapter");
+					var UUID = plus.android.importClass("java.util.UUID");
+
+					uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+					var BAdapter = BluetoothAdapter.getDefaultAdapter();
+					BAdapter.cancelDiscovery(); //停止扫描  
+
+					// var addres_mac = plus.storage.getItem("DC:1D:30:3F:D2:50");//传入打印机mac地址  
+					var address_mac = api_localStorageGet("printMac") ? api_localStorageGet("printMac") : "00:00:05:D7:49:50";
+					device = BAdapter.getRemoteDevice(address_mac);
+					plus.android.importClass(device);
+
+					bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+					plus.android.importClass(bluetoothSocket);
+				} catch (err) {
+					// alert(err);
+					console.log(err);
+					plus.ui.toast("蓝牙连接异常！");
+				}
+				mask = mui.createMask(function() { //遮罩层callback事件
+					if (byId("selectDialog").style.display == "none") {
+						return true; //如果没有弹出框，关闭遮罩层
+					}
+					return false; //返回true,点击关闭mask
+				}); /*创建蒙版，保存到mask中*/
+			});
+			//遮罩层
+			function showMask() { /*绑定处理事件*/
+				top_value = $(document).scrollTop() //document.documentElement.scrollTop
+				document.body.style.overflow = "hidden"
+				document.body.style.width = "100%"
+				document.body.style.height = "100%"
+				document.body.style.position = "fixed"
+				mask.show(); /*调用展示遮罩*/
+			}
+
+			function closeMask() { /*绑定处理事件*/
+				document.body.style.overflow = "scroll"
+				document.body.style.width = "100%"
+				document.body.style.height = "100%"
+				document.body.style.position = "relative"
+				window.scrollTo(0, top_value); //回到原位置
+				mask.close(); /*调用展示属性*/
+			}
+			//选择时间监听事件
+			var selecttime = byId("selecttime");
+			selecttime.addEventListener("tap", function() {
+				var dtPicker = new mui.DtPicker({
+					type: 'date'
+				});
+				dtPicker.show(function(e) {
+					$("#selecttime").val(e.value);
+				})
 			});
 			$('input[type=radio][name=radio1]').change(function() { //切换班次时，重置数据
 				$("#selectProces").val("");
@@ -212,6 +383,9 @@
 									var lingban = data[i].VALUE;
 									lingban = lingban.substring(0, lingban.indexOf(";"));
 									getLingBan(lingban);
+								} else if (data[i].ITEM == "完工类型") {
+									var proces = data[i].VALUE;
+									$("#selectProces").val(proces);
 								}
 							}
 							//console.log(json_obj)
@@ -221,6 +395,34 @@
 					})
 				}
 			});
+
+			$("#order_detail").click(function() { //查看工单工序
+				var order_data = $('#order').val();
+				jQueryWeb("GetMoProcInfo", {
+					"Mo": order_data,
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.NewDataSet;
+						//console.log(JSON.stringify(data))
+						if (data != undefined) {
+							var listData = [];
+							if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+								listData = [data.Table]
+							} else {
+								listData = data.Table
+							}
+							document.getElementById('pro_list').innerHTML = template('pr_template', {
+								"record": listData
+							});
+							byId("procesDialog").style.display = "block"
+						} else {
+							mui.alert("无记录")
+						}
+					}
+				})
+			})
+
 			$("#selectId").change(function() { //Select添加事件，当选择其中一项时触发
 				var checkValue = $("#selectId").val(); //获取Select选择的Value
 				$('#points').val("");
@@ -268,7 +470,23 @@
 					inputId: f1
 				});
 			};
-			$("#print").click(function() {
+			window.addEventListener("changeBar", function(e) { //扫描监听事件
+				var inputId = e.detail.inputId
+				document.getElementById(inputId).value = (e.detail.barcode)
+			});
+			$("#print").click(function() { //打印点击事件
+				mui('#print').button('loading');
+				if ($("#line_code").val() == "" || $("#selectProces").val() == "" ||
+					$("#selectType").val() == "" || $("#order").val() == "" || $("#selectId").val() == "" ||
+					$("#points").val() == "" || $("#lingban").val() == "") {
+					mui("#print").button('reset');
+					mui.alert("请完善数据！")
+				} else {
+					checkClassType();
+				}
+			})
+
+			function checkClassType() { //班次验证
 				var weishu = "";
 				var isActive = byId("weishu_switch").classList.contains("mui-active");
 				if (isActive) {
@@ -276,14 +494,13 @@
 				} else {
 					weishu = "0"
 				}
-
-				jQueryWeb("PDA_CHECK_CLASSTYPE",{
-					"ClassType":$("input[name='radio1']:checked").val()
-				},function(xmlHttpRequest, statu){
+				jQueryWeb("PDA_CHECK_CLASSTYPE", {
+					"ClassType": $("input[name='radio1']:checked").val()
+				}, function(xmlHttpRequest, statu) {
 					if (statu == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
 						var data = JSON.stringify(json_obj)
-						if(data.substring(0,1)!="{"){
+						if (data.substring(0, 1) != "{") {
 							//console.log("no null")
 							var btnArray = ['否', '是'];
 							mui.confirm(data, '提示', btnArray, function(e) {
@@ -291,15 +508,136 @@
 									printInfo(weishu)
 								}
 							})
-						}else{
+						} else {
 							printInfo(weishu)
 							//console.log(" null")
 						}
 					}
 				});
-			})
+			}
 
-			function printInfo(weishu) {				
+			$("#his_record").click(function() { //历史记录查询
+				showMask();
+				$("#select_usr").val(api_localStorageGet("code"))
+				byId("selectDialog").style.display = "block";
+			});
+
+			function closeSelectDialog() { //关闭查询弹窗
+				document.getElementById('selectDialog').style.display = 'none';
+				closeMask();
+			}
+			$("#search_record").click(function() { //历史记录查询
+				var se_time = $('[name=se_time]').val(); //时间
+				var se_order = $('[name=se_order]').val(); //工单
+				var se_code = $('[name=se_code]').val(); //条码
+				var se_usr = $('[name=se_usr]').val(); //用户
+				jQueryWeb("PDA_GET_BG_HISTORY", {
+					"inType": "SMT",
+					"inDate": se_time,
+					"inMo": se_order,
+					"inBarcode": se_code,
+					"inUserCode": se_usr //api_localStorageGet("code")
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.NewDataSet;
+						//console.log(JSON.stringify(data))
+						if (data != undefined) {
+							var listData = [];
+							if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+								listData = [data.Table]
+							} else {
+								listData = data.Table
+							}
+							document.getElementById('list').innerHTML = template('template', {
+								"record": listData
+							});
+							byId("resultDialog").style.display = "block"
+						} else {
+							mui.alert("无历史记录")
+						}
+					} else {
+						mui.alert("PDA_GET_BG_HISTORY 连接失败")
+					}
+				})
+			});
+			//重新打印查询记录
+			function reprintRecord(item) {
+				item = [item];
+				var data = JSON.parse(item)
+				var param = data.条码;
+				getReprintData(param);
+				byId("resultDialog").style.display = "none"; //关闭查询结果弹窗
+				document.getElementById('list').innerHTML = template('template', {
+					"record": [] //清空记录
+				});
+			}
+			$("#reprint").click(function() { //重新打印
+				if ($("#bar_code").val() == "") {
+					mui.alert("无打印记录");
+					return false;
+				}
+				var param = $("#bar_code").val();
+				mui.confirm("重新打印标签" + param, '提示', btnArray, function(e) {
+					if (e.index == 1) {
+						getReprintData(param);
+					}
+				})
+			})
+			//重新获取标签信息
+			function getReprintData(barcode_data) {
+				jQueryWeb("PDA_GET_PRINT_INFO_BY_BARCODE", {
+					"BARCODE": barcode_data,
+					"JsonContext": ""
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						if (json_obj == "获取条码失败(查找不到条码)") {
+							mui.alert(json_obj);
+						} else {
+							var data_list = JSON.parse(json_obj)
+							sortData(data_list);
+						}
+					}
+				})
+			}
+			//处理返回的标签数据并打印
+			function sortData(data_list) {
+				var print_list = [];
+				var data = {};
+				for (var i = 0; i < data_list.length; i++) {
+					if (data_list[i].ITEM == "标签类型") {
+						data["label"] = data_list[i].VALUE; //标签
+					} else if (data_list[i].ITEM == "数量") {
+						data["amount"] = data_list[i].VALUE; //数量
+					} else if (data_list[i].ITEM == "完工类型") {
+						data["type_of_com"] = data_list[i].VALUE; //完工类型
+					} else if (data_list[i].ITEM == "箱类型") {
+						data["type_of_box"] = data_list[i].VALUE; //箱类型
+					} else if (data_list[i].ITEM == "品名") {
+						data["name"] = data_list[i].VALUE; //品名
+					} else if (data_list[i].ITEM == "品号规格") {
+						data["format"] = data_list[i].VALUE; //规格
+					} else if (data_list[i].ITEM == "品号") {
+						data["num"] = data_list[i].VALUE; //品号
+					} else if (data_list[i].ITEM == "工单") {
+						data["order"] = data_list[i].VALUE; //工单
+					} else if (data_list[i].ITEM == "工序名称") {
+						data["proces"] = data_list[i].VALUE; //工序名
+					} else if (data_list[i].ITEM == "线体名称") {
+						data["line"] = data_list[i].VALUE; //线体
+					} else if (data_list[i].ITEM == "班次") {
+						data["class_code"] = data_list[i].VALUE; //班次
+					} else if (data_list[i].ITEM == "条码") {
+						data["barcode"] = data_list[i].VALUE; //二维码
+						$("#bar_code").val(data_list[i].VALUE);
+					}
+				}
+				print_list.push(data);
+				toPrint(print_list);
+			}
+			//获取打印数据
+			function printInfo(weishu) {
 				jQueryWeb("PDA_SMT_PRINT_01", {
 					"inClassType": $("input[name='radio1']:checked").val(), //班次
 					"inWGtype": $("#selectProces").val(), //完工类型
@@ -316,29 +654,127 @@
 				}, function(xmlHttpRequest, statu) {
 					if (statu == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
-						var data = JSON.parse(json_obj)
-						if(data[0].VALUE=="true"){
-							console.log(json_obj)
-							/*[{"ITEM":"result","VALUE":"true"},{"ITEM":"msg","VALUE":"OK"},
-							{"ITEM":"条码","VALUE":"MES20200821-00003"},{"ITEM":"完工类型","VALUE":"工序完工"},
-							{"ITEM":"标签类型","VALUE":"交接标"},{"ITEM":"箱类型","VALUE":"交接"},
-							{"ITEM":"报工类型","VALUE":"SMT"},{"ITEM":"班次","VALUE":"A"},
-							{"ITEM":"工作中心编码","VALUE":"003"},{"ITEM":"工作中心名称","VALUE":"SMT车间"},
-							{"ITEM":"线体编码","VALUE":"006"},{"ITEM":"线体名称","VALUE":"S1"},
-							{"ITEM":"工单","VALUE":"5103-202007200008"},{"ITEM":"品号","VALUE":"204411800005"},
-							{"ITEM":"品名","VALUE":"SMT SRC-4118"},{"ITEM":"品号规格","VALUE":"S4118A3537"},
-							{"ITEM":"工序编码","VALUE":"132"},{"ITEM":"工序名称","VALUE":"SMT A面"},
-							{"ITEM":"质检状态","VALUE":"PASS"},{"ITEM":"数量","VALUE":"1"},{"ITEM":"是否有效","VALUE":"Y"},
-							{"ITEM":"状态码","VALUE":"0"},{"ITEM":"状态","VALUE":"刚生成"},{"ITEM":"ERP批号","VALUE":""},
-							{"ITEM":"是否尾数","VALUE":"N"},{"ITEM":"参与交接箱标","VALUE":""}]*/
-						}else{
-							mui.alert(data[1].VALUE);
+						var data_list = JSON.parse(json_obj)
+						if (data_list[0].VALUE == "true") {
+							//console.log(json_obj)
+							sortData(data_list);
+						} else {
+							mui.alert(data_list[1].VALUE);
+
 						}
 					}
+					mui("#print").button('reset');
 				})
 			}
-			function toPrint(){//执行蓝牙打印
-				
+
+			function toPrint(list) { //执行蓝牙打印
+				try {
+					if (!bluetoothSocket.isConnected()) {
+						// plus.ui.toast("重新连接");
+						bluetoothSocket.connect();
+					}
+					var outputStream = bluetoothSocket.getOutputStream();
+					plus.android.importClass(outputStream);
+					//获取内容
+					var printCmd = print_data_tiepian(list);
+					//console.log(printCmd)
+					var arrayBuffer = plus.android.invoke(printCmd, 'getBytes', 'gbk'); //stringToByte(printCmd);  
+					outputStream.write(arrayBuffer);
+					outputStream.flush();
+					mui("#print").button('reset');
+					toClear(); //清除页面
+					bluetoothSocket.close(); //使用后,关闭套接字 2020/8/26 lst添加
+				} catch (err) {
+					// alert(err);
+					console.log(err);
+					mui("#print").button('reset');
+					plus.ui.toast("蓝牙连接打印机失败！");
+					return;
+				}
+			}
+
+			function print_data_tiepian(list) {
+				try {
+					var printCmd = "! 0 203 203 800 1 \n\r"; //建立页面 对于203dpi,8点=1mm;对于305dpi,12点=1mm
+					var titleName = "辰奕智能";
+					var label = "标签类型：  " + list[0].label
+					var amount = "   数量：  " + list[0].amount;
+					var type_of_com = "      " + list[0].type_of_com; //完工类型
+					var type_of_box = "    " + list[0].type_of_box; //箱类型
+					var name = "品名：                   " + list[0].name;
+					var format = "规格：                   " + list[0].format;
+					var num = "品号：      " + list[0].num;
+					var order = "工单：      " + list[0].order;
+					var proces = "工序：      " + list[0].proces;
+					var line = "线体：      " + list[0].line; //线体名
+					var clas_code = "            " + list[0].class_code; //班次
+					var barcode = list[0].barcode; //条码
+					//内容
+					printCmd += "POSTFEED 44\n\r"; //打印之后走纸距离指令
+					printCmd += "PAGE-WIDTH 600 \n\r"; //打印型号 超过不显示
+					//printCmd+="CENTER \n\r";
+					printCmd += "SETMAG 1 1\n\r";
+					printCmd += "SETBOLD 2\n\r";
+					printCmd += "TEXT270 24 3 565 300 " + titleName + " \n\r";
+					printCmd += "SETMAG 0 0\n\r";
+					printCmd += "SETBOLD 0\n\r";
+					//printCmd+="LEFT \n\r";	
+					printCmd += "LINE 500 3 45 3 3 \n\r"; //划线 A
+					printCmd += "LINE 500 700 45 700 3 \n\r"; //B
+					printCmd += "LINE 500 132 45 133 3 \n\r"; //C
+					printCmd += "LINE 305 400 45 400 3 \n\r"; //D
+					printCmd += "LINE 500 245 435 245 3 \n\r"; //
+					printCmd += "LINE 500 330 435 330 3 \n\r"; //
+					printCmd += "LINE 500 445 435 445 3 \n\r"; //
+					//printCmd += "LINE 500 565 435 565 3 \n\r"; //
+					printCmd += "LINE 110 270 45 270 3 \n\r"; //
+
+					printCmd += "LINE 500 3 500 700 3 \n\r";
+					printCmd += "TEXT270 24 0 488 10 " + label + amount + type_of_com + type_of_box + " \n\r";
+					printCmd += "LINE 435 3 435 700 3 \n\r";
+					printCmd += "TEXT270 24 0 423 10 " + name + " \n\r"; //text270 指文本旋转270°
+					printCmd += "LINE 370 3 370 700 3 \n\r";
+					printCmd += "TEXT270 24 0 358 10 " + format + " \n\r";
+					printCmd += "LINE 305 3 305 700 3 \n\r";
+					printCmd += "TEXT270 24 0 293 10 " + num + " \n\r";
+					printCmd += "LINE 240 3 240 400 3 \n\r";
+					printCmd += "TEXT270 24 0 228 10 " + order + " \n\r";
+					printCmd += "LINE 175 3 175 400 3 \n\r";
+					printCmd += "TEXT270 24 0 163 10 " + proces + " \n\r";
+					printCmd += "LINE 110 3 110 400 3 \n\r";
+					printCmd += "TEXT270 24 0 98 10 " + line + clas_code + " \n\r";
+					printCmd += "LINE 45 3 45 700 3 \n\r";
+					printCmd += "TEXT270 24 0 78 462 " + barcode + " \n\r";
+					//打印二维条码
+					printCmd += "BARCODE QR 85 460 M 2 U 8\r\n"; //打印二维条码 超过不显示BARCODE \n\r  
+					printCmd += "MA," + barcode + "\r\n";
+					printCmd += "ENDQR\n\r";
+					// printCmd+="VBARCODE 128 1 0 32 120 700 "+barCode+"\n\r";//打印一维条码  超过不显示         
+					//开始打印     
+					printCmd += "FORM \n\r"; // 型号：       
+					printCmd += "PRINT \n\r";
+					return printCmd;
+				} catch (err) {
+					console.log("printErr:" + err)
+					var printCmd = "";
+					return printCmd;
+				}
+			}
+
+			function toClear() { //清空部分数据
+				$("#selectProces").val("");
+				$("#selectType").val("");
+				document.getElementById('jiaojie_row').classList.add('mui-hidden');
+				$("#handover").val("");
+				$("#qty").val("");
+				$("#order").val("");
+				$("#selectId").val("");
+				$("#points").val("");
+				$("#lingban").val("");
+				$("#total").val("");
+				//mui("#weishu_switch").switch().toggle();
+				mui("#print").button('reset');
+				mui('.mui-switch')['switch']()
 			}
 		</script>
 	</body>

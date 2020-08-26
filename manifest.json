@@ -101,7 +101,8 @@
         "NativeObj" : {
             "description" : "原生对象"
         },
-        "VideoPlayer" : {}
+        "VideoPlayer" : {},
+        "Bluetooth" : {}
     },
     "plus" : {
         "splashscreen" : {
