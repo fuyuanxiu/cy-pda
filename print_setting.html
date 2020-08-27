@@ -46,7 +46,7 @@
 					<input id="pdaMac" type="text" class="mui-input-clear" placeholder="请输入PDA的MAC地址">
 				</div>
 				<div class="mui-input-row">
-					<label>打印机地址:</label>
+					<label>打印地址:</label>
 					<input id="printMac" type="text" class="mui-input-clear" placeholder="请输入打印机MAC地址">
 				</div>
 			</form>
@@ -157,14 +157,14 @@
 				var pdaMac = $("#pdaMac").val();
 				var printMac = $("#printMac").val();
 				//执行打印
-				console.log(pdaMac + "-0-" + printMac)
+				//console.log(pdaMac + "-0-" + printMac)
 				doPrintTest(pdaMac, printMac);
 			}
 			//执行打印
 			function doPrintTest(pdaMac, printMac) {
 				try {
 					if (!bluetoothSocket.isConnected()) {
-						//plus.ui.toast("重新连接");
+						plus.ui.toast("重新连接");
 						bluetoothSocket.connect();
 					}
 					var outputStream = bluetoothSocket.getOutputStream();

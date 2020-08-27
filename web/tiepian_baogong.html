@@ -32,6 +32,14 @@
 			.dialog-label {
 				font-size: 16px;
 			}
+			.dialog-ul{
+				padding: 0;
+				margin: 0;
+			}
+			.dialog-li{
+				font-size: 11px;
+				text-align: center;
+			}
 		</style>
 	</head>
 	<body>
@@ -106,25 +114,31 @@
 				<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('resultDialog').style.display = 'none';">关闭</button>
 			</div>
 		</dialog>
-		<dialog id="processDialog" class="result-dialog" style="width: 80%;height: 500px; overflow:auto;">
-			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>工序查看</span></p>
-			<br>
-			<div class="mui-card">
-				<div class="mui-card-content">
-					<ul class="mui-table-view" id="pro_list">
+		<!-- 上右下左（顺时针） -->
+		<dialog id="procesDialog" class="result-dialog" style="width: 99%; padding: 5px 2px 5px 0px;">
+			<p style="font-size: 14px;color: #000000;margin:0 auto;width:70px"><span>工序查看</span></p>
+			<div>
+					<ul class="mui-table-view mui-row" id="pro_list">
 						<script id='pr-template' type="text/template">
 							<% for(var i in record){ var item=record[i];%>
-						<li class="mui-table-view-cell mui-media">
-							// 加入工序记录
-						</li>
-						<%}%>
-						</script>
+						      <li class="mui-table-view-cell mui-col-sm-3 mui-col-xs-3 dialog-li">
+						      	<%=item.序号%>
+						      </li>
+						      <li class="mui-table-view-cell mui-col-sm-3 mui-col-xs-3 dialog-li">
+						      	<%=item.工序%>
+						      </li>
+						      <li class="mui-table-view-cell  mui-col-sm-3 mui-col-xs-3 dialog-li">
+						      	<%=item.标准人力%>
+						      </li>
+						      <li class="mui-table-view-cell  mui-col-sm-3 mui-col-xs-3 dialog-li">
+						      	<%=item.标准时产%>
+						      </li>
+						      <%}%>
+						      </script>
 					</ul>
-				</div>
 			</div>
-
 			<div class="mui-button-row">
-				<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('processDialog').style.display = 'none';">关闭</button>
+				<button type="reset" style="width: 80%;margin-top: 5px;" class="mui-btn mui-btn-danger" onclick="document.getElementById('procesDialog').style.display = 'none';">关闭</button>
 			</div>
 		</dialog>
 		<div class="mui-content" id="divid">
@@ -145,9 +159,9 @@
 				</div>
 				<div class="mui-input-row">
 					<label onclick="clicked('commom/saomiao.html','order','web/tiepian_baogong.html');">工单</label>
-					<input id="order" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 52%;float: left;">
+					<input id="order" placeholder="请扫描" type="text" class="mui-input" style="width: 54%;float: left;">
 					<!-- <input type="button" style="width:10%; height: inherit;color: #FFFFFF;background-color: #0e82f5;text-align: center;" value="..."> -->
-					<button id="order_detail" style="width:12%; height: inherit;" class="mui-btn-primary">...</button>
+					<button type="button" id="order_detail" style="width:10%; height: inherit;" class="mui-btn-primary">...</button>
 				</div>
 				<div class="mui-input-row ">
 					<label>完工类型</label>
@@ -398,27 +412,41 @@
 
 			$("#order_detail").click(function() { //查看工单工序
 				var order_data = $('#order').val();
+				if (order_data == "") {
+					mui.alert("请添加工单")
+					return false;
+				}
 				jQueryWeb("GetMoProcInfo", {
-					"Mo": order_data,
+					"Mo": order_data
 				}, function(xmlHttpRequest, statu) {
 					if (statu == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
-						var data = json_obj.diffgram.NewDataSet;
+						var data = json_obj.diffgram.DocumentElement;
 						//console.log(JSON.stringify(data))
 						if (data != undefined) {
 							var listData = [];
-							if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
-								listData = [data.Table]
+							var th_data={};
+							th_data["序号"]="序号";
+							th_data["工序"]="工序";
+							th_data["标准人力"]="标准人力";
+							th_data["标准时产"]="标准时产";
+							
+							if (JSON.stringify(data.table01).toString().substring(0, 1) == '{') {
+								listData = [data.table01];
+								listData.unshift(th_data);
 							} else {
-								listData = data.Table
+								listData = data.table01;
+								listData.unshift(th_data);//往数组首位添加数据
 							}
-							document.getElementById('pro_list').innerHTML = template('pr_template', {
+							document.getElementById('pro_list').innerHTML = template('pr-template', {
 								"record": listData
 							});
 							byId("procesDialog").style.display = "block"
 						} else {
 							mui.alert("无记录")
 						}
+					} else {
+						mui.alert("GetMoProcInfo连接失败")
 					}
 				})
 			})
