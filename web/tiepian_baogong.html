@@ -241,6 +241,7 @@
 		<script type="text/javascript" charset="utf-8">
 			mui.init();
 			var isManual = false; //标志按钮最后状态
+			var bluetoothSocket = null;
 			window.addEventListener("changeBar", function(e) {
 				var inputId = e.detail.inputId
 				document.getElementById(inputId).value = e.detail.barcode
