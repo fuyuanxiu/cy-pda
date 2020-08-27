@@ -207,7 +207,6 @@
 					var arrayBuffer = plus.android.invoke(printCmd, 'getBytes', 'gbk'); //stringToByte(printCmd);  
 					outputStream.write(arrayBuffer);
 					outputStream.flush();
-					bluetoothSocket.close(); //使用后,关闭套接字 2020/8/26 lst添加
 				} catch (err) {
 					// alert(err);
 					console.log(err);

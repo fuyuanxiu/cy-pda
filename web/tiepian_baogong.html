@@ -32,11 +32,13 @@
 			.dialog-label {
 				font-size: 16px;
 			}
-			.dialog-ul{
+
+			.dialog-ul {
 				padding: 0;
 				margin: 0;
 			}
-			.dialog-li{
+
+			.dialog-li {
 				font-size: 11px;
 				text-align: center;
 			}
@@ -118,9 +120,9 @@
 		<dialog id="procesDialog" class="result-dialog" style="width: 99%; padding: 5px 2px 5px 0px;">
 			<p style="font-size: 14px;color: #000000;margin:0 auto;width:70px"><span>工序查看</span></p>
 			<div>
-					<ul class="mui-table-view mui-row" id="pro_list">
-						<script id='pr-template' type="text/template">
-							<% for(var i in record){ var item=record[i];%>
+				<ul class="mui-table-view mui-row" id="pro_list">
+					<script id='pr-template' type="text/template">
+						<% for(var i in record){ var item=record[i];%>
 						      <li class="mui-table-view-cell mui-col-sm-3 mui-col-xs-3 dialog-li">
 						      	<%=item.序号%>
 						      </li>
@@ -135,7 +137,7 @@
 						      </li>
 						      <%}%>
 						      </script>
-					</ul>
+				</ul>
 			</div>
 			<div class="mui-button-row">
 				<button type="reset" style="width: 80%;margin-top: 5px;" class="mui-btn mui-btn-danger" onclick="document.getElementById('procesDialog').style.display = 'none';">关闭</button>
@@ -425,18 +427,18 @@
 						//console.log(JSON.stringify(data))
 						if (data != undefined) {
 							var listData = [];
-							var th_data={};
-							th_data["序号"]="序号";
-							th_data["工序"]="工序";
-							th_data["标准人力"]="标准人力";
-							th_data["标准时产"]="标准时产";
-							
+							var th_data = {};
+							th_data["序号"] = "序号";
+							th_data["工序"] = "工序";
+							th_data["标准人力"] = "标准人力";
+							th_data["标准时产"] = "标准时产";
+
 							if (JSON.stringify(data.table01).toString().substring(0, 1) == '{') {
 								listData = [data.table01];
 								listData.unshift(th_data);
 							} else {
 								listData = data.table01;
-								listData.unshift(th_data);//往数组首位添加数据
+								listData.unshift(th_data); //往数组首位添加数据
 							}
 							document.getElementById('pro_list').innerHTML = template('pr-template', {
 								"record": listData
@@ -547,12 +549,34 @@
 			$("#his_record").click(function() { //历史记录查询
 				showMask();
 				$("#select_usr").val(api_localStorageGet("code"))
+				var date_data = CurentTime()
+				$('[name=se_time]').val(date_data); //时间
 				byId("selectDialog").style.display = "block";
 			});
 
 			function closeSelectDialog() { //关闭查询弹窗
 				document.getElementById('selectDialog').style.display = 'none';
 				closeMask();
+			}
+
+			function CurentTime() {
+				var now = new Date();
+
+				var year = now.getFullYear(); //年
+				var month = now.getMonth() + 1; //月
+				var day = now.getDate(); //日
+
+				var hh = now.getHours(); //时
+				var mm = now.getMinutes(); //分
+
+				var clock = year + "-";
+				if (month < 10)
+					clock += "0";
+				clock += month + "-";
+				if (day < 10)
+					clock += "0";
+				clock += day;
+				return (clock);
 			}
 			$("#search_record").click(function() { //历史记录查询
 				var se_time = $('[name=se_time]').val(); //时间
@@ -606,6 +630,7 @@
 					return false;
 				}
 				var param = $("#bar_code").val();
+				var btnArray = ['否', '是'];
 				mui.confirm("重新打印标签" + param, '提示', btnArray, function(e) {
 					if (e.index == 1) {
 						getReprintData(param);
@@ -633,6 +658,7 @@
 			function sortData(data_list) {
 				var print_list = [];
 				var data = {};
+				var barcode_data = "";
 				for (var i = 0; i < data_list.length; i++) {
 					if (data_list[i].ITEM == "标签类型") {
 						data["label"] = data_list[i].VALUE; //标签
@@ -658,11 +684,12 @@
 						data["class_code"] = data_list[i].VALUE; //班次
 					} else if (data_list[i].ITEM == "条码") {
 						data["barcode"] = data_list[i].VALUE; //二维码
-						$("#bar_code").val(data_list[i].VALUE);
+						barcode_data = data_list[i].VALUE;
 					}
 				}
 				print_list.push(data);
 				toPrint(print_list);
+				return barcode_data;
 			}
 			//获取打印数据
 			function printInfo(weishu) {
@@ -685,10 +712,11 @@
 						var data_list = JSON.parse(json_obj)
 						if (data_list[0].VALUE == "true") {
 							//console.log(json_obj)
-							sortData(data_list);
+							var barcode_data=sortData(data_list);
+							$("#bar_code").val(barcode_data);
+							toClear(); //清除页面
 						} else {
 							mui.alert(data_list[1].VALUE);
-
 						}
 					}
 					mui("#print").button('reset');
@@ -711,11 +739,11 @@
 					outputStream.flush();
 					mui("#print").button('reset');
 					toClear(); //清除页面
-					bluetoothSocket.close(); //使用后,关闭套接字 2020/8/26 lst添加
 				} catch (err) {
 					// alert(err);
 					console.log(err);
 					mui("#print").button('reset');
+					toClear(); //清除页面
 					plus.ui.toast("蓝牙连接打印机失败！");
 					return;
 				}
@@ -800,9 +828,10 @@
 				$("#points").val("");
 				$("#lingban").val("");
 				$("#total").val("");
-				//mui("#weishu_switch").switch().toggle();
+				$("#weishu_switch").val("否");
+				byId("weishu_switch").classList.remove('mui-active')
+				mui("#weishu_switch").switch().toggle();
 				mui("#print").button('reset');
-				mui('.mui-switch')['switch']()
 			}
 		</script>
 	</body>
