@@ -106,8 +106,8 @@
 					}
 					//api_localStorageSave("code", username.value);
 					api_localStorageSave("webPath", API.webPath);
-					//update('nei');
-					doLogin();
+					update('nei');
+					//doLogin();
 				});
 				loginWai.addEventListener('tap', function() {
 					var username = document.getElementById("username");
@@ -122,8 +122,8 @@
 					}
 					//api_localStorageSave("code", username.value);
 					api_localStorageSave("webPath", API.webPathWai);
-					doLogin();
-					//update('wai');
+					//doLogin();
+					update('wai');
 				})
 
 
@@ -132,7 +132,7 @@
 			function update(net) {
 				plus.runtime.getProperty(plus.runtime.appid, function(inf) {
 					ver = inf.version;
-					jQueryWeb("PadCheckVersion", {}, function(xmlHttpRequest, status) {
+					jQueryWeb("PdaCheckVersion", {}, function(xmlHttpRequest, status) {
 						if (status == 'success') {
 							var json_obj = $.xml2json(xmlHttpRequest.responseXML);
 							var data = json_obj.diffgram.NewDataSet.Table
