@@ -206,7 +206,7 @@
 
 				<div class="mui-input-row">
 					<label onclick="clicked('commom/saomiao.html','lingban','web/shaolu_baogong.html');">领班工号</label>
-					<input id="lingban" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 35%;float: left;">
+					<input id="lingban" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 40%;float: left;">
 					<input disabled type="text" class="mui-input-clear" style="width: 30%;background-color: #F5F5F5;">
 				</div>
 
@@ -354,6 +354,7 @@
 			});
 			//监听工单——扫描回车
 			$('#order').bind('keyup', function(event) {
+				console.log("1")
 				if (event.keyCode == "13") { //输入回车执行
 					$("#selectId").val("");
 					$("#selectId").empty();
@@ -372,12 +373,12 @@
 									$('#order').val(data[i].VALUE);
 								} else if (data[i].ITEM == "工序") {
 									var selectValue = data[i].VALUE;
-									if (selectValue != "") {
-										$("#selectId").append("<option value="+selectValue+">" + selectValue + "</option>");
-										$("#selectId").val(selectValue);
-									} else {
+									if (selectValue.indexOf("没有") != -1) {//此品号无该工序时，NG
+										$("#selectId").append("<option>" + selectValue + "</option>");
+										$("#selectId").val(selectValue);//显示ng
+									} else if(selectValue==""){//工序为空时
 										$("#selectId").append("<option value=" + selectValue + ">请点击选择工序</option>");
-										$("#selectId").val(selectValue);
+										$("#selectId").val(selectValue);//显示“请选择”
 									}
 								} else if (data[i].ITEM == "工序_下拉") {
 									$("#selectId").append("<option value=" + data[i].VALUE + ">" + data[i].VALUE + "</option>");
@@ -492,6 +493,8 @@
 							mui.confirm(data, '提示', btnArray, function(e) {
 								if (e.index == 1) {
 									printInfo(weishu)
+								}else{
+									mui("#print").button('reset');
 								}
 							})
 						} else {
@@ -686,7 +689,7 @@
 					var outputStream = bluetoothSocket.getOutputStream();
 					plus.android.importClass(outputStream);
 					//获取内容
-					var printCmd = print_data_shaolu(list);
+					var printCmd = print_datalist(list);
 					//console.log(printCmd)
 					var arrayBuffer = plus.android.invoke(printCmd, 'getBytes', 'gbk'); //stringToByte(printCmd);  
 					outputStream.write(arrayBuffer);
@@ -700,74 +703,6 @@
 					toClear(); //清除页面
 					plus.ui.toast("蓝牙连接打印机失败！");
 					return;
-				}
-			}
-
-			function print_data_shaolu(list) {
-				try {
-					var printCmd = "! 0 203 203 800 1 \n\r"; //建立页面 对于203dpi,8点=1mm;对于305dpi,12点=1mm
-					var titleName = "辰奕智能";
-					var label = "标签类型：  " + list[0].label
-					var amount = "   数量：  " + list[0].amount;
-					var type_of_com = "      " + list[0].type_of_com; //完工类型
-					var type_of_box = "    " + list[0].type_of_box; //箱类型
-					var name = "品名：                   " + list[0].name;
-					var format = "规格：                   " + list[0].format;
-					var num = "品号：      " + list[0].num;
-					var order = "工单：      " + list[0].order;
-					var proces = "工序：      " + list[0].proces;
-					var line = "线体：      " + list[0].line; //线体名
-					var clas_code = "            " + list[0].class_code; //班次
-					var barcode = list[0].barcode; //条码
-					//内容
-					printCmd += "POSTFEED 44\n\r"; //打印之后走纸距离指令
-					printCmd += "PAGE-WIDTH 600 \n\r"; //打印型号 超过不显示
-					//printCmd+="CENTER \n\r";
-					printCmd += "SETMAG 1 1\n\r";
-					printCmd += "SETBOLD 2\n\r";
-					printCmd += "TEXT270 24 3 565 300 " + titleName + " \n\r";
-					printCmd += "SETMAG 0 0\n\r";
-					printCmd += "SETBOLD 0\n\r";
-					//printCmd+="LEFT \n\r";	
-					printCmd += "LINE 500 3 45 3 3 \n\r"; //划线 A
-					printCmd += "LINE 500 700 45 700 3 \n\r"; //B
-					printCmd += "LINE 500 132 45 133 3 \n\r"; //C
-					printCmd += "LINE 305 400 45 400 3 \n\r"; //D
-					printCmd += "LINE 500 245 435 245 3 \n\r"; //
-					printCmd += "LINE 500 330 435 330 3 \n\r"; //
-					printCmd += "LINE 500 445 435 445 3 \n\r"; //
-					//printCmd += "LINE 500 565 435 565 3 \n\r"; //
-					printCmd += "LINE 110 270 45 270 3 \n\r"; //
-
-					printCmd += "LINE 500 3 500 700 3 \n\r";
-					printCmd += "TEXT270 24 0 488 10 " + label + amount + type_of_com + type_of_box + " \n\r";
-					printCmd += "LINE 435 3 435 700 3 \n\r";
-					printCmd += "TEXT270 24 0 423 10 " + name + " \n\r"; //text270 指文本旋转270°
-					printCmd += "LINE 370 3 370 700 3 \n\r";
-					printCmd += "TEXT270 24 0 358 10 " + format + " \n\r";
-					printCmd += "LINE 305 3 305 700 3 \n\r";
-					printCmd += "TEXT270 24 0 293 10 " + num + " \n\r";
-					printCmd += "LINE 240 3 240 400 3 \n\r";
-					printCmd += "TEXT270 24 0 228 10 " + order + " \n\r";
-					printCmd += "LINE 175 3 175 400 3 \n\r";
-					printCmd += "TEXT270 24 0 163 10 " + proces + " \n\r";
-					printCmd += "LINE 110 3 110 400 3 \n\r";
-					printCmd += "TEXT270 24 0 98 10 " + line + clas_code + " \n\r";
-					printCmd += "LINE 45 3 45 700 3 \n\r";
-					printCmd += "TEXT270 24 0 78 462 " + barcode + " \n\r";
-					//打印二维条码
-					printCmd += "BARCODE QR 85 460 M 2 U 8\r\n"; //打印二维条码 超过不显示BARCODE \n\r  
-					printCmd += "MA," + barcode + "\r\n";
-					printCmd += "ENDQR\n\r";
-					// printCmd+="VBARCODE 128 1 0 32 120 700 "+barCode+"\n\r";//打印一维条码  超过不显示         
-					//开始打印     
-					printCmd += "FORM \n\r"; // 型号：       
-					printCmd += "PRINT \n\r";
-					return printCmd;
-				} catch (err) {
-					console.log("printErr:" + err)
-					var printCmd = "";
-					return printCmd;
 				}
 			}
 

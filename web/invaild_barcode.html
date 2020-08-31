@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>标签作废</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">标签作废</h1>
+		</header>
+		<div class="mui-content">
+			<div class="mui-input-group">
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','barcode','web/invaild_barcode.html');">条码：</label>
+					<input id="barcode" placeholder="请扫入条码" type="text" class="mui-input-clear">
+				</div>
+				<div class="mui-input-row">
+					<label>工作中心：</label>
+					<input id="work_center" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+				</div>
+				<div class="mui-input-row">
+					<label>线体：</label>
+					<input id="line_code" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+				</div>
+				<div class="mui-input-row">
+					<label>班次：</label>
+					<input id="class_code" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+				</div>
+				<div class="mui-input-row">
+					<label>工单：</label>
+					<input id="order" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+				</div>
+				<div class="mui-input-row">
+					<label>工序：</label>
+					<input id="proc_code" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+				</div>
+				<div class="mui-input-row">
+					<label>数量：</label>
+					<input id="qty" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+				</div>
+				<div class="mui-input-row " id="print_row">
+					<label>原因：</label>
+					<a class="mui-navigate-right">
+						<span class="mui-badge1">
+							<select class="mui-h5" style="margin:auto; color:#000;" id="reason">
+							</select>
+						</span>
+					</a>
+				</div>
+				<div class="mui-content-padded" align="center">
+					<button type="button" class="mui-btn mui-btn-warning" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">提交</button>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			mui.init();
+			window.addEventListener("changeBar", function(e) {
+				var inputId = e.detail.inputId
+				document.getElementById(inputId).value = e.detail.barcode
+			});
+			mui.plusReady(function() {
+				jQueryWeb("PDA_GET_CANCEL_REASON", "", function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						//console.log(json_obj)
+						var data = JSON.parse(json_obj)
+						$("#reason").append("<option value=''>请选择作废原因</option>");
+						for (var i = 0; i < data.length; i++) {
+							$("#reason").append("<option value=" + data[i].VALUE + ">" + data[i].VALUE + "</option>");
+						}
+					}
+				})
+			})
+			function clicked(url, f1, urlId) { //扫描触发
+				OpenWindow(f1, url, {
+					urlId: urlId,
+					inputId: f1
+				});
+			};
+			//监听条码扫描——扫描回车
+			$('#barcode').bind('keyup', function(event) {
+				if (event.keyCode == "13") { //输入回车执行
+					jQueryWeb("PDA_GET_PRINT_INFO_BY_BARCODE", {
+						"BARCODE": $('#barcode').val(),
+						"JsonContext": ""
+					}, function(xmlHttpRequest, statu) {
+						if (statu == 'success') {
+							var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+							if (json_obj == "获取条码失败(查找不到条码)") {
+								mui.alert(json_obj);
+							} else {
+								var data = JSON.parse(json_obj)
+								for (var i = 0; i < data.length; i++) {
+									if (data[i].ITEM == "工作中心名称") {
+										$("#work_center").val(data[i].VALUE);
+									} else if (data[i].ITEM == "线体名称") {
+										$("#line_code").val(data[i].VALUE);
+									} else if (data[i].ITEM == "班次") {
+										$("#class_code").val(data[i].VALUE);
+									} else if (data[i].ITEM == "工单") {
+										$("#order").val(data[i].VALUE);
+									} else if (data[i].ITEM == "工序名称") {
+										$("#proc_code").val(data[i].VALUE);
+									} else if (data[i].ITEM == "数量") {
+										$("#qty").val(data[i].VALUE);
+									}
+								}
+							}
+						} else {
+							alert("连接PDA_GET_PRINT_INFO_BY_BARCODE失败")
+						}
+					})
+				}
+			});
+			$("#submit_code").click(function() {
+				var code = $("#barcode").val()
+				var btnArray = ['否', '是'];
+				mui.confirm("是否作废【条码：" + code + "】", '提示', btnArray, function(e) {
+					if (e.index == 1) {
+						var reason = $("#reason").val();
+						invaild(code, reason);
+					}
+				})
+			})
+
+			function invaild(code, reason) {
+				jQueryWeb("PDA_CANCEL_BARCODE", {
+					"inBarcode":code,
+					"inReason": reason,
+					"inUsercode":api_localStorageGet("code")
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						mui.alert(json_obj)
+						//$('#barcode').val("");
+						$("#work_center").val("");
+						$("#line_code").val("");
+						$("#order").val("");
+						$("#class_code").val("");
+						$("#proc_code").val("");
+						$("#qty").val("");
+						$("#reason").val("")
+					}
+				})
+			}
+		</script>
+	</body>
+
+</html>

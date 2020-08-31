@@ -76,7 +76,7 @@
 			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询结果</span></p>
 			<br>
 			<div id="list">
-		
+
 			</div>
 			<script id='template' type="text/template">
 				<% for(var i in record){ var item=record[i];%>
@@ -205,7 +205,7 @@
 				</div>
 				<div class="mui-input-row">
 					<label onclick="clicked('commom/saomiao.html','lingban','web/tieguozai_baogong.html');">领班工号</label>
-					<input id="lingban" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 35%;float: left;">
+					<input id="lingban" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 40%;float: left;">
 					<input disabled type="text" class="mui-input-clear" style="width: 30%;background-color: #F5F5F5;">
 				</div>
 				<div class="mui-input-row">
@@ -244,16 +244,16 @@
 					var main = plus.android.runtimeMainActivity();
 					var BluetoothAdapter = plus.android.importClass("android.bluetooth.BluetoothAdapter");
 					var UUID = plus.android.importClass("java.util.UUID");
-				
+
 					uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 					var BAdapter = BluetoothAdapter.getDefaultAdapter();
 					BAdapter.cancelDiscovery(); //停止扫描  
-				
+
 					// var addres_mac = plus.storage.getItem("DC:1D:30:3F:D2:50");//传入打印机mac地址  
 					var address_mac = api_localStorageGet("printMac") ? api_localStorageGet("printMac") : "00:00:05:D7:49:50";
 					device = BAdapter.getRemoteDevice(address_mac);
 					plus.android.importClass(device);
-				
+
 					bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
 					plus.android.importClass(bluetoothSocket);
 				} catch (err) {
@@ -277,6 +277,7 @@
 				document.body.style.position = "fixed"
 				mask.show(); /*调用展示遮罩*/
 			}
+
 			function closeMask() { /*绑定处理事件*/
 				document.body.style.overflow = "scroll"
 				document.body.style.width = "100%"
@@ -301,7 +302,7 @@
 				document.getElementById('jiaojie_row').classList.add('mui-hidden');
 				$("#order").val("");
 				$("#selectId").val("");
-			
+
 				$("#lingban").val("");
 				$("#total").val("");
 			});
@@ -349,50 +350,53 @@
 			});
 			//监听工单——扫描回车
 			$('#order').bind('keyup', function(event) {
-				if (event.keyCode == "13") { //输入回车执行
-					$("#selectId").val("");
-					$("#selectId").empty();
-					$('#lingban').val("");
-					jQueryWeb("PDA_TGZ_GET_INFO_BY_MO_01", {
-						"inClassType": $('input[name="radio1"]:checked').val(), //班次
-						"inLineNo": $('#line_code').val(), //线体编码
-						"inMo": $('#order').val() //工单
-					}, function(xmlHttpRequest, statu) {
-						if (statu == 'success') {
-							var json_obj = $.xml2json(xmlHttpRequest.responseXML);
-							var data = JSON.parse(json_obj)
-							//console.log(json_obj)
-							for (var i = 0; i < data.length; i++) {
-								if (data[i].ITEM == "工单") {
-									$('#order').val(data[i].VALUE);
-								} else if (data[i].ITEM == "工序") {
-									var selectValue = data[i].VALUE;
-									if (selectValue != "") {
-										$("#selectId").append("<option value="+selectValue+">" + selectValue + "</option>");
-										$("#selectId").val(selectValue);
-									} else {
-										$("#selectId").append("<option value=" + selectValue + ">请点击选择工序</option>");
-										$("#selectId").val(selectValue);
+					if (event.keyCode == "13") { //输入回车执行
+						$("#selectId").val("");
+						$("#selectId").empty();
+						$('#lingban').val("");
+						jQueryWeb("PDA_TGZ_GET_INFO_BY_MO_01", {
+							"inClassType": $('input[name="radio1"]:checked').val(), //班次
+							"inLineNo": $('#line_code').val(), //线体编码
+							"inMo": $('#order').val() //工单
+						}, function(xmlHttpRequest, statu) {
+							if (statu == 'success') {
+								var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+								var data = JSON.parse(json_obj)
+								console.log(json_obj)
+								for (var i = 0; i < data.length; i++) {
+									if (data[i].ITEM == "工单") {
+										$('#order').val(data[i].VALUE);
+									} else if (data[i].ITEM == "工序") {
+										var selectValue = data[i].VALUE;
+										if (selectValue.indexOf("没有") != -1) { //此品号无该工序时，NG
+											$("#selectId").append("<option>" + selectValue + "</option>");
+											$("#selectId").val(selectValue); //显示ng
+											console.log("01")
+										} else if (selectValue == "") { //工序为空时
+											$("#selectId").append("<option value=" + selectValue + ">请点击选择工序</option>");
+											$("#selectId").val(selectValue); //显示“请选择”
+											console.log("00")
+										}
+									} else if (data[i].ITEM == "工序_下拉") {
+										$("#selectId").append("<option value=" + data[i].VALUE + ">" + data[i].VALUE + "</option>");
+										console.log("02")
+									} else if (data[i].ITEM == "领班工号") {
+										$('#lingban').val(data[i].VALUE);
+										var lingban = data[i].VALUE;
+										if (lingban != "") {
+											lingban = lingban.substring(0, lingban.indexOf(";"));
+											getLingBan(lingban);
+										}
+									} else if (data[i].ITEM == "完工类型") {
+										var proces = data[i].VALUE;
+										$("#selectProces").val(proces);
 									}
-								} else if (data[i].ITEM == "工序_下拉") {
-									$("#selectId").append("<option value=" + data[i].VALUE + ">" + data[i].VALUE + "</option>");
-								} else if (data[i].ITEM == "领班工号") {
-									$('#lingban').val(data[i].VALUE);
-									var lingban = data[i].VALUE;
-									if (lingban!= "") {
-										lingban = lingban.substring(0, lingban.indexOf(";"));
-										getLingBan(lingban);
-									}
-								} else if (data[i].ITEM == "完工类型") {
-									var proces = data[i].VALUE;
-									$("#selectProces").val(proces);
 								}
+							} else {
+								alert("PDA_TGZ_GET_INFO_BY_MO_01连接失败")
 							}
-						} else {
-							alert("PDA_TGZ_GET_INFO_BY_MO_01连接失败")
-						}
-					})
-				}
+						})
+					}
 			});
 			$("#order_detail").click(function() { //查看工单工序
 				var order_data = $('#order').val();
@@ -414,7 +418,7 @@
 							th_data["工序"] = "工序";
 							th_data["标准人力"] = "标准人力";
 							th_data["标准时产"] = "标准时产";
-			
+
 							if (JSON.stringify(data.table01).toString().substring(0, 1) == '{') {
 								listData = [data.table01];
 								listData.unshift(th_data);
@@ -437,12 +441,13 @@
 			$('#lingban').bind('keyup', function(event) { //扫描得领班工号
 				if (event.keyCode == "13") { //输入回车执行
 					var lingban = $('#lingban').val();
-					if(lingban.indexOf(";") != -1){
+					if (lingban.indexOf(";") != -1) {
 						lingban = lingban.substring(0, lingban.indexOf(";"));
 					}
 					getLingBan(lingban)
 				}
 			});
+
 			function getLingBan(ling_ban) { //获取领班信息
 				jQueryWeb("PDA_GET_LBINFO", {
 					"inLbWorkCode": ling_ban,
@@ -465,6 +470,7 @@
 					checkClassType();
 				}
 			})
+
 			function checkClassType() { //班次验证
 				var weishu = "";
 				var isActive = byId("weishu_switch").classList.contains("mui-active");
@@ -485,6 +491,8 @@
 							mui.confirm(data, '提示', btnArray, function(e) {
 								if (e.index == 1) {
 									printInfo(weishu)
+								}else{
+									mui("#print").button('reset');
 								}
 							})
 						} else {
@@ -501,22 +509,22 @@
 				$('[name=se_time]').val(date_data); //时间
 				byId("selectDialog").style.display = "block";
 			});
-			
+
 			function closeSelectDialog() { //关闭查询弹窗
 				document.getElementById('selectDialog').style.display = 'none';
 				closeMask();
 			}
-			
+
 			function CurentTime() {
 				var now = new Date();
-			
+
 				var year = now.getFullYear(); //年
 				var month = now.getMonth() + 1; //月
 				var day = now.getDate(); //日
-			
+
 				var hh = now.getHours(); //时
 				var mm = now.getMinutes(); //分
-			
+
 				var clock = year + "-";
 				if (month < 10)
 					clock += "0";
@@ -573,7 +581,7 @@
 				});
 			}
 			$("#reprint").click(function() { //重新打印
-				if ($("#bar_code").val() == ""||$("#bar_code").val()==undefined) {
+				if ($("#bar_code").val() == "" || $("#bar_code").val() == undefined) {
 					mui.alert("无打印记录");
 					return false;
 				}
@@ -669,7 +677,7 @@
 					mui("#print").button('reset');
 				})
 			}
-			
+
 			function toPrint(list) { //执行蓝牙打印
 				try {
 					if (!bluetoothSocket.isConnected()) {
@@ -679,7 +687,7 @@
 					var outputStream = bluetoothSocket.getOutputStream();
 					plus.android.importClass(outputStream);
 					//获取内容
-					var printCmd = print_data(list);
+					var printCmd = print_datalist(list);
 					//console.log(printCmd)
 					var arrayBuffer = plus.android.invoke(printCmd, 'getBytes', 'gbk'); //stringToByte(printCmd);  
 					outputStream.write(arrayBuffer);
@@ -695,75 +703,7 @@
 					return;
 				}
 			}
-			
-			function print_data(list) {
-				try {
-					var printCmd = "! 0 203 203 800 1 \n\r"; //建立页面 对于203dpi,8点=1mm;对于305dpi,12点=1mm
-					var titleName = "辰奕智能";
-					var label = "标签类型：  " + list[0].label
-					var amount = "   数量：  " + list[0].amount;
-					var type_of_com = "      " + list[0].type_of_com; //完工类型
-					var type_of_box = "    " + list[0].type_of_box; //箱类型
-					var name = "品名：                   " + list[0].name;
-					var format = "规格：                   " + list[0].format;
-					var num = "品号：      " + list[0].num;
-					var order = "工单：      " + list[0].order;
-					var proces = "工序：      " + list[0].proces;
-					var line = "线体：      " + list[0].line; //线体名
-					var clas_code = "            " + list[0].class_code; //班次
-					var barcode = list[0].barcode; //条码
-					//内容
-					printCmd += "POSTFEED 44\n\r"; //打印之后走纸距离指令
-					printCmd += "PAGE-WIDTH 600 \n\r"; //打印型号 超过不显示
-					//printCmd+="CENTER \n\r";
-					printCmd += "SETMAG 1 1\n\r";
-					printCmd += "SETBOLD 2\n\r";
-					printCmd += "TEXT270 24 3 565 300 " + titleName + " \n\r";
-					printCmd += "SETMAG 0 0\n\r";
-					printCmd += "SETBOLD 0\n\r";
-					//printCmd+="LEFT \n\r";	
-					printCmd += "LINE 500 3 45 3 3 \n\r"; //划线 A
-					printCmd += "LINE 500 700 45 700 3 \n\r"; //B
-					printCmd += "LINE 500 132 45 133 3 \n\r"; //C
-					printCmd += "LINE 305 400 45 400 3 \n\r"; //D
-					printCmd += "LINE 500 245 435 245 3 \n\r"; //
-					printCmd += "LINE 500 330 435 330 3 \n\r"; //
-					printCmd += "LINE 500 445 435 445 3 \n\r"; //
-					//printCmd += "LINE 500 565 435 565 3 \n\r"; //
-					printCmd += "LINE 110 270 45 270 3 \n\r"; //
-			
-					printCmd += "LINE 500 3 500 700 3 \n\r";
-					printCmd += "TEXT270 24 0 488 10 " + label + amount + type_of_com + type_of_box + " \n\r";
-					printCmd += "LINE 435 3 435 700 3 \n\r";
-					printCmd += "TEXT270 24 0 423 10 " + name + " \n\r"; //text270 指文本旋转270°
-					printCmd += "LINE 370 3 370 700 3 \n\r";
-					printCmd += "TEXT270 24 0 358 10 " + format + " \n\r";
-					printCmd += "LINE 305 3 305 700 3 \n\r";
-					printCmd += "TEXT270 24 0 293 10 " + num + " \n\r";
-					printCmd += "LINE 240 3 240 400 3 \n\r";
-					printCmd += "TEXT270 24 0 228 10 " + order + " \n\r";
-					printCmd += "LINE 175 3 175 400 3 \n\r";
-					printCmd += "TEXT270 24 0 163 10 " + proces + " \n\r";
-					printCmd += "LINE 110 3 110 400 3 \n\r";
-					printCmd += "TEXT270 24 0 98 10 " + line + clas_code + " \n\r";
-					printCmd += "LINE 45 3 45 700 3 \n\r";
-					printCmd += "TEXT270 24 0 78 462 " + barcode + " \n\r";
-					//打印二维条码
-					printCmd += "BARCODE QR 85 460 M 2 U 8\r\n"; //打印二维条码 超过不显示BARCODE \n\r  
-					printCmd += "MA," + barcode + "\r\n";
-					printCmd += "ENDQR\n\r";
-					// printCmd+="VBARCODE 128 1 0 32 120 700 "+barCode+"\n\r";//打印一维条码  超过不显示         
-					//开始打印     
-					printCmd += "FORM \n\r"; // 型号：       
-					printCmd += "PRINT \n\r";
-					return printCmd;
-				} catch (err) {
-					console.log("printErr:" + err)
-					var printCmd = "";
-					return printCmd;
-				}
-			}
-			
+
 			function toClear() { //清空部分数据
 				$("#selectProces").val("");
 				$("#selectType").val("");
@@ -778,6 +718,7 @@
 				mui("#weishu_switch").switch().toggle();
 				mui("#print").button('reset');
 			}
+
 			function clicked(url, f1, urlId) {
 				OpenWindow(f1, url, {
 					urlId: urlId,

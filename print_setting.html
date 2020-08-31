@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
-		<title></title>
+		<title>打印设置</title>
 		<script src="./js/mui.min.js"></script>
 		<script src="./js/api.js"></script>
 		<link href="./css/mui.min.css" rel="stylesheet" />
@@ -170,35 +170,35 @@
 					var outputStream = bluetoothSocket.getOutputStream();
 					plus.android.importClass(outputStream);
 
-					var barcode = "102000460*N017051601*14*170519*002";
+					//var barcode = "102000460*N017051601*14*170519*002";
 					var pdaMacStr = "PDA地址:     " + pdaMac;
 					var printMacStr = "打印地址:     " + printMac;
 					var titleName = "测试页";
 
 					//内容
-					var printCmd = "! 0 203 203 800 1 \n\r"; //建立页面 对于203dpi,8点=1mm;对于305dpi,12点=1mm
-					printCmd += "POSTFEED 44\n\r"; //打印之后走纸距离指令
-					printCmd += "PAGE-WIDTH 600 \n\r"; //打印型号 超过不显示
+					var printCmd = "! 0 203 203 510 1 \n\r"; //建立页面 对于203dpi,8点=1mm;对于305dpi,12点=1mm
+					printCmd += "POSTFEED 8\n\r"; //打印之后走纸距离指令
+					printCmd += "PAGE-WIDTH 640 \n\r"; //打印型号 超过不显示
 					//printCmd+="CENTER \n\r";
 					printCmd += "SETMAG 1 1\n\r";
 					printCmd += "SETBOLD 2\n\r";
-					printCmd += "TEXT270 24 3 472 104 " + titleName + " \n\r";
+					printCmd += "TEXT 24 1 260 4 " + titleName + " \n\r";
 					printCmd += "SETMAG 0 0\n\r";
 					printCmd += "SETBOLD 0\n\r";
 					//printCmd+="LEFT \n\r";	
-					printCmd += "LINE 420 3 212 3 3 \n\r"; //划线
-					printCmd += "LINE 420 700 212 700 3 \n\r";
-					printCmd += "LINE 420 160 212 160 3 \n\r";
+					printCmd += "LINE 2 28 2 406 3 \n\r"; //划线
+					printCmd += "LINE 125 28 125 406 3 \n\r";
+					printCmd += "LINE 570 28 570 406 3 \n\r";
 					//
-					printCmd += "LINE 420 0 420 700 3 \n\r";
-					printCmd += "TEXT270 24 0 362 16 " + pdaMacStr + " \n\r";
-					printCmd += "LINE 316 0 316 700 3 \n\r";
-					printCmd += "TEXT270 24 0 258 16 " + printMacStr + " \n\r";
-					printCmd += "LINE 212 0 212 700 3 \n\r";
+					printCmd += "LINE 2 28 570 28 3 \n\r";
+					printCmd += "TEXT 24 0 12 70 " + pdaMacStr + " \n\r";
+					printCmd += "LINE 2 210 570 210 3 \n\r";
+					printCmd += "TEXT 24 0 12 250 " + printMacStr + " \n\r";
+					printCmd += "LINE 2 405 570 406 3 \n\r";
 					//打印二维条码
-					printCmd += "BARCODE QR 92 344 M 2 U 4\r\n"; //打印二维条码 超过不显示BARCODE \n\r  
-					printCmd += "MA," + barcode + "\r\n";
-					printCmd += "ENDQR\n\r";
+					// printCmd += "BARCODE QR 92 240 M 2 U 4\r\n"; //打印二维条码 超过不显示BARCODE \n\r  
+					// printCmd += "MA," + barcode + "\r\n";
+					// printCmd += "ENDQR\n\r";
 					// printCmd+="VBARCODE 128 1 0 32 184 344 "+barcode+"\n\r";//打印一维条码  超过不显示         
 					//开始打印     
 					printCmd += "FORM \n\r"; // 型号

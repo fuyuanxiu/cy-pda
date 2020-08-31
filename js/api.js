@@ -327,7 +327,7 @@ function jQueryWeb(url, data, complete) {
 	_mask.show();
 	$.ajax({
 		type: "POST",
-		url: api_localStorageGet("webPath")+"/CY_Webservice_01.asmx/" + url,
+		url: api_localStorageGet("webPath") + "/CY_Webservice_01.asmx/" + url,
 
 		data: data,
 		dataType: "xml",
@@ -343,10 +343,10 @@ function jQueryWeb(url, data, complete) {
 		},
 		error: function(request, errorInfo) {
 			_mask.close();
-			//alert("errorInfo = " + errorInfo);
-			alert("进入error---\n" + "状态码："+request.status + "\n状态:"+request.readyState 
-			   + "\n错误信息:"+request.statusText
-			   +"\n返回响应信息："+request.responseText);
+			alert("errorInfo = " + errorInfo);
+			alert("进入error---\n" + "状态码：" + request.status + "\n状态:" + request.readyState +
+				"\n错误信息:" + request.statusText +
+				"\n返回响应信息：" + request.responseText);
 		}
 	});
 
@@ -399,38 +399,80 @@ function byId(id) {
 };
 //2020-7-20 页脚字符串
 function slogan() {
-	var slogan = "提&nbsp&nbsp&nbsp&nbsp&nbsp高&nbsp&nbsp&nbsp&nbsp&nbsp生&nbsp&nbsp&nbsp&nbsp&nbsp产&nbsp&nbsp&nbsp&nbsp&nbsp效&nbsp&nbsp&nbsp&nbsp&nbsp率&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp打&nbsp&nbsp&nbsp&nbsp&nbsp造&nbsp&nbsp&nbsp&nbsp&nbsp卓&nbsp&nbsp&nbsp&nbsp&nbsp越&nbsp&nbsp&nbsp&nbsp&nbsp品&nbsp&nbsp&nbsp&nbsp&nbsp质";
+	var slogan =
+		"提&nbsp&nbsp&nbsp&nbsp&nbsp高&nbsp&nbsp&nbsp&nbsp&nbsp生&nbsp&nbsp&nbsp&nbsp&nbsp产&nbsp&nbsp&nbsp&nbsp&nbsp效&nbsp&nbsp&nbsp&nbsp&nbsp率&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp打&nbsp&nbsp&nbsp&nbsp&nbsp造&nbsp&nbsp&nbsp&nbsp&nbsp卓&nbsp&nbsp&nbsp&nbsp&nbsp越&nbsp&nbsp&nbsp&nbsp&nbsp品&nbsp&nbsp&nbsp&nbsp&nbsp质";
 	return slogan;
 }
+
 function setUsrCode() {
 	var UsrCode = api_localStorageGet("code");
-	return ""+api_localStorageGet("name")+"("+UsrCode+")";
+	return "" + api_localStorageGet("name") + "(" + UsrCode + ")";
 }
-// //打开新页面的方法
-// function OpenWindow(id, url, extras) {
-// 	mui.openWindow({
-// 		id: id,
-// 		url: url,
-// 		styles: {
-// 			top: '0px', //新页面顶部位置 
-// 			bottom: '0px', //新页面底部位置 
-// 			//width: newpage - width, //新页面宽度，默认为100% 
-// 			//height: newpage - height, //新页面高度，默认为100% ...... 
-// 		},
-// 		extras: extras,
-// 		show: { //控制打开页面的类型
-// 			autoShow: true,
-// 			//页面loaded事件发生后自动显示，默认为true 
-// 			aniShow: 'slide-in-right', //页面显示动画，默认为”slide-in-right“；  页面出现的方式 左右上下
-// 			duration: '100' //页面动画持续时间，Android平台默认100毫秒，iOS平台默认200毫秒； 
-// 		},
-// 		waiting: { // 控制 弹出转圈框的信息
-// 			autoShow: true, //自动显示等待框，默认为true 
-// 			title: '加载中', //等待对话框上显示的提示内容 
-// 			options: {
-// 				width: '300px', //等待框背景区域宽度，默认根据内容自动计算合适宽度 
-// 				height: '100px', //等待框背景区域高度，默认根据内容自动计算合适高度 ...... 
-// 			}
-// 		}
-// 	});
-// }
+
+//打印标签
+function print_datalist(list) {
+	try {
+		var printCmd = "! 0 203 203 511 1 \n\r"; //建立页面 对于203dpi,8点=1mm;对于305dpi,12点=1mm
+		var titleName = "辰奕智能";
+		var label = "标签类型： " + list[0].label
+		var amount = "  数量：" + list[0].amount;
+		var type_of_com = "   " + list[0].type_of_com; //完工类型
+		var type_of_box = "  " + list[0].type_of_box; //箱类型
+		var name = "品名：                 " + list[0].name;
+		var format = "规格：                 " + list[0].format;
+		var num = "品号：     " + list[0].num;
+		var order = "工单：     " + list[0].order;
+		var proces = "工序：     " + list[0].proces;
+		var line = "线体：     " + list[0].line; //线体名
+		var clas_code = "       " + list[0].class_code; //班次
+		var barcode = list[0].barcode; //条码
+		//内容
+		printCmd += "POSTFEED 9\n\r"; //打印之后走纸距离指令
+		printCmd += "PAGE-WIDTH 640 \n\r"; //打印型号 超过不显示
+		//printCmd+="CENTER \n\r";
+		printCmd += "SETMAG 1 1\n\r";
+		printCmd += "SETBOLD 2\n\r";
+		printCmd += "TEXT 24 1 240 4 " + titleName + " \n\r";
+		printCmd += "SETMAG 0 0\n\r";
+		printCmd += "SETBOLD 0\n\r";
+		//printCmd+="LEFT \n\r";	
+		printCmd += "LINE 2 28 2 406 3 \n\r"; //长竖线1
+		printCmd += "LINE 125 28 125 406 3 \n\r";//长竖线2
+		printCmd += "LINE 570 28 570 406 3 \n\r";//长竖线3
+		printCmd += "LINE 350 190 350 406 3 \n\r"; //中竖线
+		printCmd += "LINE 250 352 250 406 3 \n\r"; //班次左边线
+		printCmd += "LINE  228 28 228 82 3 \n\r"; //数量作左边线
+		printCmd += "LINE 360 28 360 82 3 \n\r"; //工序完工左边线
+		// printCmd += "LINE 110 270 45 270 3 \n\r"; //
+
+		printCmd += "LINE 2 28 570 28 3 \n\r";
+		printCmd += "TEXT 24 0 8 49 " + label + amount + type_of_com + type_of_box + " \n\r";
+		printCmd += "LINE 2 82 570 82 3 \n\r";
+		printCmd += "TEXT 24 0 8 103 " + name + " \n\r"; //text270 指文本旋转270°
+		printCmd += "LINE 2 136 570 136 3 \n\r";
+		printCmd += "TEXT 24 0 8 157 " + format + " \n\r";
+		printCmd += "LINE 2 190 570 190 3 \n\r";
+		printCmd += "TEXT 24 0 8 211 " + num + " \n\r";
+		printCmd += "LINE 2 244 350 244 3 \n\r";//短线1
+		printCmd += "TEXT 24 0 8 265 " + order + " \n\r";
+		printCmd += "LINE 2 298 350 298 3 \n\r";//短线2
+		printCmd += "TEXT 24 0 8 319 " + proces + " \n\r";
+		printCmd += "LINE 2 352 350 352 3 \n\r";//短线3
+		printCmd += "TEXT 24 0 8 373 " + line + clas_code + " \n\r";
+		printCmd += "LINE 2 406 570 406 3 \n\r";
+		printCmd += "TEXT 24 0 368 388 " + barcode + " \n\r";
+		//打印二维条码
+		printCmd += "BARCODE QR 390 220 M 2 U 6\r\n"; //打印二维条码 超过不显示BARCODE \n\r  
+		printCmd += "MA," + barcode + "\r\n";
+		printCmd += "ENDQR\n\r";
+		// printCmd+="VBARCODE 128 1 0 32 120 700 "+barCode+"\n\r";//打印一维条码  超过不显示         
+		//开始打印     
+		printCmd += "FORM \n\r"; // 型号：       
+		printCmd += "PRINT \n\r";
+		return printCmd;
+	} catch (err) {
+		console.log("printErr:" + err)
+		var printCmd = "";
+		return printCmd;
+	}
+}
