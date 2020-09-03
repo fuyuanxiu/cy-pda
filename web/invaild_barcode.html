@@ -54,12 +54,9 @@
 				</div>
 				<div class="mui-input-row " id="print_row">
 					<label>原因：</label>
-					<a class="mui-navigate-right">
-						<span class="mui-badge1">
-							<select class="mui-h5" style="margin:auto; color:#000;" id="reason">
-							</select>
-						</span>
-					</a>
+					<input type="text"  placeholder="请选择/填写作废原因" id="remark_content" list="reason">
+					<datalist id="reason">
+					</datalist>
 				</div>
 				<div class="mui-content-padded" align="center">
 					<button type="button" class="mui-btn mui-btn-warning" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">提交</button>
@@ -78,7 +75,6 @@
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
 						//console.log(json_obj)
 						var data = JSON.parse(json_obj)
-						$("#reason").append("<option value=''>请选择作废原因</option>");
 						for (var i = 0; i < data.length; i++) {
 							$("#reason").append("<option value=" + data[i].VALUE + ">" + data[i].VALUE + "</option>");
 						}
@@ -129,6 +125,10 @@
 			$("#submit_code").click(function() {
 				var code = $("#barcode").val()
 				var btnArray = ['否', '是'];
+				if(code==""){
+					mui.alert("未输入条码，无法执行此操作")
+					return false;
+				}
 				mui.confirm("是否作废【条码：" + code + "】", '提示', btnArray, function(e) {
 					if (e.index == 1) {
 						var reason = $("#reason").val();

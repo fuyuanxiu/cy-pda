@@ -51,7 +51,7 @@
 				<div class="mui-input-group">
 					<div class="mui-input-row">
 						<label class="dialog-label">时间：</label>
-						<input type="text" name="se_time" class="mui-input-clear" id="selecttime" placeholder="点击选择时间">
+						<input type="text" name="se_time"  class="mui-input-clear" id="selecttime" placeholder="点击选择时间">
 					</div>
 					<div class="mui-input-row">
 						<label class="dialog-label">工单：</label>
@@ -305,6 +305,9 @@
 					$("#selecttime").val(e.value);
 				})
 			});
+			$("#selecttime").focus(function(){//禁止选择时间时输入法弹出
+			        document.activeElement.blur();
+			    });
 			$('input[type=radio][name=radio1]').change(function() { //切换班次时，重置数据
 				$("#selectProces").val("");
 				$("#selectType").val("");
@@ -654,43 +657,43 @@
 					}
 				})
 			}
-			//处理返回的标签数据并打印
-			function sortData(data_list) {
-				var print_list = [];
-				var data = {};
-				var barcode_data = "";
-				for (var i = 0; i < data_list.length; i++) {
-					if (data_list[i].ITEM == "标签类型") {
-						data["label"] = data_list[i].VALUE; //标签
-					} else if (data_list[i].ITEM == "数量") {
-						data["amount"] = data_list[i].VALUE; //数量
-					} else if (data_list[i].ITEM == "完工类型") {
-						data["type_of_com"] = data_list[i].VALUE; //完工类型
-					} else if (data_list[i].ITEM == "箱类型") {
-						data["type_of_box"] = data_list[i].VALUE; //箱类型
-					} else if (data_list[i].ITEM == "品名") {
-						data["name"] = data_list[i].VALUE; //品名
-					} else if (data_list[i].ITEM == "品号规格") {
-						data["format"] = data_list[i].VALUE; //规格
-					} else if (data_list[i].ITEM == "品号") {
-						data["num"] = data_list[i].VALUE; //品号
-					} else if (data_list[i].ITEM == "工单") {
-						data["order"] = data_list[i].VALUE; //工单
-					} else if (data_list[i].ITEM == "工序名称") {
-						data["proces"] = data_list[i].VALUE; //工序名
-					} else if (data_list[i].ITEM == "线体名称") {
-						data["line"] = data_list[i].VALUE; //线体
-					} else if (data_list[i].ITEM == "班次") {
-						data["class_code"] = data_list[i].VALUE; //班次
-					} else if (data_list[i].ITEM == "条码") {
-						data["barcode"] = data_list[i].VALUE; //二维码
-						barcode_data = data_list[i].VALUE;
-					}
-				}
-				print_list.push(data);
-				toPrint(print_list);
-				return barcode_data;
-			}
+			// //处理返回的标签数据并打印
+			// function sortData(data_list) {
+			// 	var print_list = [];
+			// 	var data = {};
+			// 	var barcode_data = "";
+			// 	for (var i = 0; i < data_list.length; i++) {
+			// 		if (data_list[i].ITEM == "标签类型") {
+			// 			data["label"] = data_list[i].VALUE; //标签
+			// 		} else if (data_list[i].ITEM == "数量") {
+			// 			data["amount"] = data_list[i].VALUE; //数量
+			// 		} else if (data_list[i].ITEM == "完工类型") {
+			// 			data["type_of_com"] = data_list[i].VALUE; //完工类型
+			// 		} else if (data_list[i].ITEM == "箱类型") {
+			// 			data["type_of_box"] = data_list[i].VALUE; //箱类型
+			// 		} else if (data_list[i].ITEM == "品名") {
+			// 			data["name"] = data_list[i].VALUE; //品名
+			// 		} else if (data_list[i].ITEM == "品号规格") {
+			// 			data["format"] = data_list[i].VALUE; //规格
+			// 		} else if (data_list[i].ITEM == "品号") {
+			// 			data["num"] = data_list[i].VALUE; //品号
+			// 		} else if (data_list[i].ITEM == "工单") {
+			// 			data["order"] = data_list[i].VALUE; //工单
+			// 		} else if (data_list[i].ITEM == "工序名称") {
+			// 			data["proces"] = data_list[i].VALUE; //工序名
+			// 		} else if (data_list[i].ITEM == "线体名称") {
+			// 			data["line"] = data_list[i].VALUE; //线体
+			// 		} else if (data_list[i].ITEM == "班次") {
+			// 			data["class_code"] = data_list[i].VALUE; //班次
+			// 		} else if (data_list[i].ITEM == "条码") {
+			// 			data["barcode"] = data_list[i].VALUE; //二维码
+			// 			barcode_data = data_list[i].VALUE;
+			// 		}
+			// 	}
+			// 	print_list.push(data);
+			// 	toPrint(print_list);
+			// 	return barcode_data;
+			// }
 			//获取打印数据
 			function printInfo(weishu) {
 				jQueryWeb("PDA_SMT_PRINT_01", {

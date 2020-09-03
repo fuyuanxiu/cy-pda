@@ -408,12 +408,50 @@ function setUsrCode() {
 	var UsrCode = api_localStorageGet("code");
 	return "" + api_localStorageGet("name") + "(" + UsrCode + ")";
 }
-
+//处理返回的标签数据并打印
+function sortData(data_list) {
+	var print_list = [];
+	var data = {};
+	var barcode_data = "";
+	for (var i = 0; i < data_list.length; i++) {
+		if (data_list[i].ITEM == "标签类型") {
+			data["label"] = data_list[i].VALUE; //标签
+		} else if (data_list[i].ITEM == "数量") {
+			data["amount"] = data_list[i].VALUE; //数量
+		} else if (data_list[i].ITEM == "完工类型") {
+			data["type_of_com"] = data_list[i].VALUE; //完工类型
+		} else if (data_list[i].ITEM == "箱类型") {
+			data["type_of_box"] = data_list[i].VALUE; //箱类型
+		} else if (data_list[i].ITEM == "品名") {
+			data["name"] = data_list[i].VALUE; //品名
+		} else if (data_list[i].ITEM == "品号规格") {
+			data["format"] = data_list[i].VALUE; //规格
+		} else if (data_list[i].ITEM == "品号") {
+			data["num"] = data_list[i].VALUE; //品号
+		} else if (data_list[i].ITEM == "工单") {
+			data["order"] = data_list[i].VALUE; //工单
+		} else if (data_list[i].ITEM == "工序名称") {
+			data["proces"] = data_list[i].VALUE; //工序名
+		} else if (data_list[i].ITEM == "线体名称") {
+			data["line"] = data_list[i].VALUE; //线体
+		} else if (data_list[i].ITEM == "班次") {
+			data["class_code"] = data_list[i].VALUE; //班次
+		} else if (data_list[i].ITEM == "条码") {
+			data["barcode"] = data_list[i].VALUE; //二维码
+			barcode_data = data_list[i].VALUE;
+		}else if(data_list[i].ITEM == "标签时间"){
+			data["label_time"] = data_list[i].VALUE; //班次
+		}
+	}
+	print_list.push(data);
+	toPrint(print_list);
+	return barcode_data;
+}
 //打印标签
 function print_datalist(list) {
 	try {
-		var printCmd = "! 0 203 203 511 1 \n\r"; //建立页面 对于203dpi,8点=1mm;对于305dpi,12点=1mm
 		var titleName = "辰奕智能";
+		var label_time= list[0].label_time;
 		var label = "标签类型： " + list[0].label
 		var amount = "  数量：" + list[0].amount;
 		var type_of_com = "   " + list[0].type_of_com; //完工类型
@@ -427,42 +465,46 @@ function print_datalist(list) {
 		var clas_code = "       " + list[0].class_code; //班次
 		var barcode = list[0].barcode; //条码
 		//内容
-		printCmd += "POSTFEED 9\n\r"; //打印之后走纸距离指令
-		printCmd += "PAGE-WIDTH 640 \n\r"; //打印型号 超过不显示
+		//var printCmd = "! 0 203 203 510 1 \n\r"; //建立页面 对于203dpi,8点=1mm;对于305dpi,12点=1mm(有孔纸)
+		var printCmd = "! 0 203 203 503 1 \n\r"; //建立页面 对于203dpi,8点=1mm;对于305dpi,12点=1mm
+		//printCmd += "POSTFEED 8\n\r"; //打印之后走纸距离指令(有孔纸)
+		printCmd += "POSTFEED 1\n\r"; //打印之后走纸距离指令（无孔）
+		printCmd += "PAGE-WIDTH 645 \n\r"; //打印型号 超过不显示
 		//printCmd+="CENTER \n\r";
 		printCmd += "SETMAG 1 1\n\r";
 		printCmd += "SETBOLD 2\n\r";
-		printCmd += "TEXT 24 1 240 4 " + titleName + " \n\r";
+		printCmd += "TEXT 24 1 230 4 " + titleName + " \n\r";
+		printCmd += "TEXT 24 1 350 5 " + label_time + " \n\r";
 		printCmd += "SETMAG 0 0\n\r";
 		printCmd += "SETBOLD 0\n\r";
 		//printCmd+="LEFT \n\r";	
-		printCmd += "LINE 2 28 2 406 3 \n\r"; //长竖线1
-		printCmd += "LINE 125 28 125 406 3 \n\r";//长竖线2
-		printCmd += "LINE 570 28 570 406 3 \n\r";//长竖线3
-		printCmd += "LINE 350 190 350 406 3 \n\r"; //中竖线
-		printCmd += "LINE 250 352 250 406 3 \n\r"; //班次左边线
-		printCmd += "LINE  228 28 228 82 3 \n\r"; //数量作左边线
-		printCmd += "LINE 360 28 360 82 3 \n\r"; //工序完工左边线
-		// printCmd += "LINE 110 270 45 270 3 \n\r"; //
+		printCmd += "LINE 2 28 2 364 3 \n\r"; //长竖线1
+		printCmd += "LINE 125 28 125 364 3 \n\r"; //长竖线2
+		printCmd += "LINE 570 28 570 364 3 \n\r"; //长竖线3
+		printCmd += "LINE 350 172 350 364 3 \n\r"; //中竖线
+		printCmd += "LINE 250 316 250 364 3 \n\r"; //班次左边线
+		printCmd += "LINE  222 28 222 76 3 \n\r"; //数量作左边线
+		printCmd += "LINE 375 28 375 76 3 \n\r"; //工序完工左边线
+		//printCmd += "LINE 110 270 45 270 3 \n\r"; //
 
 		printCmd += "LINE 2 28 570 28 3 \n\r";
-		printCmd += "TEXT 24 0 8 49 " + label + amount + type_of_com + type_of_box + " \n\r";
-		printCmd += "LINE 2 82 570 82 3 \n\r";
-		printCmd += "TEXT 24 0 8 103 " + name + " \n\r"; //text270 指文本旋转270°
-		printCmd += "LINE 2 136 570 136 3 \n\r";
-		printCmd += "TEXT 24 0 8 157 " + format + " \n\r";
-		printCmd += "LINE 2 190 570 190 3 \n\r";
-		printCmd += "TEXT 24 0 8 211 " + num + " \n\r";
-		printCmd += "LINE 2 244 350 244 3 \n\r";//短线1
-		printCmd += "TEXT 24 0 8 265 " + order + " \n\r";
-		printCmd += "LINE 2 298 350 298 3 \n\r";//短线2
-		printCmd += "TEXT 24 0 8 319 " + proces + " \n\r";
-		printCmd += "LINE 2 352 350 352 3 \n\r";//短线3
-		printCmd += "TEXT 24 0 8 373 " + line + clas_code + " \n\r";
-		printCmd += "LINE 2 406 570 406 3 \n\r";
-		printCmd += "TEXT 24 0 368 388 " + barcode + " \n\r";
+		printCmd += "TEXT 24 0 8 46 " + label + amount + type_of_com + type_of_box + " \n\r";
+		printCmd += "LINE 2 76 570 76 3 \n\r";
+		printCmd += "TEXT 24 0 8 94 " + name + " \n\r"; //text270 指文本旋转270°
+		printCmd += "LINE 2 124 570 124 3 \n\r";
+		printCmd += "TEXT 24 0 8 142 " + format + " \n\r";
+		printCmd += "LINE 2 172 570 172 3 \n\r";
+		printCmd += "TEXT 24 0 8 190 " + num + " \n\r";
+		printCmd += "LINE 2 220 350 220 3 \n\r"; //短线1
+		printCmd += "TEXT 24 0 8 238 " + order + " \n\r";
+		printCmd += "LINE 2 268 350 268 3 \n\r"; //短线2
+		printCmd += "TEXT 24 0 8 286 " + proces + " \n\r";
+		printCmd += "LINE 2 316 350 316 3 \n\r"; //短线3
+		printCmd += "TEXT 24 0 8 334 " + line + clas_code + " \n\r";
+		printCmd += "LINE 2 364 570 364 3 \n\r";
+		printCmd += "TEXT 24 0 368 345 " + barcode + " \n\r";
 		//打印二维条码
-		printCmd += "BARCODE QR 390 220 M 2 U 6\r\n"; //打印二维条码 超过不显示BARCODE \n\r  
+		printCmd += "BARCODE QR 390 183 M 2 U 6\r\n"; //打印二维条码 超过不显示BARCODE \n\r  
 		printCmd += "MA," + barcode + "\r\n";
 		printCmd += "ENDQR\n\r";
 		// printCmd+="VBARCODE 128 1 0 32 120 700 "+barCode+"\n\r";//打印一维条码  超过不显示         
