@@ -56,18 +56,17 @@
 				</div>
 				<div class="mui-input-row ">
 					<label>原因：</label>
-					<input type="text" class="mui-input"  style="width: 55%;float: left;"  placeholder="请选择/填写作废原因" id="remark_content1" >
+					<input type="text" class="mui-input" style="width: 55%;float: left;" placeholder="请选择作废原因" id="remark_content1">
 					<a class="mui-navigate-right1">
-						<select  class="mui-h5" style="margin:auto; color:#000;width: 10%;" id="selectType" onchange="document.getElementById('remark_content1').value=$('#selectType option:selected').text();$('#selectType option:first').prop('selected', 'selected');">
-							<option value="" >></option>
-						</select> 
+						<select class="mui-h5" style="margin:auto; color:#000;width: 10%;" id="selectType" onchange="document.getElementById('remark_content1').value=$('#selectType option:selected').text();$('#selectType option:first').prop('selected', 'selected');">
+							<option value="">></option>
+						</select>
 					</a>
 				</div>
 				<div class="mui-input-row " id="print_row">
 					<label>原因：</label>
-					<input type="text"  placeholder="请选择/填写作废原因" id="remark_content" list="reason">
-					<datalist id="reason">
-					</datalist>
+					<input type="text" placeholder="请填写作废原因" id="remark_content">
+
 				</div>
 			</div>
 			<div class="mui-content-padded" align="center">
@@ -75,7 +74,7 @@
 			</div>
 		</div>
 		<script id='option-template' type="text/template">
-						<% for(var i in record){ var item=record[i] %>
+			<% for(var i in record){ var item=record[i] %>
 								<option value="<%=(item.VALUE)%>"><%=(item.VALUE)%></option>
 					<% } %>
 				</script>
@@ -91,9 +90,9 @@
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
 						//console.log(json_obj)
 						var data = JSON.parse(json_obj)
-						 for (var i = 0; i < data.length; i++) {
-							 $("#selectType").append("<option value=" + data[i].VALUE + ">" + data[i].VALUE + "</option>");
-						} 
+						for (var i = 0; i < data.length; i++) {
+							$("#selectType").append("<option value=" + data[i].VALUE + ">" + data[i].VALUE + "</option>");
+						}
 						/* console.log(data)
 						document.getElementById('reason').innerHTML = template('optin-template', {
 							"record": data
@@ -101,6 +100,7 @@
 					}
 				})
 			})
+
 			function clicked(url, f1, urlId) { //扫描触发
 				OpenWindow(f1, url, {
 					urlId: urlId,
@@ -145,13 +145,24 @@
 			$("#submit_code").click(function() {
 				var code = $("#barcode").val()
 				var btnArray = ['否', '是'];
-				if(code==""){
+				if (code == "") {
 					mui.alert("未输入条码，无法执行此操作")
 					return false;
 				}
 				mui.confirm("是否作废【条码：" + code + "】", '提示', btnArray, function(e) {
 					if (e.index == 1) {
-						var reason = $("#reason").val();
+						var reason_input = $("#remark_content1").val()
+						var reason_select = $("#remark_content").val()
+						if (reason_input != "" && reason_select != "") {
+							mui.alert("只能选择一种方式输入原因")
+							return false;
+						}
+						var reason = "";
+						if (reason_input == "") {
+							reason = reason_select;
+						} else {
+							reason = reason_input;
+						}
 						invaild(code, reason);
 					}
 				})
@@ -159,9 +170,9 @@
 
 			function invaild(code, reason) {
 				jQueryWeb("PDA_CANCEL_BARCODE", {
-					"inBarcode":code,
+					"inBarcode": code,
 					"inReason": reason,
-					"inUsercode":api_localStorageGet("code")
+					"inUsercode": api_localStorageGet("code")
 				}, function(xmlHttpRequest, statu) {
 					if (statu == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
