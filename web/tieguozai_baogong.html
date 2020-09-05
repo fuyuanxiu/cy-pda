@@ -401,6 +401,10 @@
 						})
 					}
 			});
+			//工序改变清空总数量
+			$("#selectId").change(function(){
+				$("#total").val("");
+			})
 			$("#order_detail").click(function() { //查看工单工序
 				var order_data = $('#order').val();
 				if (order_data == "") {

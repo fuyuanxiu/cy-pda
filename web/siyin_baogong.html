@@ -7,10 +7,24 @@
 		<script src="../js/mui.min.js"></script>
 		<script src="../js/api.js"></script>
 		<script src="../js/template-web.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
 		<link href="../css/mui.min.css" rel="stylesheet" />
 		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
 		<link rel="stylesheet" type="text/css" href="css/common.css" />
 		<style type="text/css">
+			.record-dialog {
+				position: fixed;
+				margin-top: 0.85rem;
+				z-index: 999;
+			}
+
+			.add-dialog {
+				position: fixed;
+				margin-top: 1.25rem;
+				z-index: 999;
+			}
 		</style>
 	</head>
 	<body>
@@ -18,24 +32,97 @@
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
 			<h1 class="mui-title">丝印报工</h1>
 		</header>
+		<dialog id="siyinRecordDialog" class="record-dialog" style="width: 95%;height: 350px; overflow:auto;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>丝印记录</span></p>
+			<button style="margin-top: 0.525rem;" type="button" class="mui-btn mui-btn-primary" id="addrecord">添加</button>
+			<div id="operator_list">
+			</div>
+			<script id='template' type="text/template">
+				<% for(var i in record){ var item=record[i];%>
+			<div class="mui-card" >
+				<div class="mui-card-content">
+					<ul class="mui-table-view">
+						<li class="mui-table-view-cell mui-media">
+							<a href="javascript:;">
+								<span></span>
+								<div class="mui-media-body">
+									<span>丝印网数：<%=(item.net)%></span><br>
+									<span>丝印数量：<%=(item.quantity)%></span><br>
+									<span>丝印人员:<%=(item.siyin_pl)%></span><br>
+									<span>质检人员:<%=(item.iqc_pl)%></span>
+								</div>
+							</a>
+						</li>
+					</ul>
+					<div class="mui-card-footer">
+						<span></span>
+						<span><button onclick="deleteItem(<%=(i)%>)" class="mui-btn-warning">删除</button></span>
+					</div>
+				</div>
+			</div>
+			<%}%>
+			</script>
+			<div class="mui-button-row">
+				<button type="reset" class="mui-btn mui-btn-danger" onclick="closeSiyinRecordDialog()">关闭</button>
+			</div>
+		</dialog>
+		<dialog id="addOperatorDialog" class="add-dialog" style="width: 90%;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:100px"><span>添加丝印人员</span></p>
+			<br>
+			<form id="addRecordFrom">
+				<div class="mui-input-group">
+					<div class="mui-input-row">
+						<label style="font-size: 12px;">丝印网数：</label>
+						<a class="mui-navigate-right">
+							<span class="mui-badge1">
+								<select class="mui-h5" style="margin:auto; color:#000;" id="siyin_nets">
+
+								</select>
+							</span>
+						</a>
+					</div>
+					<div class="mui-input-row">
+						<label style="font-size: 12px;">丝印数量：</label>
+						<input id="siyin_quantity" type="text" class="mui-input-clear" placeholder="必为整数,且大于0" onkeyup="value=(value.replace(/\D/g,'')==''?'':parseInt(value))">
+					</div>
+					<div class="mui-input-row">
+						<label style="font-size: 12px;" onclick="clicked('commom/saomiao.html','siyin_pl','web/siyin_baogong.html');">丝印员工号:</label>
+						<input id="siyin_pl" placeholder="输入工号按回车验证" type="text" class="mui-input-clear">
+					</div>
+					<div class="mui-input-row">
+						<label style="font-size: 12px;" onclick="clicked('commom/saomiao.html','iqc_pl','web/siyinu_baogong.html');">质检员工号:</label>
+						<input id="iqc_pl" placeholder="输入工号按回车验证" type="text" class="mui-input-clear">
+					</div>
+				</div>
+				<div class="mui-button-row">
+					<button type="button" id="addoperator" style="width: 45%;float: left;" class="mui-btn mui-btn-primary">确认</button>
+					<button type="reset" class="mui-btn mui-btn-danger" style="width: 45%;" onclick="closeAddOperatorDialog()">取消</button>
+				</div>
+			</form>
+		</dialog>
 		<div class="mui-content" id="divid">
 			<form class="mui-input-group" id="formId">
-				<div class="mui-input-row">  
-					<label>班次</label>  
-					<span class="radio_inline mui-radio">  
-						<input name="radio1" type="radio" id="A" checked value="A">  
-						<label for="A">A</label>  
-						<input name="radio1" type="radio" id="B" value="B">         
-						<label for="B">B</label>        
-					</span>               
+				<div class="mui-input-row">
+					<label>班次</label>
+					<span class="radio_inline mui-radio">
+						<input name="radio1" type="radio" id="A" checked value="A">
+						<label for="A">A</label>
+						<input name="radio1" type="radio" id="B" value="B">
+						<label for="B">B</label>
+					</span>
 				</div>
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','line_code','web/zhusu_baogong.html');">线体编码</label>
-				    <input id="line_code" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
-					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
+					<label onclick="clicked('commom/saomiao.html','line_code','web/siyinu_baogong.html');">线体编码</label>
+					<input id="line_code" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 35%;float: left;">
+					<input disabled type="text" class="mui-input-clear" style="width: 30%;background-color: #F5F5F5;">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','order','web/tieguozai_baogong.html');"></span>工单</label>
+					<input id="order" placeholder="请扫描" type="text" class="mui-input" style="width: 54%;float: left;">
+					<button type="button" id="order_detail" style="width:10%; height: inherit;" class="mui-btn-primary">...</button>
 				</div>
 				<div class="mui-input-row ">
-					<label>完工类型</label>  
+					<label>完工类型</label>
 					<a class="mui-navigate-right">
 						<span class="mui-badge1">
 							<select class="mui-h5" style="margin:auto; color:#000;" id="selectProces">
@@ -44,10 +131,10 @@
 								<option value="工单完工">工单完工</option>
 							</select>
 						</span>
-					</a>              
+					</a>
 				</div>
 				<div class="mui-input-row " id="print_row">
-					<label>打印类型</label>  
+					<label>打印类型</label>
 					<a class="mui-navigate-right">
 						<span class="mui-badge1">
 							<select class="mui-h5" style="margin:auto; color:#000;" id="selectType">
@@ -56,110 +143,441 @@
 								<option value="交接标">交接标</option>
 							</select>
 						</span>
-					</a>              
+					</a>
 				</div>
 				<div class="mui-input-row mui-hidden" id="jiaojie_row">
-					<label onclick="clicked('commom/saomiao.html','handover','web/zhusu_baogong.html');">交接标</label>
-				    <input id="handover" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
-					<input id="qty" placeholder="数量" type="text" class="mui-input-clear" disabled  style="width: 30%;">
-				</div>
-				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','order','web/zhusu_baogong.html');">工单</label>
-				    <input id="order" placeholder="请扫描" type="text" class="mui-input-clear">
+					<label onclick="clicked('commom/saomiao.html','handover','web/siyinu_baogong.html');">交接标</label>
+					<input id="handover" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 35%;float: left;">
+					<input id="qty" placeholder="数量" type="text" class="mui-input-clear" disabled style="width: 30%;">
 				</div>
 				<div class="mui-input-row">
 					<label>是否尾数</label>
 					<div class="mui-switch" id="weishu_switch">
-					  <div class="mui-switch-handle"></div>
+						<div class="mui-switch-handle"></div>
 					</div>
 				</div>
+				<div class="mui-input-row">
+					<label>丝印规格</label>
+					<input id="siyin_format" type="text" class="mui-input-clear">
+				</div>
 				<div class="mui-input-row ">
-					<label >丝印工序</label>
+					<label>产品类型</label>
 					<a class="mui-navigate-right">
 						<span class="mui-badge1">
-							<select class="mui-h5" style="margin:auto; color:#000;" id="selectId" >
-								<option value="">请点击选择丝印工序</option>
-								<option value="1">津</option> 
-								<option value="2">津2</option> 
+							<select class="mui-h5" style="margin:auto; color:#000;" id="selectProType">
+
+							</select>
+						</span>
+					</a>
+				</div>
+				<div class="mui-input-row ">
+					<label>丝印工序</label>
+					<a class="mui-navigate-right">
+						<span class="mui-badge1">
+							<select class="mui-h5" style="margin:auto; color:#000;" id="selectId">
+
 							</select>
 						</span>
 					</a>
 				</div>
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','lingban','web/zhusu_baogong.html');">领班工号</label>
-				    <input id="lingban" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
-					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
+					<label onclick="clicked('commom/saomiao.html','lingban','web/siyinu_baogong.html');">领班工号</label>
+					<input id="lingban" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 35%;float: left;">
+					<input disabled type="text" class="mui-input-clear" style="width: 30%;background-color: #F5F5F5;">
 				</div>
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','siyin_pl','web/zhusu_baogong.html');">丝印员工号</label>
-				    <input id="siyin_pl" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
-					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
-				</div>
-				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','iqc_pl','web/zhusu_baogong.html');">质检员工号</label>
-				    <input id="iqc_pl" placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
-					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
+					<label>产品穴数</label>
+					<input id="count" type="text" class="mui-input-clear">
 				</div>
 
-				<div class="mui-input-row mui-hidden" id="silk_row1">
-					<label >丝印工序</label>
+				<div class="mui-input-row ">
+					<label>丝印网数</label>
 					<a class="mui-navigate-right">
 						<span class="mui-badge1">
-							<select class="mui-h5" style="margin:auto; color:#000;" id="selectId" >
-								<option value="">请点击选择丝印工序</option>
-								<option value="1">津</option> 
-								<option value="2">津2</option> 
+							<select class="mui-h5" style="margin:auto; color:#000;" id="select_nets">
+
 							</select>
 						</span>
 					</a>
 				</div>
-				<div class="mui-input-row mui-hidden" id="silk_row2">
-					<label>丝印工号</label>
-				    <input  placeholder="请扫描" type="text" class="mui-input-clear"  style="width: 35%;float: left;">
-					<input disabled  type="text" class="mui-input-clear"   style="width: 30%;background-color: #F5F5F5;">
-				</div>
 				<div class="mui-input-row">
-					<label>总数量</label>
-				    <input  placeholder="请输入总数量" type="text" class="mui-input-clear">
+					<label>报工数量</label>
+					<input id="total" placeholder="请输入报工数量" type="text" class="mui-input-clear">
 				</div>
 			</form>
 			<div class="mui-content-padded" align="center">
-			    <button type="button" class="mui-btn mui-btn-green" >打印</button>
-				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-warning" >重新打印</button>
+				<button type="button" class="mui-btn mui-btn" id="siyin_record">丝印记录</button>
+				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-green">打印</button>
+				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-warning">重新打印</button>
+				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-primary" id="his_record">历史记录</button>
 			</div>
-			
-		</div>
 		</div>
 
 		<script type="text/javascript" charset="utf-8">
 			mui.init();
-			var isManual = false;//标志按钮最后状态
+			var pl_datalist = [];
 			window.addEventListener("changeBar", function(e) {
 				var inputId = e.detail.inputId
 				document.getElementById(inputId).value = e.detail.barcode
 			});
 			mui.plusReady(function() {
-				
-				//为选择单选选项添加监听事件
-				/* document.querySelector('.mui-table-view .mui-table-view-radio').addEventListener('selected',function(e){
-				     console.log("当前选中的文本值为："+e.detail.el.innerText);
-				}); */
-				mui('#print_row').on('change', 'select', function() {  
-					if(this.value == '正常标'){
+				mui('#print_row').on('change', 'select', function() {
+					if (this.value == '正常标') {
 						document.getElementById('jiaojie_row').classList.remove('mui-hidden');
-					}else{
+					} else {
 						document.getElementById('jiaojie_row').classList.add('mui-hidden');
 					}
-				})
+				});
+				try {
+					var main = plus.android.runtimeMainActivity();
+					var BluetoothAdapter = plus.android.importClass("android.bluetooth.BluetoothAdapter");
+					var UUID = plus.android.importClass("java.util.UUID");
 
+					uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+					var BAdapter = BluetoothAdapter.getDefaultAdapter();
+					BAdapter.cancelDiscovery(); //停止扫描  
+
+					// var addres_mac = plus.storage.getItem("DC:1D:30:3F:D2:50");//传入打印机mac地址  
+					var address_mac = api_localStorageGet("printMac") ? api_localStorageGet("printMac") : "00:00:05:D7:49:50";
+					device = BAdapter.getRemoteDevice(address_mac);
+					plus.android.importClass(device);
+
+					bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+					plus.android.importClass(bluetoothSocket);
+				} catch (err) {
+					// alert(err);
+					console.log(err);
+					plus.ui.toast("蓝牙连接异常！");
+				}
+				mask = mui.createMask(function() { //遮罩层callback事件
+					if (byId("siyinRecordDialog").style.display == "none") {
+						return true; //如果没有弹出框，关闭遮罩层
+					}
+					return false; //返回true,点击关闭mask
+				}); /*创建蒙版，保存到mask中*/
+				getSelectNet(); //获取丝印网数
+				getSelectProType(); //获取产品类型
 			});
+			//遮罩层
+			function showMask() { /*绑定处理事件*/
+				top_value = $(document).scrollTop() //document.documentElement.scrollTop
+				document.body.style.overflow = "hidden"
+				document.body.style.width = "100%"
+				document.body.style.height = "100%"
+				document.body.style.position = "fixed"
+				mask.show(); /*调用展示遮罩*/
+			}
+
+			function closeMask() { /*绑定处理事件*/
+				document.body.style.overflow = "scroll"
+				document.body.style.width = "100%"
+				document.body.style.height = "100%"
+				document.body.style.position = "relative"
+				window.scrollTo(0, top_value); //回到原位置
+				mask.close(); /*调用展示属性*/
+			}
+
+			function getSelectNet() {
+				jQueryWeb("PDA_SY_GET_SYWS", "", function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						for (var i = 0; i <= json_obj; i++) {
+							if (i == 0) {
+								$("#select_nets").append("<option value=''>请选择丝印网数</option>");
+								$("#siyin_nets").append("<option value=''>请选择丝印网数</option>");
+							} else {
+								$("#select_nets").append("<option value=" + i + ">" + i + "</option>");
+								$("#siyin_nets").append("<option value=" + i + ">" + i + "</option>");
+							}
+						}
+					} else {
+						alert("连接PDA_SY_GET_SYWS失败")
+					}
+				})
+			}
+
+			function getSelectProType() {
+				jQueryWeb("PDA_SY_GET_ITEMTYPE", "", function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						//console.log(json_obj)
+						var data = JSON.parse(json_obj)
+						for (var i = 0; i < data.length; i++) {
+							if (i == 0) {
+								$("#selectProType").append("<option value=''>请选择产品类型</option>");
+							}
+							$("#selectProType").append("<option value=" + data[i].VALUE + ">" + data[i].VALUE + "</option>");
+						}
+					} else {
+						alert("连接PDA_SY_GET_ITEMTYPE失败")
+					}
+				})
+			}
+
 			function clicked(url, f1, urlId) {
 				OpenWindow(f1, url, {
 					urlId: urlId,
 					inputId: f1
 				});
 			};
+			//弹出框控制
+			$("#siyin_record").click(function() { //丝印记录
+				document.getElementById("siyinRecordDialog").style.display = "block"
+				showMask();
+			})
 
+			function closeSiyinRecordDialog() {
+				document.getElementById("siyinRecordDialog").style.display = "none"
+				closeMask()
+			}
+			$("#addrecord").click(function() { //添加丝印人员
+				document.getElementById("addOperatorDialog").style.display = "block"
+			})
+			$('#siyin_pl').bind('keyup', function(event) {
+				if (event.keyCode == "13") {
+					jQueryWeb("PDA_GET_NAME_BY_CODE", {
+						"inWorkCode": $('#siyin_pl').val(),
+						"OnJobCheck": "Y"
+					}, function(xmlHttpRequest, statu) {
+						if (statu == 'success') {
+							var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+							$('#siyin_pl').val(json_obj)
+						}
+					})
+				}
+			})
+			$('#iqc_pl').bind('keyup', function(event) {
+				if (event.keyCode == "13") {
+					jQueryWeb("PDA_GET_NAME_BY_CODE", {
+						"inWorkCode": $('#iqc_pl').val(),
+						"OnJobCheck": "Y"
+					}, function(xmlHttpRequest, statu) {
+						if (statu == 'success') {
+							var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+							$('#iqc_pl').val(json_obj)
+						}
+					})
+				}
+			})
+			$("#addoperator").click(function() {
+				var operator_data = {};
+				operator_data["net"] = $("#siyin_nets").val(); //丝印网数
+				operator_data["quantity"] = $("#siyin_quantity").val(); //丝印数量
+				operator_data["siyin_pl"] = $("#siyin_pl").val(); //丝印员工
+				operator_data["iqc_pl"] = $("#iqc_pl").val(); //质检人员
+				//console.log(JSON.stringify(operator_data))
+				updateOperator(operator_data)
+			})
+
+			function updateOperator(operator_data) {
+				if ($("#siyin_nets").val() == "" || $("#siyin_quantity").val() == "" ||
+					$("#siyin_pl").val() == "" || $("#iqc_pl").val() == "") {
+					mui.alert("请完善数据")
+					return false;
+				}
+				pl_datalist.push(operator_data);
+				document.getElementById('operator_list').innerHTML = template('template', {
+					"record": pl_datalist
+				});
+				$("#siyin_nets").val(""); //丝印网数
+				$("#siyin_quantity").val(""); //丝印数量
+				$("#siyin_pl").val(""); //丝印员工
+				$("#iqc_pl").val(""); //质检人员
+				document.getElementById("addOperatorDialog").style.display = "none";
+			}
+
+			function deleteItem(index) { //删除质检员记录
+				pl_datalist.splice(index, 1);
+				document.getElementById('operator_list').innerHTML = template('template', {
+					"record": pl_datalist
+				});
+			}
+
+			function closeAddOperatorDialog() {
+				document.getElementById("addOperatorDialog").style.display = "none"
+			}
+			//切换班次时，重置数据
+			$('input[type=radio][name=radio1]').change(function() {
+				$("#line_code").val("");
+				toClear();
+			});
+			//线体编码监听内容（逐字符监听），内容改变重置数据
+			$('#line_code').bind('input propertychange', function() {
+				toClear();
+			});
+			//监听线体编码——扫描回车
+			$('#line_code').bind('keyup', function(event) {
+				if (event.keyCode == "13") { //输入回车执行
+					jQueryWeb("PDA_SY_GET_LINEINFO", {
+						"inLine_NO": $('#line_code').val()
+					}, function(xmlHttpRequest, statu) {
+						if (statu == 'success') {
+							var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+							$('#line_code').val(json_obj);
+						} else {
+							alert("连接PDA_SY_GET_LINEINFO失败")
+						}
+					})
+				}
+			});
+			//监听工单——扫描回车
+			$('#order').bind('keyup', function(event) {
+				if (event.keyCode == "13") { //输入回车执行
+					$("#selectId").val("");
+					$("#selectId").empty();
+					$('#lingban').val("");
+					jQueryWeb("PDA_SY_GET_INFO_BY_MO_01", {
+						"inClassType": $('input[name="radio1"]:checked').val(), //班次
+						"inLineNo": $('#line_code').val(), //线体编码
+						"inMo": $('#order').val() //工单
+					}, function(xmlHttpRequest, statu) {
+						if (statu == 'success') {
+							var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+							var data = JSON.parse(json_obj)
+							//console.log(json_obj)
+							for (var i = 0; i < data.length; i++) {
+								if (data[i].ITEM == "工单") {
+									$('#order').val(data[i].VALUE);
+								} else if (data[i].ITEM == "工序") {
+									var selectValue = data[i].VALUE;
+									if (selectValue.indexOf("没有") != -1) { //此品号无该工序时，NG
+										$("#selectId").append("<option>" + selectValue + "</option>");
+										$("#selectId").val(selectValue); //显示ng
+									} else if (selectValue == "") { //工序为空时
+										$("#selectId").append("<option value=" + selectValue + ">请点击选择工序</option>");
+										$("#selectId").val(selectValue); //显示“请选择”
+									}
+								} else if (data[i].ITEM == "工序_下拉") {
+									$("#selectId").append("<option value=" + data[i].VALUE + ">" + data[i].VALUE + "</option>");
+								} else if (data[i].ITEM == "领班工号") {
+									$('#lingban').val(data[i].VALUE);
+									var lingban = data[i].VALUE;
+									if (lingban != "") {
+										lingban = lingban.substring(0, lingban.indexOf(";"));
+										getLingBan(lingban);
+									}
+								} else if (data[i].ITEM == "完工类型") {
+									var proces = data[i].VALUE;
+									$("#selectProces").val(proces);
+								} else if (data[i].ITEM == "产品穴数") {
+									$("#count").val(data[i].VALUE);
+								} else if (data[i].ITEM == "丝印网数") {
+									$("#select_nets").val(data[i].VALUE);
+								} else if (data[i].ITEM == "丝印规格") {
+									$("#siyin_format").val(data[i].VALUE);
+								} else if (data[i].ITEM == "产品类型") {
+									$("#selectProType").val(data[i].VALUE);
+								}
+							}
+						} else {
+							alert("PDA_SL_GET_INFO_BY_MO_01连接失败")
+						}
+					})
+				}
+			});
+			//监听交接标——扫描回车
+			$('#handover').bind('keyup', function(event) {
+				if (event.keyCode == "13") { //输入回车执行
+					jQueryWeb("PDA_SY_HANDOVER_01", {
+						"inHANDOVER_NO": $('#handover').val()
+						// "inHANDOVER_NO": "MES20200819-00001"
+					}, function(xmlHttpRequest, statu) {
+						if (statu == 'success') {
+							var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+							var data = JSON.parse(json_obj)
+							$('#handover').val(data[0].VALUE);
+							$('#qty').val(data[1].VALUE);
+						} else {
+							alert("连接PDA_SY_HANDOVER_01失败")
+						}
+					})
+				}
+			});
+			//查看工单工序
+			$("#order_detail").click(function() {
+				var order_data = $('#order').val();
+				if (order_data == "") {
+					mui.alert("请添加工单")
+					return false;
+				}
+				jQueryWeb("GetMoProcInfo", {
+					"Mo": order_data
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.DocumentElement;
+						//console.log(JSON.stringify(data))
+						if (data != undefined) {
+							var listData = [];
+							var th_data = {};
+							th_data["序号"] = "序号";
+							th_data["工序"] = "工序";
+							th_data["标准人力"] = "标准人力";
+							th_data["标准时产"] = "标准时产";
+
+							if (JSON.stringify(data.table01).toString().substring(0, 1) == '{') {
+								listData = [data.table01];
+								listData.unshift(th_data);
+							} else {
+								listData = data.table01;
+								listData.unshift(th_data); //往数组首位添加数据
+							}
+							document.getElementById('pro_list').innerHTML = template('pr-template', {
+								"record": listData
+							});
+							byId("procesDialog").style.display = "block"
+						} else {
+							mui.alert("无记录")
+						}
+					} else {
+						mui.alert("GetMoProcInfo连接失败")
+					}
+				})
+			});
+			$('#lingban').bind('keyup', function(event) { //扫描得领班工号
+				if (event.keyCode == "13") { //输入回车执行
+					var lingban = $('#lingban').val();
+					if (lingban.indexOf(";") != -1) {
+						lingban = lingban.substring(0, lingban.indexOf(";"));
+					}
+					getLingBan(lingban)
+				}
+			});
+
+			function getLingBan(ling_ban) { //获取领班信息
+				jQueryWeb("PDA_GET_LBINFO", {
+					"inLbWorkCode": ling_ban,
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = JSON.parse(json_obj)
+						$('#lingban').val(data[0].VALUE);
+					}
+				})
+			}
+			//工序改变清空报工数量
+			$("#selectId").change(function() {
+				$("#total").val("");
+			})
+
+			function toClear() { //清空数据
+				$("#selectProces").val("");
+				$("#selectType").val("");
+				document.getElementById('jiaojie_row').classList.add('mui-hidden');
+				$("#handover").val("");
+				$("#qty").val("");
+				$("#order").val("");
+				$("#siyin_format").val("");
+				$("#count").val("");
+				$("#select_nets").val("");
+				$("#selectProType").val("");
+				$("#selectId").val("");
+				$("#lingban").val("");
+				$("#total").val("");
+				document.getElementById("weishu_switch").classList.add("mui-active")
+				mui("#weishu_switch").switch().toggle();
+				mui("#print").button('reset');
+			}
 		</script>
 	</body>
 </html>
