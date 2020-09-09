@@ -368,7 +368,7 @@
 					plus.ui.toast("蓝牙连接异常！");
 				}
 				mask = mui.createMask(function() { //遮罩层callback事件
-					if (byId("siyinRecordDialog").style.display == "none"||byId("selectDialog").style.display == "none") {
+					if (byId("siyinRecordDialog").style.display == "none" || byId("selectDialog").style.display == "none") {
 						return true; //如果没有弹出框，关闭遮罩层
 					}
 					return false; //返回true,点击关闭mask
@@ -497,10 +497,8 @@
 						for (var i = 0; i <= json_obj; i++) {
 							if (i == 0) {
 								$("#select_nets").append("<option value=''>请选择丝印网数</option>");
-								$("#siyin_nets").append("<option value=''>请选择丝印网数</option>");
 							} else {
 								$("#select_nets").append("<option value=" + i + ">" + i + "</option>");
-								$("#siyin_nets").append("<option value=" + i + ">" + i + "</option>");
 							}
 						}
 					} else {
@@ -508,6 +506,17 @@
 					}
 				})
 			}
+			$("#select_nets").change(function() {
+				var net = $("#select_nets").val();
+				$("#siyin_nets").empty();
+				for (var i = 0; i <= net; i++) {
+					if (i == 0) {
+						$("#siyin_nets").append("<option value=''>请选择丝印网数</option>");
+					} else {
+						$("#siyin_nets").append("<option value=" + i + ">" + i + "</option>");
+					}
+				}
+			})
 
 			function getSelectProType() {
 				jQueryWeb("PDA_SY_GET_ITEMTYPE", "", function(xmlHttpRequest, statu) {
@@ -544,6 +553,10 @@
 				closeMask()
 			}
 			$("#addrecord").click(function() { //添加丝印人员
+				if ($("#select_nets").val() == "") {
+					mui.alert("请先选择丝印网数")
+					return false;
+				}
 				document.getElementById("addOperatorDialog").style.display = "block"
 			})
 			$('#siyin_pl').bind('keyup', function(event) { //获取丝印员工信息

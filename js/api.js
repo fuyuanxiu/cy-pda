@@ -456,8 +456,8 @@ function print_datalist(list) {
 		var amount = "  数量：" + list[0].amount;
 		var type_of_com = "   " + list[0].type_of_com; //完工类型
 		var type_of_box = "  " + list[0].type_of_box; //箱类型
-		var name = "品名：                 " + list[0].name;
-		var format = "规格：                 " + list[0].format;
+		var name = "品名：     " + list[0].name;
+		var format = "规格：     " + list[0].format;
 		var num = "品号：     " + list[0].num;
 		var order = "工单：     " + list[0].order;
 		var proces = "工序：     " + list[0].proces;
@@ -484,7 +484,7 @@ function print_datalist(list) {
 		printCmd += "LINE 350 172 350 364 3 \n\r"; //中竖线
 		printCmd += "LINE 250 316 250 364 3 \n\r"; //班次左边线
 		printCmd += "LINE  222 28 222 76 3 \n\r"; //数量作左边线
-		printCmd += "LINE 375 28 375 76 3 \n\r"; //工序完工左边线
+		printCmd += "LINE 365 28 365 76 3 \n\r"; //工单完工/交接左边线
 		//printCmd += "LINE 110 270 45 270 3 \n\r"; //
 
 		printCmd += "LINE 2 28 570 28 3 \n\r";
