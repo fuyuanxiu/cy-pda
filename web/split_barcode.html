@@ -16,7 +16,7 @@
 		<link href="../css/mui.min.css" rel="stylesheet" />
 		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
 		<link rel="stylesheet" type="text/css" href="css/common.css" />
-		<link rel="stylesheet" type="text/css" href="../css/comment.css" />	
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
 	</head>
 
 	<body>
@@ -35,82 +35,153 @@
 					<input id="barcode" placeholder="请扫入条码" type="text" class="mui-input-clear">
 				</div>
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','count','web/split_barcode.html');">拆分数量</label>
-					<input id="loc_num" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+					<label>拆分数量</label>
+					<input id="count" type="text" class="mui-input-clear">
 				</div>
 				<div class="mui-content-padded" align="center">
 					<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
-					<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-primary" id="history">历史记录</button>
+					<!-- <button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-primary" id="history">历史记录</button> -->
 				</div>
 			</div>
 		</div>
 		<script type="text/javascript">
-		window.addEventListener("changeBar", function(e) {
-			var inputId = e.detail.inputId
-			document.getElementById(inputId).value = e.detail.barcode
-		});
-		mui.plusReady(function() {
-			mask = mui.createMask(function() { //遮罩层callback事件
-				if (byId("selectDialog").style.display == "none") {
-					return true; //如果没有弹出框，关闭遮罩层
-				}
-				return false; //返回true,点击关闭mask
-			}); /*创建蒙版，保存到mask中*/
-		})
-		//遮罩层
-		function showMask() { /*绑定处理事件*/
-			top_value = $(document).scrollTop() //document.documentElement.scrollTop
-			document.body.style.overflow = "hidden"
-			document.body.style.width = "100%"
-			document.body.style.height = "100%"
-			document.body.style.position = "fixed"
-			mask.show(); /*调用展示遮罩*/
-		}
-		
-		function closeMask() { /*绑定处理事件*/
-			document.body.style.overflow = "scroll"
-			document.body.style.width = "100%"
-			document.body.style.height = "100%"
-			document.body.style.position = "relative"
-			window.scrollTo(0, top_value); //回到原位置
-			mask.close(); /*调用展示属性*/
-		}
-		
-		function clicked(url, f1, urlId) { //扫描触发
-			OpenWindow(f1, url, {
-				urlId: urlId,
-				inputId: f1
+			window.addEventListener("changeBar", function(e) {
+				var inputId = e.detail.inputId
+				document.getElementById(inputId).value = e.detail.barcode
 			});
-		};
-		$("#submit_code").click(function() {
-			var code = $("#barcode").val();
-			var location = $("#location").val();
-			var count =$("#count").val();
-			var btnArray = ['否', '是'];
-			if (code == "" || location == "") {
-				mui.alert("请先完善数据")
-				return false;
+			mui.plusReady(function() {
+				mask = mui.createMask(function() { //遮罩层callback事件
+					if (byId("selectDialog").style.display == "none") {
+						return true; //如果没有弹出框，关闭遮罩层
+					}
+					return false; //返回true,点击关闭mask
+				}); /*创建蒙版，保存到mask中*/
+				try {
+					var main = plus.android.runtimeMainActivity();
+					var BluetoothAdapter = plus.android.importClass("android.bluetooth.BluetoothAdapter");
+					var UUID = plus.android.importClass("java.util.UUID");
+				
+					uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+					var BAdapter = BluetoothAdapter.getDefaultAdapter();
+					BAdapter.cancelDiscovery(); //停止扫描  
+				
+					// var addres_mac = plus.storage.getItem("DC:1D:30:3F:D2:50");//传入打印机mac地址  
+					var address_mac = api_localStorageGet("printMac") ? api_localStorageGet("printMac") : "00:00:05:D7:49:50";
+					device = BAdapter.getRemoteDevice(address_mac);
+					plus.android.importClass(device);
+				
+					bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+					plus.android.importClass(bluetoothSocket);
+				} catch (err) {
+					// alert(err);
+					console.log(err);
+					plus.ui.toast("蓝牙连接异常！");
+				}
+			})
+			//遮罩层
+			function showMask() { /*绑定处理事件*/
+				top_value = $(document).scrollTop() //document.documentElement.scrollTop
+				document.body.style.overflow = "hidden"
+				document.body.style.width = "100%"
+				document.body.style.height = "100%"
+				document.body.style.position = "fixed"
+				mask.show(); /*调用展示遮罩*/
 			}
-			mui.confirm("是否将【条码：" + code + "】 拆分？", '提示', btnArray, function(e) {
-				if (e.index == 1) {
-					//mui.alert("正在开发中。。")
-					split(code, location,count);
+
+			function closeMask() { /*绑定处理事件*/
+				document.body.style.overflow = "scroll"
+				document.body.style.width = "100%"
+				document.body.style.height = "100%"
+				document.body.style.position = "relative"
+				window.scrollTo(0, top_value); //回到原位置
+				mask.close(); /*调用展示属性*/
+			}
+
+			function clicked(url, f1, urlId) { //扫描触发
+				OpenWindow(f1, url, {
+					urlId: urlId,
+					inputId: f1
+				});
+			};
+			$("#submit_code").click(function() {
+				var code = $("#barcode").val();
+				var location = $("#location").val();
+				var count = $("#count").val();
+				var btnArray = ['否', '是'];
+				if (code == "" || location == ""||count=="") {
+					mui.alert("请先完善数据")
+					return false;
 				}
+				mui.confirm("是否将【条码：" + code + "】 拆分？", '提示', btnArray, function(e) {
+					if (e.index == 1) {
+						split(code, location, count);
+					}
+				})
 			})
-		})
-		function split(code, location,count){
-			jQueryWeb(" PDA_WMS_BARCODE_SPLIT", {
-				"inBinCode": location,
-				"inBarcode": code,
-				"inQTY":count,
-				"userCode": api_localStorageGet("code")
-			}, function(xmlHttpRequest, statu) {
-				if (statu == 'success') {
-					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
-					console.log(json_obj)
+
+			function split(code, location, count) {
+				jQueryWeb("PDA_WMS_BARCODE_SPLIT", {
+					"inBinCode": location,
+					"inBarcode": code,
+					"inQTY": count,
+					"inUserCode": api_localStorageGet("code")
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						//console.log(json_obj)
+						mui.alert(json_obj)
+						if (json_obj.indexOf("NG") != -1) { //结果含NG字样时
+							mui.alert(json_obj)
+						}else{
+							//var s="MES20200907-00001@MES20200907-00002";
+							var arr = json_obj.split("@");
+							for (var i = 0; i < arr.length; i++) {
+								getReprintData(arr[i]);
+								//console.log(arr[i])
+							}
+						}
+					}
+				})
+			}
+			//获取标签信息
+			function getReprintData(barcode_data) {
+				jQueryWeb("PDA_GET_PRINT_INFO_BY_BARCODE", {
+					"BARCODE": barcode_data,
+					"JsonContext": ""
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						if (json_obj == "获取条码失败(查找不到条码)") {
+							mui.alert(json_obj+"【当前条码："+barcode_data+"】");
+						} else {
+							var data_list = JSON.parse(json_obj)
+							sortData(data_list);
+						}
+					}
+				})
+			}
+
+			function toPrint(list) { //执行蓝牙打印
+				try {
+					if (!bluetoothSocket.isConnected()) {
+						// plus.ui.toast("重新连接");
+						bluetoothSocket.connect();
+					}
+					var outputStream = bluetoothSocket.getOutputStream();
+					plus.android.importClass(outputStream);
+					//获取内容
+					var printCmd = print_datalist(list);
+					//console.log(printCmd)
+					var arrayBuffer = plus.android.invoke(printCmd, 'getBytes', 'gbk'); //stringToByte(printCmd);  
+					outputStream.write(arrayBuffer);
+					outputStream.flush();
+				} catch (err) {
+					// alert(err);
+					console.log(err);
+					plus.ui.toast("蓝牙连接打印机失败！");
+					return;
 				}
-			})
-		}
+			}
 		</script>
 	</body>
 

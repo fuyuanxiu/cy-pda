@@ -454,8 +454,8 @@ function print_datalist(list) {
 		var label_time= list[0].label_time;
 		var label = "标签类型： " + list[0].label
 		var amount = "  数量：" + list[0].amount;
-		var type_of_com = "   " + list[0].type_of_com; //完工类型
-		var type_of_box = "  " + list[0].type_of_box; //箱类型
+		var type_of_com = "     " + list[0].type_of_com; //完工类型
+		var type_of_box = " " + list[0].type_of_box; //箱类型
 		var name = "品名：     " + list[0].name;
 		var format = "规格：     " + list[0].format;
 		var num = "品号：     " + list[0].num;

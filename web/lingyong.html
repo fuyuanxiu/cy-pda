@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>标签领用扫描</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/mui.picker.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">标签领用扫描</h1>
+		</header>
+		<div class="mui-content">
+			<form class="mui-input-group" id="formId">
+				<div class="mui-input-row">
+					<label>领用类型</label>
+					<span class="radio_inline mui-radio">
+						<input name="radio1" type="radio" id="A" checked value="A">
+						<label for="正常">正常</label>
+						<input name="radio1" type="radio" id="B" value="B">
+						<label for="超领">超领</label>
+					</span>
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','label','web/lingyong.html');">代领标签</label>
+					<input id="label" placeholder="请扫描" type="text" class="mui-input-clear">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','order','web/lingyong.html');">领用工单</label>
+					<input id="order" placeholder="请扫描" type="text" class="mui-input-clear"">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','line_code','web/lingyong.html');">领用线体：</label>
+					<input id="line_code" placeholder="请扫描" type="text" class="mui-input" style="width: 54%;float: left;">
+					<button type="button" id="linecode_detail" style="width:10%; height: inherit;" class="mui-btn-primary">...</button>
+				</div>
+			</form>
+		</div>
+	</body>
+
+</html>

@@ -13,6 +13,7 @@
 		<script src="../js/jquery.xml2json.js.js"></script>
 		<link href="../css/mui.min.css" rel="stylesheet" />
 		<script src="../js/mui.picker.min.js"></script>
+		<script src="../js/template-web.js"></script>
 		<link rel="stylesheet" type="text/css" href="../css/mui.picker.min.css" />
 		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
 		<link rel="stylesheet" type="text/css" href="css/common.css" />
@@ -24,12 +25,17 @@
 				z-index: 999;
 			}
 			.dialog-label {
-				font-size: 16px;
+				font-size: 14px;
 			}
 			.result-dialog {
 				position: fixed;
 				margin-top: 0.85rem;
 				z-index: 999;
+			}
+			
+			.dialog-li {
+				font-size: 11px;
+				text-align: center;
 			}
 		</style>
 	</head>
@@ -45,27 +51,27 @@
 			<form id="selectDateFrom">
 				<div class="mui-input-group">
 					<div class="mui-input-row">
-						<label class="dialog-label">时间：</label>
+						<label class="dialog-label">时间</label>
 						<input type="text" name="se_time" class="mui-input-clear" id="selecttime" placeholder="点击选择时间">
 					</div>
 					<div class="mui-input-row">
-						<label class="dialog-label">工单：</label>
+						<label class="dialog-label">工单</label>
 						<input name="se_order" type="text" class="mui-input-clear" id="selet_order">
 					</div>
 					<div class="mui-input-row">
-						<label class="dialog-label">批号：</label>
+						<label class="dialog-label">批号</label>
 						<input name="se_code" type="text" class="mui-input-clear" id="select_code">
 					</div>
 					<div class="mui-input-row">
-						<label class="dialog-label">仓库编码：</label>
+						<label class="dialog-label">仓库编码</label>
 						<input name="se_ware_code" type="text" class="mui-input-clear" id="se_ware_code">
 					</div>
 					<div class="mui-input-row">
-						<label class="dialog-label">库位编码：</label>
+						<label class="dialog-label">库位编码</label>
 						<input name="se_loc_code" type="text" class="mui-input-clear" id="se_loc_code">
 					</div>
 					<div class="mui-input-row">
-						<label class="dialog-label">账号：</label>
+						<label class="dialog-label">账号</label>
 						<input name="se_usr" type="text" class="mui-input-clear" id="select_usr">
 					</div>
 				</div>
@@ -74,6 +80,45 @@
 					<button type="reset" class="mui-btn mui-btn-danger" style="width: 45%;" onclick="closeSelectDialog()">取消</button>
 				</div>
 			</form>
+		</dialog>
+		<dialog id="resultDialog" class="result-dialog" style="width: 99%;height: 500px; overflow:auto;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询结果</span></p>
+			<br>
+			<div id="list">
+		
+			</div>
+			<script id='template' type="text/template">
+				<% for(var i in record){ var item=record[i];%>
+				<div class="mui-card">
+				<div class="mui-card-header">
+				入库单:<%=(item.入库单)%> 
+				</div>
+				<div class="mui-card-content">
+					<ul class="mui-table-view">
+						<li class="mui-table-view-cell mui-media">
+							<a href="javascript:;">
+								<span class="mui-media-object mui-pull-left mui-icon iconfont" style="color: #ADD8E6;font-size:1.875rem"></span>
+								<div class="mui-media-body">
+									<span>仓库编码：<%=(item.仓库编码)%></span><br>
+									<span>批次：<%=(item.批次)%></span><br>
+									<span>工单：<%=(item.工单)%></span><br>
+									<span>生产线体：<%=(item.生产线体)%></span><br>
+									<span>数量： <%=(item.数量)%></span>
+								</div>
+							</a>
+						</li>
+					</ul>
+					<div class="mui-card-footer">
+						<span>时间： <%=(item.时间)%></span>
+						<span></span>
+					</div>
+				</div>
+				</div>
+				<%}%>
+			</script>
+			<div class="mui-button-row">
+				<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('resultDialog').style.display = 'none';">关闭</button>
+			</div>
 		</dialog>
 
 		<div class="mui-content">
@@ -87,7 +132,7 @@
 					<input id="barcode" placeholder="请扫入条码" type="text" class="mui-input-clear">
 				</div>
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','barcode','web/biaoqian_ruku.html');">入库单号：</label>
+					<label>入库单号：</label>
 					<input id="loc_num" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
 				</div>
 				<div class="mui-content-padded" align="center">
@@ -162,29 +207,37 @@
 				}
 				mui.confirm("是否将【条码：" + code + "】入库【" + location + "】", '提示', btnArray, function(e) {
 					if (e.index == 1) {
-						mui.alert("正在开发中。。")
-						// wareHousing(code, location);
+						//mui.alert("正在开发中。。")
+						wareHousing(code, location);
 					}
 				})
 			})
 
 			function wareHousing(code, location) {
 				jQueryWeb("PDA_LOT_IN_WareHouse", {
-					"inLotNo": location,
-					"inBinCode": code,
+					"inLotNo": code,
+					"inBinCode": location,
 					"userCode": api_localStorageGet("code")
 				}, function(xmlHttpRequest, statu) {
 					if (statu == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
 						console.log(json_obj)
-						$("#loc_num").val();
+						//添加如果包含“NG”字符则弹出警告，无则将结果输出 loc_num
+						if (json_obj.indexOf("NG") != -1) { //结果含NG字样时
+							mui.alert(json_obj)
+						} else {
+							$("#loc_num").val(json_obj);
+						}
 					}
 				})
 			}
 			$("#history").click(function() {
-				mui.alert("正在开发中。。")
-				// byId("selectDialog").style.display = "block";
-				// showMask();
+				//mui.alert("正在开发中。。")
+				$("#select_usr").val(api_localStorageGet("code"))
+				var date_data = CurentTime()
+				$('[name=se_time]').val(date_data); //时间
+				 byId("selectDialog").style.display = "block";
+				 showMask();
 			})
 
 			function closeSelectDialog() { //关闭查询弹窗
@@ -203,6 +256,25 @@
 			$("#selecttime").focus(function() { //禁止选择时间时输入法弹出
 				document.activeElement.blur();
 			});
+			function CurentTime() {
+				var now = new Date();
+			
+				var year = now.getFullYear(); //年
+				var month = now.getMonth() + 1; //月
+				var day = now.getDate(); //日
+			
+				var hh = now.getHours(); //时
+				var mm = now.getMinutes(); //分
+			
+				var clock = year + "-";
+				if (month < 10)
+					clock += "0";
+				clock += month + "-";
+				if (day < 10)
+					clock += "0";
+				clock += day;
+				return (clock);
+			}
 			$("#search_record").click(function() { //历史记录查询
 				var se_time = $('[name=se_time]').val(); //时间
 				var se_order = $('[name=se_order]').val(); //工单
@@ -210,17 +282,33 @@
 				var se_ware_code = $('[name=se_ware_code]').val(); //仓库编号
 				var se_loc_code = $('[name=se_loc_code]').val(); //库位编号
 				var se_usr = $('[name=se_usr]').val(); //用户
-				jQueryWeb("PDA_LOT_IN_WareHouse", {
+				jQueryWeb("PDA_GET_INWH_HISTORY", {
 					"inDate": se_time,
 					"inMO": se_order,
-					"inLotNo":se_code,
-					"inWHCODE":se_ware_code,
-					"inBINCODE":se_loc_code,
+					"inLotNo": se_code,
+					"inWHCODE": se_ware_code,
+					"inBINCODE": se_loc_code,
 					"inUserCode": se_usr
 				}, function(xmlHttpRequest, statu) {
 					if (statu == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
-						console.log(json_obj)
+						var data = json_obj.diffgram.NewDataSet;
+						//console.log(JSON.stringify(data))
+						if (data != undefined) {
+							var listData = [];
+							if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+								listData = [data.Table]
+							} else {
+								listData = data.Table
+							}
+							document.getElementById('list').innerHTML = template('template', {
+								"record": listData
+							});
+							byId("resultDialog").style.display = "block"
+						} else {
+							mui.alert("无历史记录")
+						}
+						
 					}
 				})
 			})

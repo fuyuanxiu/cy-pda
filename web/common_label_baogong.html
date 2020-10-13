@@ -1,0 +1,416 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/template-web.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<style type="text/css">
+			.select-dialog {
+				position: fixed;
+				margin-top: 1.25rem;
+				z-index: 999;
+			}
+
+			.result-dialog {
+				position: fixed;
+				margin-top: 0.85rem;
+				z-index: 999;
+			}
+
+			.dialog-label {
+				font-size: 16px;
+			}
+
+			.dialog-li {
+				font-size: 11px;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<!--10/13
+1.查询条码内容【指点击条码旁【...】按钮-未增加获得结果的后续操作
+2.点击报工按钮的后续操作
+3.历史记录查询测试以及结果展示
+4.扫描条码后续操作
+5.部分参数不规范处理
+6.扫描的触发方法未增加
+-->
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">通用-标签报工</h1>
+		</header>
+		<dialog id="selectDialog" class="select-dialog" style="width: 90%;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询记录</span></p>
+			<br>
+			<form id="selectDateFrom">
+				<div class="mui-input-group">
+					<div class="mui-input-row">
+						<label class="dialog-label">时间：</label>
+						<input type="text" name="se_time" class="mui-input-clear" id="selecttime" placeholder="点击选择时间">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">工单：</label>
+						<input name="se_order" type="text" class="mui-input-clear" id="selet_order">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">条码：</label>
+						<input name="se_code" type="text" class="mui-input-clear" id="select_code">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">账号：</label>
+						<input name="se_usr" type="text" class="mui-input-clear" id="select_usr">
+					</div>
+				</div>
+				<div class="mui-button-row">
+					<button type="button" id="search_record" style="width: 45%;float: left;" class="mui-btn mui-btn-primary">确认</button>
+					<button type="reset" class="mui-btn mui-btn-danger" style="width: 45%;" onclick="closeSelectDialog()">取消</button>
+				</div>
+			</form>
+		</dialog>
+		<dialog id="resultDialog" class="result-dialog" style="width: 99%;height: 500px; overflow:auto;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询结果</span></p>
+			<br>
+			<div id="list">
+
+			</div>
+			<script id='template' type="text/template">
+				<% for(var i in record){ var item=record[i];%>
+				<div class="mui-card">
+				<div class="mui-card-header">
+				条码:<%=(item.条码)%> 
+				</div>
+				<div class="mui-card-content">
+					<ul class="mui-table-view">
+						<li class="mui-table-view-cell mui-media">
+							<a href="javascript:;">
+								<span class="mui-media-object mui-pull-left mui-icon iconfont" style="color: #ADD8E6;font-size:1.875rem"></span>
+								<div class="mui-media-body">
+									<span>工单： <%=(item.工单)%></span><br>
+									<span>时间： <%=(item.时间)%></span><br>
+									<span>线体： <%=(item.线体)%></span><br>
+									<span>箱类： <%=(item.箱类)%></span><br>
+									<span>操作人： <%=(item.操作人)%></span>
+								</div>
+							</a>
+						</li>
+					</ul>
+					<div class="mui-card-footer">
+						<span></span>
+						<span><button onclick="reprintRecord('<%=(item)%>')" class="mui-btn-green">重新打印</button></span>
+					</div>
+				</div>
+				</div>
+				<%}%>
+			</script>
+			<div class="mui-button-row">
+				<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('resultDialog').style.display = 'none';">关闭</button>
+			</div>
+		</dialog>
+		<!-- 上右下左（顺时针） -->
+		<dialog id="infoDialog" class="result-dialog" style="width: 99%; padding: 5px 2px 5px 0px;">
+			<p style="font-size: 14px;color: #000000;margin:0 auto;width:70px"><span>条码信息</span></p>
+			<div>
+			</div>
+			<div class="mui-button-row">
+				<button type="reset" style="width: 80%;margin-top: 5px;" class="mui-btn mui-btn-danger" onclick="document.getElementById('procesDialog').style.display = 'none';">关闭</button>
+			</div>
+		</dialog>
+		<div class="mui-content">
+			<form class="mui-input-group" id="formId">
+				<div class="mui-input-row">
+					<label>班次</label>
+					<span class="radio_inline mui-radio">
+						<input name="radio1" type="radio" id="A" checked value="A">
+						<label for="A">A</label>
+						<input name="radio1" type="radio" id="B" value="B">
+						<label for="B">B</label>
+					</span>
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','line_code','web/common_label_baogong.html');">线体编码</label>
+					<input id="line_code" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 35%;float: left;">
+					<input disabled type="text" class="mui-input-clear" style="width: 30%;background-color: #F5F5F5;">
+				</div>
+				<div class="mui-input-row">
+					<label>是否调用上笔记录</label>
+					<div class="mui-switch mui-active" id="last_switch">
+						<div class="mui-switch-handle"></div>
+					</div>
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','barcode','web/common_label_baogong.html');">条码：</label>
+					<input id="barcode" placeholder="请扫描" type="text" class="mui-input" style="width: 54%;float: left;">
+					<button type="button" id="barcode_detail" style="width:10%; height: inherit;" class="mui-btn-primary">...</button>
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','lingban','web/common_label_baogong.html');">领班工号</label>
+					<input id="lingban" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 35%;float: left;">
+					<input disabled type="text" class="mui-input-clear" style="width: 30%;background-color: #F5F5F5;">
+				</div>
+				<div class="mui-input-row">
+					<label>报工数量</label>
+					<input id="total" placeholder="请输入报工数量" type="text" class="mui-input-clear" onkeyup="value=(value.replace(/\D/g,'')==''?'':parseInt(value))">
+				</div>
+			</form>
+			<div class="mui-content-padded" align="center">
+				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-green" id="report">报工</button>
+				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-primary" id="his_record">历史记录</button>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" charset="utf-8">
+		mui.init();
+		mui.plusReady(function() {
+			mask = mui.createMask(function() { //遮罩层callback事件
+				if (byId("selectDialog").style.display == "none" ||
+					byId("resultDialog").style.display == "none" ||
+					byId("infoDialog").style.display == "none") {
+					return true; //如果没有弹出框，关闭遮罩层
+				}
+				return false; //返回true,点击关闭mask
+			}); /*创建蒙版，保存到mask中*/
+		});
+		//遮罩层
+		function showMask() { /*绑定处理事件*/
+			top_value = $(document).scrollTop() //document.documentElement.scrollTop
+			document.body.style.overflow = "hidden"
+			document.body.style.width = "100%"
+			document.body.style.height = "100%"
+			document.body.style.position = "fixed"
+			mask.show(); /*调用展示遮罩*/
+		}
+
+		function closeMask() { /*绑定处理事件*/
+			document.body.style.overflow = "scroll"
+			document.body.style.width = "100%"
+			document.body.style.height = "100%"
+			document.body.style.position = "relative"
+			window.scrollTo(0, top_value); //回到原位置
+			mask.close(); /*调用展示属性*/
+		}
+		//切换班次时，重置数据
+		$('input[type=radio][name=radio1]').change(function() {
+			$("#line_code").val("");
+			toClear();
+		});
+		//线体编码监听内容（逐字符监听），内容改变重置数据
+		$('#line_code').bind('input propertychange', function() { 
+			toClear();
+		});
+		//监听线体编码——扫描回车
+		$('#line_code').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				jQueryWeb("PDA_TY_GET_LINEINFO", {
+					"inLine_NO": $('#line_code').val()
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						$('#line_code').val(json_obj);
+					} else {
+						alert("连接PDA_TY_GET_LINEINFO失败")
+					}
+				})
+			}
+		});
+		//监听条码——扫描回车
+		$('#barcode').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				var isLast = "";
+				var isActive = byId("last_switch").classList.contains("mui-active");
+				if (isActive) {
+					isLast = "Y"
+				} else {
+					isLast = "N"
+				}
+				jQueryWeb("PDA_GET_BARCODE_BG_TY", {
+					"inClassTyep": $("input[name='radio1']:checked").val(),
+					"ISuserLast": isLast,
+					"inBarcode": $('#barcode').val(),
+					"inLine_NO": $('#line_code').val()
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						console.log(json_obj)
+					} else {
+						alert("连接PDA_GET_BARCODE_BG_TY失败")
+					}
+				})
+			}
+		});
+		//监听领班——扫描回车
+		$('#lingban').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				var lingban = $('#lingban').val();
+				if (lingban.indexOf(";") != -1) {
+					lingban = lingban.substring(0, lingban.indexOf(";"));
+				}
+				getLingBan(lingban)
+			}
+		})
+
+		function getLingBan(ling_ban) { //获取领班信息
+			jQueryWeb("PDA_GET_LBINFO", {
+				"inLbWorkCode": ling_ban,
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					var data = JSON.parse(json_obj)
+					$('#lingban').val(data[0].VALUE);
+				}
+			})
+		}
+		$("#his_record").click(function() { //历史记录查询
+			showMask();
+			$("#select_usr").val(api_localStorageGet("code"))
+			var date_data = CurentTime()
+			$('[name=se_time]').val(date_data); //时间
+			byId("selectDialog").style.display = "block";
+		});
+
+		function closeSelectDialog() { //关闭查询弹窗
+			document.getElementById('selectDialog').style.display = 'none';
+			closeMask();
+		}
+
+		function CurentTime() {
+			var now = new Date();
+			var year = now.getFullYear(); //年
+			var month = now.getMonth() + 1; //月
+			var day = now.getDate(); //日
+			var hh = now.getHours(); //时
+			var mm = now.getMinutes(); //分
+			var clock = year + "-";
+			if (month < 10)
+				clock += "0";
+			clock += month + "-";
+			if (day < 10)
+				clock += "0";
+			clock += day;
+			return (clock);
+		}
+		$("#search_record").click(function() { //历史记录查询
+			var se_time = $('[name=se_time]').val(); //时间
+			var se_order = $('[name=se_order]').val(); //工单
+			var se_code = $('[name=se_code]').val(); //条码
+			var se_usr = $('[name=se_usr]').val(); //用户
+			var line = $("#line_code").val(); //用户
+			jQueryWeb("PDA_GET_BG_HISTORY", {
+				"inType": line,
+				"inDate": se_time,
+				"inMo": se_order,
+				"inBarcode": se_code,
+				"inUserCode": se_usr //api_localStorageGet("code")
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					var data = json_obj.diffgram.NewDataSet;
+					//console.log(JSON.stringify(data))
+					if (data != undefined) {
+						var listData = [];
+						if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+							listData = [data.Table]
+						} else {
+							listData = data.Table
+						}
+						document.getElementById('list').innerHTML = template('template', {
+							"record": listData
+						});
+						byId("resultDialog").style.display = "block"
+					} else {
+						mui.alert("无历史记录")
+					}
+				} else {
+					mui.alert("PDA_GET_BG_HISTORY 连接失败")
+				}
+			})
+		});
+		$("#barcode_detail").click(function() { //查看条码信息
+			var barcode_data = $('#barcode').val();
+			if (barcode_data == "") {
+				mui.alert("请添加条码")
+				return false;
+			}
+			jQueryWeb("PDA_GET_PRINT_INFO_BY_BARCODE", {
+				"BARCODE": barcode_data,
+				"JsonContext": ""
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					var data = json_obj.diffgram.DocumentElement;
+					console.log(JSON.stringify(data))
+					/*if (data != undefined) {
+						var listData = [];
+						var th_data = {};
+						th_data["序号"] = "序号";
+						th_data["工序"] = "工序";
+						th_data["标准人力"] = "标准人力";
+						th_data["标准时产"] = "标准时产";
+		
+						if (JSON.stringify(data.table01).toString().substring(0, 1) == '{') {
+							listData = [data.table01];
+							listData.unshift(th_data);
+						} else {
+							listData = data.table01;
+							listData.unshift(th_data); //往数组首位添加数据
+						}
+						document.getElementById('pro_list').innerHTML = template('pr-template', {
+							"record": listData
+						});
+						byId("procesDialog").style.display = "block"
+					} else {
+						mui.alert("无记录")
+					}*/
+					byId("infoDialog").style.display = "block"
+				} else {
+					mui.alert("PDA_GET_PRINT_INFO_BY_BARCODE连接失败")
+				}
+			})
+		});
+		$("#report").click(function() { //报工
+			if ($("#line_code").val() == "" || $("#total").val() == "" || $("#barcode").val() == "" ||
+				$("#lingban").val() == "") {
+				mui("#report").button('reset');
+				mui.alert("请完善数据！")
+			} else {
+				reportInfo();
+			}
+		})
+
+		function reportInfo() {
+			jQueryWeb("PDA_BARCODE_BG_TY", {
+				"inClassType": $("input[name='radio1']:checked").val(),
+				"inLineNo": $("#line_code").val(),
+				"inBarcode": $("#barcode").val(),
+				"inQTY": $("#total").val(),
+				"inSYCONTEXT": paramInfo,
+				"inUser": api_localStorageGet("code"),
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					console.log(json_obj)
+				} else {
+					mui.alert("连接PDA_BARCODE_BG_TY失败")
+				}
+			});
+		}
+
+		function toClear() { //清空数据
+			$("#barcode").val("");
+			$("#lingban").val("");
+			$("#total").val("");
+			document.getElementById("last_switch").classList.remove("mui-active")
+			mui("#last_switch").switch().toggle();
+		}
+	</script>
+</html>
