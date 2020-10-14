@@ -44,3 +44,6 @@
 				.mui-input-row .mui-icon{
 					color:#79CDCD;
 				}
+				li{
+				   list-style-type :none;
+				}

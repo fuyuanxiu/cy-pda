@@ -9,19 +9,480 @@
 		<script src="../js/api.js"></script>
 		<script src="../js/jquery.js"></script>
 		<script src="../js/jquery-1.11.1.js"></script>
-		<script src="../js/mui.picker.min.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<script src="../js/template-web.js"></script>
 		<link href="../css/mui.min.css" rel="stylesheet" />
-		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
 		<link rel="stylesheet" type="text/css" href="css/common.css" />
 		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
-		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
-	</head>
+		<style type="text/css">
+			.select-dialog {
+				position: fixed;
+				margin-top: 1.25rem;
+				z-index: 999;
+			}
 
+			.line-select-dialog {
+				position: fixed;
+				margin-top: 3.25rem;
+				z-index: 999;
+			}
+
+			.result-dialog {
+				position: fixed;
+				margin-top: 0.85rem;
+				z-index: 999;
+			}
+
+			.dialog-label {
+				font-size: 14px;
+			}
+		</style>
+	</head>
+	<!--2020-10-14
+1.历史记录数据未生成template
+2.历史记录结果弹出框（未增加）
+3.打印未测试 
+4.打印连接未测试
+5.历史记录结果 重打 未增加
+-->
 	<body>
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
 			<h1 class="mui-title">标签退料扫描</h1>
 		</header>
-	</body>
+		<dialog id="re_selectDialog" class="select-dialog" style="width: 90%;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询记录</span></p>
+			<br>
+			<form id="selectDateFrom">
+				<div class="mui-input-group">
+					<div class="mui-input-row">
+						<label class="dialog-label">时间</label>
+						<input type="text" name="se_time" class="mui-input-clear" id="selecttime" placeholder="点击选择时间">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">退料线体</label>
+						<input name="getLine_re" type="text" class="mui-input-clear" id="getLine_re">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">账号</label>
+						<input name="se_usr" type="text" class="mui-input-clear" id="select_usr">
+					</div>
+				</div>
+				<div class="mui-button-row">
+					<button type="button" id="search_record" style="width: 45%;float: left;" class="mui-btn mui-btn-primary">确认</button>
+					<button type="reset" class="mui-btn mui-btn-danger" style="width: 45%;" onclick="closeReSelectDialog()">取消</button>
+				</div>
+			</form>
+		</dialog>
+		<dialog id="selectDialog" class="line-select-dialog" style="width: 90%;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询线体</span></p>
+			<br>
+			<form id="selectDateFrom">
+				<div class="mui-input-group">
+					<div class="mui-input-row">
+						<label class="dialog-label">工作中心</label>
+						<a class="mui-navigate-right">
+							<span class="mui-badge1">
+								<select class="mui-h5" style="margin:auto; color:#000;" id="woCenter">
+								</select>
+							</span>
+						</a>
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">线体选择</label>
+						<input name="se_line" type="text" class="mui-input-clear dialog-label" id="se_line">
+					</div>
+				</div>
+				<div class="mui-button-row">
+					<button type="reset" style="width: 45%;float: left;" class="mui-btn mui-btn-primary" onclick="setLine()">确认</button>
+					<button type="reset" class="mui-btn mui-btn-danger" style="width: 45%;" onclick="closeSelectDialog()">取消</button>
+				</div>
+			</form>
+		</dialog>
+		<dialog id="resultDialog" class="result-dialog" style="width: 99%;height: 500px; overflow:auto;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询结果</span></p>
+			<br>
+			<div id="list">
 
+			</div>
+			<div class="mui-card">
+				<div class="mui-card-content">
+					<ul class="mui-table-view" id="lineList">
+						<script id='template' type="text/template">
+							<% for(var i in record){ var item=record[i];%>
+						<li class="mui-table-view-cell mui-media" data-name='<%=(item.线体信息)%>' >
+							<a href="javascript:;">
+								<span class="mui-media-object mui-pull-left mui-icon iconfont" style="color: #ADD8E6;font-size:1.875rem"></span>
+								<div class="mui-media-body">
+									<span style="font-size: 14px;">线体： <%=(item.线体信息)%></span><br>
+								</div>
+							</a>
+						</li>
+						<%}%>
+						</script>
+					</ul>
+				</div>
+			</div>
+			<div class="mui-button-row">
+				<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('resultDialog').style.display = 'none';">关闭</button>
+			</div>
+		</dialog>
+		<div class="mui-content">
+			<form class="mui-input-group" id="formId">
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','location_code','web/tuiliao.html');">库位编码</label>
+					<input id="location_code" placeholder="请扫描" type="text" class="mui-input-clear">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','label','web/tuiliao.html');">退料标签</label>
+					<input id="label" placeholder="请扫描" type="text" class="mui-input-clear">
+				</div>
+				<div class="mui-input-row">
+					<label>剩余数量</label>
+					<input id="surplus" type="text" class="mui-input-clear" onkeyup="value=(value.replace(/\D/g,'')==''?'':parseInt(value))">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','order','web/tuiliao.html');">退料工单</label>
+					<input id="order" placeholder="请扫描" type="text" class="mui-input-clear">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','line_code','web/lingyong.html');">退料线体</label>
+					<input id="line_code" placeholder="请扫描" type="text" class="mui-input" style="width: 54%;float: left;">
+					<button type="button" id="getLine" style="width:10%; height: inherit;" class="mui-btn-primary">...</button>
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','workCode','web/lingyong.html');">退料工号</label>
+					<input id="workCode" placeholder="请扫描" type="text" class="mui-input-clear">
+				</div>
+				<div class="mui-content-padded" align="center">
+					<button type="button" class="mui-btn mui-btn-green" data-loading-icon="mui-spinner mui-spinner-custom" id="print">打印</button>
+					<button style="margin-top: 0.625rem;" type="reset" class="mui-btn">重置</button>
+					<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-primary" id="his_record">历史记录</button>
+				</div>
+			</form>
+		</div>
+	</body>
+	<script>
+		mui.init();
+		var sel_type = ""; //线体的选择类型
+		window.addEventListener("changeBar", function(e) {
+			var inputId = e.detail.inputId
+			document.getElementById(inputId).value = e.detail.barcode
+		});
+		mui.plusReady(function() {
+			try {
+				var main = plus.android.runtimeMainActivity();
+				var BluetoothAdapter = plus.android.importClass("android.bluetooth.BluetoothAdapter");
+				var UUID = plus.android.importClass("java.util.UUID");
+
+				uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+				var BAdapter = BluetoothAdapter.getDefaultAdapter();
+				BAdapter.cancelDiscovery(); //停止扫描  
+
+				// var addres_mac = plus.storage.getItem("DC:1D:30:3F:D2:50");//传入打印机mac地址  
+				var address_mac = api_localStorageGet("printMac") ? api_localStorageGet("printMac") : "00:00:05:D7:49:50";
+				device = BAdapter.getRemoteDevice(address_mac);
+				plus.android.importClass(device);
+
+				bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+				plus.android.importClass(bluetoothSocket);
+			} catch (err) {
+				// alert(err);
+				console.log(err);
+				plus.ui.toast("蓝牙连接异常！");
+			}
+			mask = mui.createMask(function() { //遮罩层callback事件
+				if (byId("re_selectDialog").style.display == "none"&&sel_type==2){ 
+					return true; //如果没有弹出框，关闭遮罩层
+				}else if(byId("selectDialog").style.display == "none"&&sel_type==1){
+					return true; //如果没有弹出框，关闭遮罩层
+				}
+				return false; //返回true,即点击关闭mask 
+			}); /*创建蒙版，保存到mask中*/
+		})
+		//遮罩层
+		function showMask() { /*绑定处理事件*/
+			top_value = $(document).scrollTop() //document.documentElement.scrollTop
+			document.body.style.overflow = "hidden"
+			document.body.style.width = "100%"
+			document.body.style.height = "100%"
+			document.body.style.position = "fixed"
+			mask.show(); /*调用展示遮罩*/
+		}
+ 
+		function closeMask() { /*绑定处理事件*/
+			document.body.style.overflow = "scroll"
+			document.body.style.width = "100%"
+			document.body.style.height = "100%"
+			document.body.style.position = "relative"
+			window.scrollTo(0, top_value); //回到原位置
+			mask.close(); /*调用展示属性*/
+		}
+
+		$("#getLine").click(function() {
+			sel_type = "1";
+			showMask();
+			getWoCenter();
+			byId("selectDialog").style.display = "block";
+		})
+		$("#getLine_re").click(function() {
+			getWoCenter();
+			byId("selectDialog").style.display = "block";
+		})
+
+		function setLine() {
+			var line = $("#se_line").val();
+			if (sel_type == "1") {
+				$("#line_code").val(line)
+				closeMask();
+			} else if (sel_type == "2") {
+				$("#getLine_re").val(line)
+			}
+			byId("selectDialog").style.display = "none";
+		}
+
+		function closeSelectDialog() {
+			if (sel_type == "1") {
+				closeMask();
+			} 
+			byId("selectDialog").style.display = "none";
+		}
+		//获取工作中心
+		function getWoCenter() {
+			jQueryWeb("PDA_GET_WORKCENTER_NAME", "", function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					var data = JSON.parse(json_obj);
+					$("#woCenter").empty();
+					for (var i = 0; i < data.length; i++) {
+						if (i == 0) {
+							$("#woCenter").append("<option value=''>请选择工作中心</option>");
+						}
+						$("#woCenter").append("<option value=" + data[i].VALUE + ">" + data[i].VALUE + "</option>");
+					}
+				}else{
+					mui.alert("连接PDA_GET_WORKCENTER_NAME失败！")
+					if(sel_type==1){closeMask()}
+					
+				}
+			})
+		}
+		$("#se_line").click(function() {
+			var woCenter = $("#woCenter").val()
+			if (woCenter != "") {
+				getLineCode(woCenter)
+			} else {
+				mui.alert("请先选择工作中心");
+				return false;
+			}
+		})
+		//获取线体资料
+		function getLineCode(woCenter) {
+			jQueryWeb("PDA_GET_Line", {
+				"WorkCenterName": woCenter
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					var data = json_obj.diffgram.NewDataSet;
+					//console.log(JSON.stringify(data.Table))
+					if (data != undefined) {
+						var listData = [];
+						if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+							listData = [data.Table]
+						} else {
+							listData = data.Table
+						}
+						document.getElementById('list').innerHTML = template('template', {
+							"record": listData
+						});
+						byId("resultDialog").style.display = "block"
+					} else {
+						mui.alert("无线体资料")
+					}
+
+				}
+			})
+		}
+		//监听点击的线体列
+		mui("#list").on("tap", "li", function() {
+			var line = this.getAttribute('data-name');
+			//console.log(line)
+			$("#se_line").val(line);
+			byId("resultDialog").style.display = "none"
+		});
+		//扫入线体
+		$('#line_code').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				jQueryWeb("PDA_TY_GET_LINEINFO", {
+					"inLine_NO": $('#line_code').val()
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						$('#line_code').val(json_obj);
+					} else {
+						alert("连接PDA_TY_GET_LINEINFO失败")
+					}
+				})
+			}
+		});
+		//扫描获取领用工号
+		$('#workCode').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				jQueryWeb("PDA_GET_NAME_BY_CODE", {
+					"inWorkCode": $('#workCode').val(),
+					"OnJobCheck": "Y"
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						$('#workCode').val(json_obj);
+					} else {
+						alert("连接PDA_GET_NAME_BY_CODE失败")
+					}
+				})
+			}
+		});
+		$("#print").click(function() {
+			mui('#print').button('loading');
+			var location_code = $("#location_code").val();
+			var label = $("#label").val();
+			var order = $("#order").val();
+			var surplus = $("#surplus").val(); //剩余数量
+			var line = $("#line_code").val();
+			var workCode = $("#workCode").val();
+			if (location_code == "" || label == "" || order == "" ||
+				line == "" || workCode == "" || surplus == "") {
+				mui.alert("请完善数据");
+				return false;
+			}
+			jQueryWeb("PDA_BARCODE_RETURN_WH", {
+				"inBinCode": location_code,
+				"inBarcode": label,
+				"inQTY": surplus,
+				"inMO": order,
+				"inLineCode": line,
+				"inTLuserCode": workCode,
+				"inUserCode": api_localStorageGet("code")
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					console.log(json_obj)
+				} else {
+					alert("连接PDA_BARCODE_RETURN_WH失败")
+				}
+			})
+		})
+		//重新获取标签信息
+		function getReprintData(barcode_data) {
+			jQueryWeb("PDA_GET_PRINT_INFO_BY_BARCODE", {
+				"BARCODE": barcode_data,
+				"JsonContext": ""
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					if (json_obj == "获取条码失败(查找不到条码)") {
+						mui.alert(json_obj);
+					} else {
+						var data_list = JSON.parse(json_obj)
+						sortData(data_list);
+					}
+				}
+				mui("#print").button('reset');
+			})
+		}
+
+		function toPrint(list) { //执行蓝牙打印
+			try {
+				if (!bluetoothSocket.isConnected()) {
+					// plus.ui.toast("重新连接");
+					bluetoothSocket.connect();
+				}
+				var outputStream = bluetoothSocket.getOutputStream();
+				plus.android.importClass(outputStream);
+				//获取内容
+				var printCmd = print_datalist(list);
+				//console.log(printCmd)
+				var arrayBuffer = plus.android.invoke(printCmd, 'getBytes', 'gbk'); //stringToByte(printCmd);  
+				outputStream.write(arrayBuffer);
+				outputStream.flush();
+				mui("#print").button('reset');
+			} catch (err) {
+				// alert(err);
+				console.log(err);
+				mui("#print").button('reset');
+				plus.ui.toast("蓝牙连接打印机失败！");
+				return;
+			}
+		}
+		$("#his_record").click(function() { //历史记录查询
+			$("#select_usr").val(api_localStorageGet("code"))
+			var date_data = CurentTime()
+			$('[name=se_time]').val(date_data); //时间
+			showMask(); 
+			sel_type = "2";
+			byId("re_selectDialog").style.display = "block";
+		});
+
+		function closeReSelectDialog() { //关闭查询弹窗
+			closeMask();
+			document.getElementById('re_selectDialog').style.display = 'none';
+		}
+
+		function CurentTime() {
+			var now = new Date();
+			var year = now.getFullYear(); //年
+			var month = now.getMonth() + 1; //月
+			var day = now.getDate(); //日
+			var hh = now.getHours(); //时
+			var mm = now.getMinutes(); //分
+			var clock = year + "-";
+			if (month < 10)
+				clock += "0";
+			clock += month + "-";
+			if (day < 10)
+				clock += "0";
+			clock += day;
+			return (clock);
+		}
+		$("#search_record").click(function() { //历史记录查询
+			var se_time = $('[name=se_time]').val(); //时间
+			var getLine_re = $('[name=getLine_re]').val(); //线体
+			var se_usr = $('[name=se_usr]').val(); //用户
+			jQueryWeb("PDA_GET_RETURN_WH_HISTORY", {
+				"inDate": se_time,
+				"inLine": getLine_re,
+				"inUserCode": se_usr //api_localStorageGet("code")
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					var data = json_obj.diffgram.NewDataSet;
+					console.log(JSON.stringify(json_obj))
+					// if (data != undefined) {
+					// 	var listData = [];
+					// 	if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+					// 		listData = [data.Table]
+					// 	} else {
+					// 		listData = data.Table
+					// 	}
+					// 	document.getElementById('re_list').innerHTML = template('re_template', {
+					// 		"record": listData
+					// 	});
+					//  showMask(); 
+					// 	byId("re_resultDialog").style.display = "block"
+					//} else {
+					//	mui.alert("无历史记录")
+					//}
+				} else {
+					mui.alert("PDA_GET_BG_HISTORY 连接失败")
+				}
+			})
+		});
+
+
+		function clicked(url, f1, urlId) {
+			OpenWindow(f1, url, {
+				urlId: urlId,
+				inputId: f1
+			});
+		};
+	</script>
 </html>

@@ -171,6 +171,10 @@
 	</body>
 	<script type="text/javascript" charset="utf-8">
 		mui.init();
+		window.addEventListener("changeBar", function(e) {
+			var inputId = e.detail.inputId
+			document.getElementById(inputId).value = e.detail.barcode
+		});
 		mui.plusReady(function() {
 			mask = mui.createMask(function() { //遮罩层callback事件
 				if (byId("selectDialog").style.display == "none" ||
@@ -412,5 +416,11 @@
 			document.getElementById("last_switch").classList.remove("mui-active")
 			mui("#last_switch").switch().toggle();
 		}
+		function clicked(url, f1, urlId) {
+			OpenWindow(f1, url, {
+				urlId: urlId,
+				inputId: f1
+			});
+		};
 	</script>
 </html>
