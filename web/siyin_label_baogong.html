@@ -337,20 +337,14 @@
 							} else if (data[i].ITEM == "丝印内容") {
 								var str = data[i].VALUE;
 								var arr = str.split("$");
-								console.log(arr)
-								console.log(arr.length)
 								for (var j = 0; j < arr.length; j++) {
-									console.log(arr[j])
 									var list = arr[j].split("@");
-									console.log(list)
 									var operator_data = {};
 									operator_data["net"] = list[0]; //丝印网数
 									operator_data["quantity"] = list[1]; //丝印数量
 									operator_data["siyin_pl"] = list[2]; //丝印员工
 									operator_data["iqc_pl"] = list[3]; //质检人员
-									console.log(JSON.stringify(operator_data))
 									pl_datalist.push(operator_data);
-									console.log(JSON.stringify(pl_datalist))
 									updatePl_datalist(pl_datalist)
 								}
 							}

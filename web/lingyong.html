@@ -97,14 +97,14 @@
 				<div class="mui-input-row">
 					<label>领用类型</label>
 					<span class="radio_inline mui-radio">
-						<input name="radio1" type="radio" id="A" checked value="A">
+						<input name="radio1" type="radio" id="A" checked value="正常">
 						<label for="正常">正常</label>
-						<input name="radio1" type="radio" id="B" value="B">
+						<input name="radio1" type="radio" id="B" value="超领">
 						<label for="超领">超领</label>
 					</span>
 				</div>
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','label','web/lingyong.html');">代领标签</label>
+					<label onclick="clicked('commom/saomiao.html','label','web/lingyong.html');">待领标签</label>
 					<input id="label" placeholder="请扫描" type="text" class="mui-input-clear">
 				</div>
 				<div class="mui-input-row">
@@ -139,8 +139,8 @@
 		});
 		mui.plusReady(function() {
 			mask = mui.createMask(function() { //遮罩层callback事件
-				if (byId("selectDialog").style.display == "none"||
-				byId("resultDialog").style.display == "none") {
+				if (byId("selectDialog").style.display == "none" ||
+					byId("resultDialog").style.display == "none") {
 					return true; //如果没有弹出框，关闭遮罩层
 				}
 				return false; //返回true,点击即关闭mask
@@ -155,6 +155,7 @@
 			document.body.style.position = "fixed"
 			mask.show(); /*调用展示遮罩*/
 		}
+
 		function closeMask() { /*绑定处理事件*/
 			document.body.style.overflow = "scroll"
 			document.body.style.width = "100%"
@@ -242,10 +243,26 @@
 			byId("resultDialog").style.display = "none"
 		});
 		//扫入线体
+
+		$('#label').bind('keyup', function(event) {
+			if (event.keyCode == "13") {
+				setTimeout(function() {
+					$("#order").focus();
+				}, 200)
+			}
+
+		})
+		$('#order').bind('keyup', function(event) {
+			if (event.keyCode == "13") {
+				setTimeout(function() {
+					$("#line_code").focus();
+				}, 200)
+			}
+		})
 		$('#line_code').bind('keyup', function(event) {
 			if (event.keyCode == "13") { //输入回车执行
 				jQueryWeb("PDA_TY_GET_LINEINFO", {
-					"inLine_NO": $('#line_code').val()
+					"inLineNO": $('#line_code').val()
 				}, function(xmlHttpRequest, statu) {
 					if (statu == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
@@ -265,7 +282,12 @@
 				}, function(xmlHttpRequest, statu) {
 					if (statu == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
-						$('#workCode').val(json_obj);
+						if (json_obj.indexOf("NG") != -1) {
+							mui.alert(json_obj)
+						} else {
+							$('#workCode').val(json_obj);
+						}
+
 					} else {
 						alert("连接PDA_GET_NAME_BY_CODE失败")
 					}
@@ -293,13 +315,20 @@
 				if (statu == 'success') {
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
 					console.log(json_obj)
+					if (json_obj.indexOf("NG") != -1) {
+						mui.alert(json_obj)
+					} else {
+						var str = json_obj.splice(json_obj.indexOf(":") + 1);
+						$("#inputOrder").val(str)
+					}
 				} else {
 					alert("连接PDA_BARCODE_OUT_WH失败")
 				}
 			})
 		})
+
 		function clicked(url, f1, urlId) {
-			OpenWindow(f1, url, { 
+			OpenWindow(f1, url, {
 				urlId: urlId,
 				inputId: f1
 			});

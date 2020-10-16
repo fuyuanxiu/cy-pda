@@ -74,6 +74,45 @@
 				</div>
 			</form>
 		</dialog>
+		<dialog id="re_resultDialog" class="result-dialog" style="width: 99%;height: 500px; overflow:auto;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询结果</span></p>
+			<br>
+			<div id="re_list">
+		
+			</div>
+			<script id='re-template' type="text/template">
+				<% for(var i in record){ var item=record[i];%>
+				<div class="mui-card">
+				<div class="mui-card-header">
+				退料时间:<%=(item.退料时间)%> 
+				</div>
+				<div class="mui-card-content">
+					<ul class="mui-table-view">
+						<li class="mui-table-view-cell mui-media">
+							<a href="javascript:;">
+								<span class="mui-media-object mui-pull-left mui-icon iconfont" style="color: #ADD8E6;font-size:1.875rem"></span>
+								<div class="mui-media-body">
+									<span>退料条码：<%=(item.退料条码)%></span><br>
+									<span>新生条码：<%=(item.新生条码)%></span><br>
+									<span>品号： <%=(item.品号)%></span><br>
+									<span>品名： <%=(item.品名)%></span><br>
+									<span>工序： <%=(item.工序)%></span>
+								</div>
+							</a>
+						</li>
+					</ul>
+					<div class="mui-card-footer">
+						<span></span>
+						<span><button onclick="reprintRecord('<%=(item)%>')" class="mui-btn-green">重新打印</button></span>
+					</div>
+				</div>
+				</div>
+				<%}%>
+			</script>
+			<div class="mui-button-row">
+				<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('re_resultDialog').style.display = 'none';">关闭</button>
+			</div>
+		</dialog>
 		<dialog id="selectDialog" class="line-select-dialog" style="width: 90%;">
 			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询线体</span></p>
 			<br>
@@ -139,7 +178,8 @@
 				</div>
 				<div class="mui-input-row">
 					<label>剩余数量</label>
-					<input id="surplus" type="text" class="mui-input-clear" onkeyup="value=(value.replace(/\D/g,'')==''?'':parseInt(value))">
+					<input id="surplus" type="text"  placeholder="请输入剩余数量"
+					class="mui-input-clear" onkeyup="value=(value.replace(/\D/g,'')==''?'':parseInt(value))">
 				</div>
 				<div class="mui-input-row">
 					<label onclick="clicked('commom/saomiao.html','order','web/tuiliao.html');">退料工单</label>
@@ -314,7 +354,7 @@
 		$('#line_code').bind('keyup', function(event) {
 			if (event.keyCode == "13") { //输入回车执行
 				jQueryWeb("PDA_TY_GET_LINEINFO", {
-					"inLine_NO": $('#line_code').val()
+					"inLineNO": $('#line_code').val()
 				}, function(xmlHttpRequest, statu) {
 					if (statu == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
@@ -352,6 +392,7 @@
 			if (location_code == "" || label == "" || order == "" ||
 				line == "" || workCode == "" || surplus == "") {
 				mui.alert("请完善数据");
+				mui('#print').button('reset');
 				return false;
 			}
 			jQueryWeb("PDA_BARCODE_RETURN_WH", {
@@ -365,6 +406,12 @@
 			}, function(xmlHttpRequest, statu) {
 				if (statu == 'success') {
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					if(json_obj.indexOf("NG")!=-1){
+						mui.alert(json_obj)
+						mui('#print').button('reset');
+					}else{
+						getReprintData(json_obj)
+					}
 					console.log(json_obj)
 				} else {
 					alert("连接PDA_BARCODE_RETURN_WH失败")
@@ -384,12 +431,13 @@
 					} else {
 						var data_list = JSON.parse(json_obj)
 						sortData(data_list);
+						mui.alert("已提交打印信息")
 					}
 				}
 				mui("#print").button('reset');
 			})
 		}
-
+ 
 		function toPrint(list) { //执行蓝牙打印
 			try {
 				if (!bluetoothSocket.isConnected()) {
@@ -447,6 +495,10 @@
 			var se_time = $('[name=se_time]').val(); //时间
 			var getLine_re = $('[name=getLine_re]').val(); //线体
 			var se_usr = $('[name=se_usr]').val(); //用户
+			if(getLine_re==""){
+				mui.alert("请完善查询信息")
+				return false;
+			}
 			jQueryWeb("PDA_GET_RETURN_WH_HISTORY", {
 				"inDate": se_time,
 				"inLine": getLine_re,
@@ -455,28 +507,39 @@
 				if (statu == 'success') {
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
 					var data = json_obj.diffgram.NewDataSet;
-					console.log(JSON.stringify(json_obj))
-					// if (data != undefined) {
-					// 	var listData = [];
-					// 	if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
-					// 		listData = [data.Table]
-					// 	} else {
-					// 		listData = data.Table
-					// 	}
-					// 	document.getElementById('re_list').innerHTML = template('re_template', {
-					// 		"record": listData
-					// 	});
-					//  showMask(); 
-					// 	byId("re_resultDialog").style.display = "block"
-					//} else {
-					//	mui.alert("无历史记录")
-					//}
+					console.log(JSON.stringify(data))
+					if (data != undefined) {
+						var listData = [];
+						if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+							listData = [data.Table]
+						} else {
+							listData = data.Table
+						}
+						console.log(JSON.stringify(listData))
+						document.getElementById('re_list').innerHTML = template('re-template', {
+							"record": listData
+						});
+					 showMask(); 
+					byId("re_resultDialog").style.display = "block"
+					} else {
+						mui.alert("无历史记录")
+					}
 				} else {
 					mui.alert("PDA_GET_BG_HISTORY 连接失败")
 				}
 			})
 		});
-
+		//重新打印查询记录
+		function reprintRecord(item) {
+			item = [item];
+			var data = JSON.parse(item)
+			var param = data.新生条码;
+			getReprintData(param);
+			byId("re_resultDialog").style.display = "none"; //关闭查询结果弹窗
+			document.getElementById('re_list').innerHTML = template('re-template', {
+				"record": [] //清空记录 
+			});
+		}
 
 		function clicked(url, f1, urlId) {
 			OpenWindow(f1, url, {
