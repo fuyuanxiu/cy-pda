@@ -411,6 +411,7 @@
 						mui('#print').button('reset');
 					}else{
 						getReprintData(json_obj)
+						toClean();
 					}
 					console.log(json_obj)
 				} else {
@@ -539,6 +540,14 @@
 			document.getElementById('re_list').innerHTML = template('re-template', {
 				"record": [] //清空记录 
 			});
+		}
+		
+		function toClean(){
+			$("#label").val("");
+			$("#surplus").val("");
+			$("#order").val("");
+			$("#line_code").val("");
+			$("#workCode").val("");
 		}
 
 		function clicked(url, f1, urlId) {

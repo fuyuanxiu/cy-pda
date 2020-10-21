@@ -180,6 +180,14 @@
 					inputId: f1
 				});
 			};
+			
+			$("#location").bind('keyup',function(event){
+				if (event.keyCode == "13") {
+					$('#barcode').focus();
+				}
+				
+			})
+			
 			//监听条码扫描——扫描回车
 			$('#barcode').bind('keyup', function(event) {
 				if (event.keyCode == "13") {
@@ -227,6 +235,7 @@
 							mui.alert(json_obj)
 						} else {
 							$("#loc_num").val(json_obj);
+							$("#barcode").val("");
 						}
 					}
 				})

@@ -121,7 +121,7 @@
 					<input id="workCode" placeholder="请扫描" type="text" class="mui-input-clear">
 				</div>
 				<div class="mui-input-row">
-					<label>入库单号</label>
+					<label>领料单号</label>
 					<input id="inputOrder" disabled type="text" style="background-color: #f3f3f3;" class="mui-input-clear">
 				</div>
 				<div class="mui-content-padded" align="center">
@@ -318,15 +318,24 @@
 					if (json_obj.indexOf("NG") != -1) {
 						mui.alert(json_obj)
 					} else {
-						var str = json_obj.splice(json_obj.indexOf(":") + 1);
+						var str = json_obj.substring(json_obj.indexOf(":") + 1,json_obj.length);
+						console.log(str)
+						mui.alert("领料成功");
 						$("#inputOrder").val(str)
+						toClean();
 					}
 				} else {
 					alert("连接PDA_BARCODE_OUT_WH失败")
 				}
 			})
 		})
-
+		function toClean(){
+			$("#label").val("");
+			$("#order").val("");
+			$("#line_code").val("");
+			$("#workCode").val("");
+			$("input[type=radio][name=radio1][value=正常]").attr("checked",true);
+		}
 		function clicked(url, f1, urlId) {
 			OpenWindow(f1, url, {
 				urlId: urlId,
