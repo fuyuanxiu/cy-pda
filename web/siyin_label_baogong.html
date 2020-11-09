@@ -144,7 +144,8 @@
 					</ul>
 					<div class="mui-card-footer">
 						<span></span>
-						<span><button onclick="deleteItem(<%=(i)%>)" class="mui-btn-warning">删除</button></span>
+						<span><button onclick="editItem(<%=(i)%>)" class="mui-btn-primary" style="margin-right: 10px;">修改</button>
+							<button onclick="deleteItem(<%=(i)%>)" class="mui-btn-warning">删除</button></span>
 					</div>
 				</div>
 			</div>
@@ -160,19 +161,26 @@
 			<form id="addRecordFrom">
 				<div class="mui-input-group">
 					<div class="mui-input-row">
-						<label style="font-size: 12px;">丝印网数：</label>
-						<input id="siyin_nets" disabled type="text" class="mui-input-clear">
+						<label style="font-size: 12px;">丝印网数</label>
+						<!-- <input id="siyin_nets" disabled type="text" class="mui-input-clear"> -->
+						<a class="mui-navigate-right">
+							<span class="mui-badge1">
+								<select class="mui-h5" style="margin:auto; color:#000;" id="siyin_nets">
+
+								</select>
+							</span>
+						</a>
 					</div>
 					<div class="mui-input-row">
-						<label style="font-size: 12px;">丝印数量：</label>
+						<label style="font-size: 12px;">丝印数量</label>
 						<input id="siyin_quantity" type="text" class="mui-input-clear" placeholder="必为整数,且大于0" onkeyup="value=(value.replace(/\D/g,'')==''?'':parseInt(value))">
 					</div>
 					<div class="mui-input-row">
-						<label style="font-size: 12px;" onclick="clicked('commom/saomiao.html','siyin_pl','web/siyin_label_baogong.html');">丝印员工号:</label>
+						<label style="font-size: 12px;" onclick="clicked('commom/saomiao.html','siyin_pl','web/siyin_label_baogong.html');">丝印员工号</label>
 						<input id="siyin_pl" placeholder="输入后按回车验证" type="text" class="mui-input-clear">
 					</div>
 					<div class="mui-input-row">
-						<label style="font-size: 12px;" onclick="clicked('commom/saomiao.html','iqc_pl','web/siyinu_label_baogong.html');">质检员工号:</label>
+						<label style="font-size: 12px;" onclick="clicked('commom/saomiao.html','iqc_pl','web/siyinu_label_baogong.html');">质检员工号</label>
 						<input id="iqc_pl" placeholder="输入后按回车验证" type="text" class="mui-input-clear">
 					</div>
 				</div>
@@ -206,7 +214,7 @@
 				</div>
 				<div class="mui-input-row">
 					<label onclick="clicked('commom/saomiao.html','barcode','web/siyinu_label_baogong.html');">条码</label>
-					<input name="barcode" type="text" class="mui-input-clear" id="barcode">
+					<input name="barcode" placeholder="请扫描" type="text" class="mui-input-clear" id="barcode">
 				</div>
 				<div class="mui-input-row">
 					<label onclick="clicked('commom/saomiao.html','lingban','web/siyinu_label_baogong.html');">领班工号</label>
@@ -240,6 +248,8 @@
 			document.getElementById(inputId).value = e.detail.barcode
 		});
 		var pl_datalist = [];
+		var action = ""; //丝印记录的操作类型
+		var actionIndex=0;//丝印记录要操作的下标
 		mui.plusReady(function() {
 			mask = mui.createMask(function() { //遮罩层callback事件
 				if (byId("siyinRecordDialog").style.display == "none") {
@@ -385,14 +395,33 @@
 		}
 		//丝印记录
 		$("#addrecord").click(function() { //添加丝印人员
-			var n = $("#nets").val();
-			$("#siyin_nets").val(n);
+			action = "add"
+			var net = $("#nets").val();
+			if (net == "") {
+				mui.alert("请先获取丝印网数")
+				return false;
+			}
+			getNets(net);
+			document.getElementById("addOperatorDialog").style.display = "block"
+		});
+
+		function getNets(net) {//丝印网数下拉选择
+			$("#siyin_nets").empty();
+			for (var i = 0; i <= net; i++) {
+				if (i == 0) {
+					$("#siyin_nets").append("<option value=''>请选择丝印网数</option>");
+				} else {
+					$("#siyin_nets").append("<option value=" + i + ">" + i + "</option>");
+				}
+			}
+			//var n = $("#nets").val();
+			//$("#siyin_nets").val(n);
+
 			//if ($("#select_nets").val() == "") { 
 			//	mui.alert("请先选择丝印网数")
 			//	return false;
 			//}
-			document.getElementById("addOperatorDialog").style.display = "block"
-		});
+		}
 
 		function closeAddOperatorDialog() {
 			document.getElementById("addOperatorDialog").style.display = "none"
@@ -488,37 +517,53 @@
 			}
 		})
 		$("#addoperator").click(function() { //增加丝印记录
-			var operator_data = {};
-			var net = $("#siyin_nets").val();
-			var siyin_quantity = $("#siyin_quantity").val();
-			var siyin_pl = $("#siyin_pl").val();
-			var iqc_pl = $("#iqc_pl").val()
-			if (net == "" || siyin_quantity == "" ||
-				siyin_pl == "" || iqc_pl == "") {
-				mui.alert("请完善数据")
-				return false;
-			} else if (siyin_pl.indexOf("NG") != -1 || iqc_pl.indexOf("NG") != -1) {
-				mui.alert("请输入正常的工号")
-				return false;
-			} else if (siyin_pl.indexOf(";") == -1 || iqc_pl.indexOf(";") == -1) {
-				mui.alert("请先验证工号")
-				return false;
-			}
-			operator_data["net"] = $("#siyin_nets").val(); //丝印网数
-			operator_data["quantity"] = $("#siyin_quantity").val(); //丝印数量
-			operator_data["siyin_pl"] = $("#siyin_pl").val(); //丝印员工
-			operator_data["iqc_pl"] = $("#iqc_pl").val(); //质检人员
-			//console.log(JSON.stringify(operator_data))
-			updateOperator(operator_data)
+				var operator_data = {};
+				var net = $("#siyin_nets").val();
+				var siyin_quantity = $("#siyin_quantity").val();
+				var siyin_pl = $("#siyin_pl").val();
+				var iqc_pl = $("#iqc_pl").val()
+				if (net == "" || siyin_quantity == "" ||
+					siyin_pl == "" || iqc_pl == "") {
+					mui.alert("请完善数据")
+					return false;
+				} else if (siyin_pl.indexOf("NG") != -1 || iqc_pl.indexOf("NG") != -1) {
+					mui.alert("请输入正常的工号")
+					return false;
+				} else if (siyin_pl.indexOf(";") == -1 || iqc_pl.indexOf(";") == -1) {
+					mui.alert("请先验证工号")
+					return false;
+				}
+				operator_data["net"] = $("#siyin_nets").val(); //丝印网数
+				operator_data["quantity"] = $("#siyin_quantity").val(); //丝印数量
+				operator_data["siyin_pl"] = $("#siyin_pl").val(); //丝印员工
+				operator_data["iqc_pl"] = $("#iqc_pl").val(); //质检人员
+				//console.log(JSON.stringify(operator_data))
+				if(action=="add"){
+					updateOperator(operator_data)
+				}else if(action=="edit"){
+					editOperator(operator_data)
+				}
 		})
 
 		function updateOperator(operator_data) {
 			pl_datalist.push(operator_data);
 			updatePl_datalist(pl_datalist);
+			cleanOperatorDialog();
+		}
+		
+		function editOperator(operator_data){
+			var index=actionIndex;
+			pl_datalist.splice(index,1,operator_data);//替换splice(下标，替换元素的个数，需要插入的元素)
+			updatePl_datalist(pl_datalist);
+			cleanOperatorDialog();
+		}
+		
+		function cleanOperatorDialog(){
 			$("#siyin_nets").val(""); //丝印网数
 			$("#siyin_quantity").val(""); //丝印数量
 			$("#siyin_pl").val(""); //丝印员工
 			$("#iqc_pl").val(""); //质检人员
+			mui.alert("操作成功")
 			document.getElementById("addOperatorDialog").style.display = "none";
 		}
 
@@ -526,6 +571,23 @@
 			document.getElementById('operator_list').innerHTML = template('template', {
 				"record": pl_datalist
 			});
+		}
+
+		function editItem(index) { //修改质检员记录
+			//console.log(JSON.stringify(pl_datalist[index]))
+			var net = $("#nets").val();
+			if (net == "") {
+				mui.alert("请先获取丝印网数")
+				return false;
+			}
+			getNets(net);
+			$("#siyin_nets").val(pl_datalist[index].net); //丝印网数
+			$("#siyin_quantity").val(pl_datalist[index].quantity); //丝印数量
+			$("#siyin_pl").val(pl_datalist[index].siyin_pl); //丝印员工
+			$("#iqc_pl").val(pl_datalist[index].iqc_pl); //质检人员
+			action = "edit"
+			actionIndex=index
+			document.getElementById("addOperatorDialog").style.display = "block";
 		}
 
 		function deleteItem(index) { //删除质检员记录
@@ -537,7 +599,7 @@
 		$("#report").click(function() { //报工
 			var paramInfo = "";
 			mui('#report').button('loading');
-			for (var p = 0; p < pl_datalist.length; p++) {
+			for (var p = 0; p < pl_datalist.length; p++) {//处理丝印记录参数
 				paramInfo += pl_datalist[p].net + "@" + pl_datalist[p].quantity + "@" + pl_datalist[p].siyin_pl + "@" +
 					pl_datalist[p].iqc_pl + "$"
 			}
