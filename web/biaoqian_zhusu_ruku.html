@@ -38,7 +38,7 @@
 					<input id="qty" type="text" class="mui-input-clear">
 				</div>
 				<div class="mui-input-row">
-					<label>入库单号：</label>
+					<label>入库单号</label>
 					<input id="loc_num" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
 				</div>
 			</div>
@@ -80,7 +80,7 @@
 									mui.alert(json_obj)
 								} else {
 									$("#qty").val(json_obj);
-									mui.alert("操作成功");
+									$("#qty").focus();
 								}
 							}
 						})

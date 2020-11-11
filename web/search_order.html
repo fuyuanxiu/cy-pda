@@ -104,6 +104,13 @@
 					search();
 				}
 			})
+			$('#barcode').bind('input propertychange', function() {
+				toClean();
+			});
+			
+			$("#barcode").onchange(function(){
+				toClean()
+			})
 			
 			function search(){
 				jQueryWeb("PDA_Get_MO_BGINFO_byBarcode", {
@@ -113,21 +120,16 @@
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
 						//console.log( JSON.stringify(json_obj))
 						var data = json_obj.diffgram.DocumentElement;
-						//console.log(json_obj.diffgram)
+						console.log(JSON.stringify(data))
 						//console.log(JSON.stringify(data.table01))
 						
 							var temp=data.table01
-							if(temp.RESULT){
-								$("#order").val("");
-								$("#itemNo").val("");
-								$("#itemName").val("");
-								$("#format").val("");
-								$("#plan_qty").val("");
-								$("#inware_qty").val("");
-								$("#not_inware_qty").val("");
-								document.getElementById('pro_list').innerHTML = template('pr-template', {
-									"record":[]
-								});
+							if(JSON.stringify(temp).toString().substring(0, 1) == '{'){
+								temp=[temp];
+							}
+							console.log(temp[0].RESULT)
+							if(temp[0].RESULT.indexOf("NG")!=-1){
+								toClean();
 								mui.alert(temp.RESULT)
 								return false;
 							}
@@ -168,6 +170,19 @@
 					inputId: f1
 				});
 			};
+			
+			function toClean(){
+				$("#order").val("");
+				$("#itemNo").val("");
+				$("#itemName").val("");
+				$("#format").val("");
+				$("#plan_qty").val("");
+				$("#inware_qty").val("");
+				$("#not_inware_qty").val("");
+				document.getElementById('pro_list').innerHTML = template('pr-template', {
+					"record":[]
+				});
+			}
 		</script>
 	</body>
 </html>
