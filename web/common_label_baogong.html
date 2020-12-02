@@ -15,6 +15,12 @@
 		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
 		<link rel="stylesheet" type="text/css" href="css/common.css" />
 		<style type="text/css">
+			.select-dialog {
+				position: fixed;
+				margin-top: 1.25rem;
+				z-index: 999;
+			}
+			
 			.result-dialog {
 				position: fixed;
 				margin-top: 0.85rem;
@@ -31,14 +37,6 @@
 			}
 		</style>
 	</head>
-	<!--10/13
-1.查询条码内容【指点击条码旁【...】按钮-未增加获得结果的后续操作
-2.点击报工按钮的后续操作
-3.历史记录查询测试以及结果展示
-4.扫描条码后续操作
-5.部分参数不规范处理
-6.扫描的触发方法未增加
--->
 	<body>
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
@@ -82,6 +80,77 @@
 				<button type="reset" style="width: 80%;margin-top: 5px;" class="mui-btn mui-btn-danger" onclick="document.getElementById('infoDialog').style.display = 'none';">关闭</button>
 			</div>
 		</dialog>
+		<dialog id="selectDialog" class="select-dialog" style="width: 90%;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询记录</span></p>
+			<br>
+			<form id="selectDateFrom">
+				<div class="mui-input-group">
+					<div class="mui-input-row">
+						<label class="dialog-label">时间</label>
+						<input type="text" name="se_time" class="mui-input-clear" id="selecttime" placeholder="点击选择时间">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">线体编码</label>
+						<input name="se_line_code" type="text" class="mui-input-clear" id="se_line_code">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">工单</label>
+						<input name="se_order" type="text" class="mui-input-clear" id="selet_order">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">条码</label>
+						<input name="se_code" type="text" class="mui-input-clear" id="select_code">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">账号</label>
+						<input name="se_usr" type="text" class="mui-input-clear" id="select_usr">
+					</div>
+				</div>
+				<div class="mui-button-row">
+					<button type="button" id="search_record" style="width: 45%;float: left;" class="mui-btn mui-btn-primary">查询</button>
+					<button type="reset" class="mui-btn mui-btn-danger" style="width: 45%;" onclick="closeSelectDialog()">取消</button>
+				</div>
+			</form>
+		</dialog>
+		<dialog id="resultDialog" class="result-dialog" style="width: 99%;height: 500px; overflow:auto;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询结果</span></p>
+			<br>
+			<div id="list">
+		
+			</div>
+			<script id='template' type="text/template">
+				<% for(var i in record){ var item=record[i];%>
+				<div class="mui-card">
+				<div class="mui-card-header">
+				入库单:<%=(item.入库单)%> 
+				</div>
+				<div class="mui-card-content">
+					<ul class="mui-table-view">
+						<li class="mui-table-view-cell mui-media">
+							<a href="javascript:;">
+								<span class="mui-media-object mui-pull-left mui-icon iconfont" style="color: #ADD8E6;font-size:1.875rem"></span>
+								<div class="mui-media-body">
+									
+									<span>工单：<%=(item.工单)%></span><br>
+									
+								</div>
+							</a>
+						</li>
+					</ul>
+					<div class="mui-card-footer">
+						<span>时间： <%=(item.时间)%></span>
+						<span></span>
+					</div>
+				</div>
+				</div>
+				<%}%>
+			</script>
+			<div class="mui-button-row">
+				<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('resultDialog').style.display = 'none';">关闭</button>
+			</div>
+		</dialog>
+		
+		
 		<div class="mui-content">
 			<form class="mui-input-group" id="formId">
 				<div class="mui-input-row">
@@ -121,11 +190,13 @@
 			</form>
 			<div class="mui-content-padded" align="center">
 				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-green" id="report">报工</button>
+				<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn" id="history_code">历史记录</button>
 			</div>
 		</div>
 	</body>
 	<script type="text/javascript" charset="utf-8">
 		mui.init();
+		var lastline="";//最后一次报工记录的线体数据
 		window.addEventListener("changeBar", function(e) {
 			var inputId = e.detail.inputId
 			document.getElementById(inputId).value = e.detail.barcode
@@ -337,6 +408,7 @@
 						return false;
 					}
 					if(json_obj.indexOf("OK")!=-1){
+						lastline=$("#line_code").val()
 						$("#barcode").val("");
 						$("#lingban").val("");
 						$("#total").val("");
@@ -349,7 +421,88 @@
 				}
 			});
 		}
-
+		$("#history_code").click(function() {
+			$("#select_usr").val(api_localStorageGet("code"))
+			var date_data = CurentTime()
+			$('[name=se_time]').val(date_data); //时间
+			$('[name=se_line_code]').val(lastline)//库位编码
+			byId("selectDialog").style.display = "block";
+			showMask();
+		})
+		
+		function closeSelectDialog() { //关闭查询弹窗
+			document.getElementById('selectDialog').style.display = 'none';
+			closeMask();
+		}
+		var selecttime = byId("selecttime");
+		selecttime.addEventListener("tap", function() {
+			var dtPicker = new mui.DtPicker({
+				type: 'date'
+			});
+			dtPicker.show(function(e) {
+				$("#selecttime").val(e.value);
+			})
+		});
+		$("#selecttime").focus(function() { //禁止选择时间时输入法弹出
+			document.activeElement.blur();
+		});
+		
+		function CurentTime() { //当前时间
+			var now = new Date();
+		
+			var year = now.getFullYear(); //年
+			var month = now.getMonth() + 1; //月
+			var day = now.getDate(); //日
+		
+			var hh = now.getHours(); //时
+			var mm = now.getMinutes(); //分
+		
+			var clock = year + "-";
+			if (month < 10)
+				clock += "0";
+			clock += month + "-";
+			if (day < 10)
+				clock += "0";
+			clock += day;
+			return (clock);
+		}
+		
+		$("#search_record").click(function() { //历史记录查询
+			var se_time = $('[name=se_time]').val(); //时间
+			var se_order = $('[name=se_order]').val(); //工单
+			var se_code = $('[name=se_code]').val(); //条码
+			var se_line_code = $('[name=se_line_code]').val(); //线体编号
+			var se_usr = $('[name=se_usr]').val(); //用户
+			jQueryWeb("PDA_GET_BG_HISTORY_TY", {
+				"LINECODE ":se_line_code,
+				"inDate": se_time,
+				"inMO": se_order,
+				"inBarcode ": se_code,
+				"inUserCode": se_usr
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					var data = json_obj.diffgram.NewDataSet;
+					//console.log(JSON.stringify(data))
+					if (data != undefined) {
+						var listData = [];
+						if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+							listData = [data.Table]
+						} else {
+							listData = data.Table
+						}
+						document.getElementById('list').innerHTML = template('template', {
+							"record": listData
+						});
+						byId("resultDialog").style.display = "block"
+					} else {
+						mui.alert("无历史记录")
+					}
+		
+				}
+			})
+		})
+		
 		function toClear() { //清空数据
 			$("#barcode").val("");
 			$("#lingban").val("");
