@@ -161,18 +161,18 @@
 									<input id="loc_num" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
 								</div>
 							</div>
-							<div class="mui-content-padded" align="center">
-								<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
-								<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-warning" id="clean_code">清空</button>
-								<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn" id="history_code">历史记录</button>
-							</div>
 						</form>
+						<div class="mui-content-padded" align="center">
+							<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
+							<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-warning" id="clean_code">清空</button>
+							<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn" id="history_code">历史记录</button>
+						</div>
 					</div>
 					<div id="item2mobile" class="mui-slider-item mui-control-content ">
-						<div id="list">
+						<div id="code_list">
 
 						</div>
-						<script id='template' type="text/template">
+						<script id='code-template' type="text/template">
 							<% for(var i in record){ var item=record[i];%>
 							<div class="mui-card">
 								<div class="mui-card-header">
@@ -259,30 +259,37 @@
 
 		function checkBarcode(barcode) { //扫入条码
 			jQueryWeb("PDA_Get_Barcode_Rk", {
-				"Barcode": barcode, //参数名未确认
+				"inBarcode": barcode, //参数名未确认
 			}, function(xmlHttpRequest, statu) {
 				if (statu == 'success') {
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
-					console.log(json_obj)
 					if (json_obj.indexOf("NG") != -1) { //结果含NG字样时
 						mui.alert(json_obj)
 					} else {
-						$("#scan_type").val(json_obj); //数据操作-填充扫入品号
-
+						for(var i=0;i<barcodeList.length;i++){//防重处理
+							if (barcodeList[i].barcode == barcode) {
+								mui.alert("条码【" + barcode + "】已存在，请勿重复添加", function() {
+									$("#barcode").val("");
+									$("#barcode").focus();
+								})
+								return false;
+							}
+						}
+						$("#scan_type").val(json_obj.substring(0,json_obj.indexOf(","))); //数据操作-填充扫入品号
+						var numValue=json_obj.substring(json_obj.indexOf(",")+1,json_obj.length)
 						boxNum += 1; //更新总箱数
-						totalNum += 1; //更新总数
+						totalNum += parseInt(numValue); //更新总数
 						$("#box_count").val(boxNum) //填充数据-箱数
 						$("#total_num").val(totalNum) //填充数据-总数
 
 						var arr = {}; //元素组成
 						arr["barcode"] = barcode;
-						arr["boxCount"] = 1;
+						arr["boxCount"] = numValue;
 						barcodeList.push(arr);
-
-						document.getElementById('list').innerHTML = template('template', {
+						document.getElementById('code_list').innerHTML = template('code-template', {
 							"record": barcodeList
 						});
-
+						
 						$("#barcode").val("");
 						$("#barcode").focus();
 						mui.toast("扫描成功");
@@ -301,18 +308,19 @@
 				codeList += barcodeList[i].barcode + ","
 			}
 			codeList = codeList.substring(0, codeList.length - 1);
+			//console.log(codeList)
 			inWarehourse(codeList, location)
 		})
 
 		function inWarehourse(codeList, location) {
 			jQueryWeb("PDA_Barcodes_In_WareHouse", {
-				"inLotNo": codeList, //条码串
 				"inBinCode": location, //扫入库位
-				"userCode": api_localStorageGet("code")
+				"inBarcodes": codeList, //条码串
+				"inUser": api_localStorageGet("code")
 			}, function(xmlHttpRequest, statu) {
 				if (statu == 'success') {
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
-					console.log(json_obj)
+					//console.log(json_obj)
 					//添加如果包含“NG”字符则弹出警告，无则将结果输出 loc_num
 					if (json_obj.indexOf("NG") != -1) { //结果含NG字样时
 						mui.alert(json_obj)
@@ -327,14 +335,14 @@
 		}
 
 		function deleteCode(index) { //删除清单内的条码
-			mui.confirm("是否要删除【" + barcodeList[index].boxcode + "】条码？", "提示", ['否', '是'], function(e) {
+			mui.confirm("是否要删除【" + barcodeList[index].barcode + "】条码？", "提示", ['否', '是'], function(e) {
 				if (e.index == 1) {
-					totalNum = parseInt(totalNum) - parseInt(barcodeList[index].qty); //更新生产总数
+					totalNum = parseInt(totalNum) - parseInt(barcodeList[index].boxCount); //更新生产总数
 					barcodeList.splice(index, 1);
-					boxNum = barcodeList.length - 1; //更新条码记录数
+					boxNum = barcodeList.length; //更新条码记录数
 
 					mui.alert("删除成功");
-					document.getElementById('list').innerHTML = template('template', {
+					document.getElementById('code_list').innerHTML = template('code-template', {
 						"record": barcodeList
 					});
 					$("#box_count").val(boxNum) //填充数据-箱数
@@ -432,7 +440,7 @@
 
 		function toClean() {
 			barcodeList = [];
-			document.getElementById('list').innerHTML = template('template', {
+			document.getElementById('code_list').innerHTML = template('code-template', {
 				"record": barcodeList
 			});
 			boxNum = 0;
