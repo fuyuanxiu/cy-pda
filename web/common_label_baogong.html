@@ -190,7 +190,7 @@
 			</form>
 			<div class="mui-content-padded" align="center">
 				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-green" id="report">报工</button>
-				<!-- <button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn" id="history_code">历史记录</button> -->
+				<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn" id="history_code">历史记录</button>
 			</div>
 		</div>
 	</body>
@@ -204,6 +204,10 @@
 		mui.plusReady(function() {
 			mask = mui.createMask(function() { //遮罩层callback事件
 				if (byId("infoDialog").style.display == "none") {
+					return true; //如果没有弹出框，关闭遮罩层
+				}
+				if(byId("selectDialog").style.display == "none"||
+				byId("resultDialog").style.display == "none"){
 					return true; //如果没有弹出框，关闭遮罩层
 				}
 				return false; //返回true,点击关闭mask

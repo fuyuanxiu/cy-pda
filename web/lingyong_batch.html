@@ -131,7 +131,7 @@
 			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询结果</span></p>
 			<br>
 			<div id="list_his">
-		
+
 			</div>
 			<script id='template' type="text/template">
 				<% for(var i in record){ var item=record[i];%>
@@ -166,7 +166,7 @@
 				<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('resultHisDialog').style.display = 'none';">关闭</button>
 			</div>
 		</dialog>
-		
+
 		<div class="mui-content">
 			<div id="slider" class="mui-slider">
 				<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted" id="segmented">
@@ -238,16 +238,23 @@
 						</div>
 					</div>
 					<div id="item2mobile" class="mui-slider-item mui-control-content ">
-						<div id="list">
+						<div id="code_list">
 
 						</div>
-						<script id='template' type="text/template">
+						<script id='code-template' type="text/template">
 							<% for(var i in record){ var item=record[i];%>
 							<div class="mui-card">
 								<div class="mui-card-header">
 									<span>条码:<%=(item.barcode)%></span>
 								</div>
 								<div class="mui-card-content">
+									<ul class="mui-table-view">
+										<li class="mui-table-view-cell mui-media">
+												<div class="mui-media-body">
+													<span>品号：<%=(item.typeCode)%></span>
+												</div>
+										</li>
+									</ul>
 									<div class="mui-card-footer">
 										<span>数量：<%=(item.boxCount)%></span>
 										<span>
@@ -268,15 +275,20 @@
 		var boxNum = 0; //箱数
 		var totalNum = 0; //总数
 		var barcodeList = []; //条码数组
-		var lastLocation="";//最后一次确认提交的库位编码
+		var lastLocation = ""; //最后一次确认提交的库位编码
 		window.addEventListener("changeBar", function(e) {
 			var inputId = e.detail.inputId
 			document.getElementById(inputId).value = e.detail.barcode
 		});
 		mui.plusReady(function() {
 			mask = mui.createMask(function() { //遮罩层callback事件
-				if (byId("selectDialog").style.display == "none" ||
-					byId("resultDialog").style.display == "none") {
+				//f||f||f&&t
+				if ((byId("selectDialog").style.display == "none" ||
+						byId("resultDialog").style.display == "none")) {
+					return true; //如果没有弹出框，关闭遮罩层
+				}
+				if (byId("hisDialog").style.display == "none" ||
+					byId("resultHisDialog").style.display == "none") {
 					return true; //如果没有弹出框，关闭遮罩层
 				}
 				return false; //返回true,点击即关闭mask
@@ -378,14 +390,6 @@
 			closeMask();
 			byId("resultDialog").style.display = "none"
 		});
-		//扫入线体
-		$('#label').bind('keyup', function(event) {
-			if (event.keyCode == "13") {
-				setTimeout(function() {
-					$("#order").focus();
-				}, 200)
-			}
-		})
 
 		$('#order').bind('keyup', function(event) {
 			if (event.keyCode == "13") {
@@ -436,13 +440,15 @@
 					mui.toast("请先完善数据")
 					return false;
 				}
-				checkBarcode(code);
+				setTimeout(function() {
+					checkBarcode(code);
+				}, 200)
 			}
 		})
 
 		function checkBarcode(barcode) { //扫入条码
 			jQueryWeb("PDA_Get_Barcode_LY", {
-				"Barcode": barcode, //参数名未确认
+				"inBarcode": barcode, //参数名未确认
 			}, function(xmlHttpRequest, statu) {
 				if (statu == 'success') {
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
@@ -450,23 +456,35 @@
 					if (json_obj.indexOf("NG") != -1) { //结果含NG字样时
 						mui.alert(json_obj)
 					} else {
-						$("#scan_type").val(json_obj); //数据操作-填充扫入品号
+						for (var i = 0; i < barcodeList.length; i++) { //防重处理
+							if (barcodeList[i].barcode == barcode) {
+								mui.alert("条码【" + barcode + "】已存在，请勿重复添加", function() {
+									$("#barcode").val("");
+									$("#barcode").focus();
+								})
+								return false;
+							}
+						}
+
+						var typeValue = json_obj.substring(0, json_obj.indexOf(","))
+						var numValue = json_obj.substring(json_obj.indexOf(",") + 1, json_obj.length)
+						$("#scan_type").val(typeValue); //数据操作-填充扫入品号
 
 						boxNum += 1; //更新总箱数
-						totalNum += 1; //更新总数
+						totalNum += parseInt(numValue); //更新总数
 						$("#box_count").val(boxNum) //填充数据-箱数
 						$("#total_num").val(totalNum) //填充数据-总数
 
 						var arr = {}; //元素组成
 						arr["barcode"] = barcode;
-						arr["boxCount"] = 1;
+						arr["boxCount"] = numValue;
+						arr["typeCode"] = typeValue;
 						barcodeList.push(arr);
-
-						document.getElementById('list').innerHTML = template('template', {
+						document.getElementById('code_list').innerHTML = template('code-template', {
 							"record": barcodeList
 						});
 
-						$("#label").val("");//清空
+						$("#label").val(""); //清空
 						$("#label").focus();
 						mui.toast("扫描成功");
 					}
@@ -475,14 +493,14 @@
 		}
 
 		function deleteCode(index) { //删除清单内的条码
-			mui.confirm("是否要删除【" + barcodeList[index].boxcode + "】条码？", "提示", ['否', '是'], function(e) {
+			mui.confirm("是否要删除【" + barcodeList[index].barcode + "】条码？", "提示", ['否', '是'], function(e) {
 				if (e.index == 1) {
-					totalNum = parseInt(totalNum) - parseInt(barcodeList[index].qty); //更新生产总数
+					totalNum = parseInt(totalNum) - parseInt(barcodeList[index].boxCount); //更新生产总数
 					barcodeList.splice(index, 1);
-					boxNum = barcodeList.length - 1; //更新条码记录数
+					boxNum = barcodeList.length; //更新条码记录数
 
 					mui.alert("删除成功");
-					document.getElementById('list').innerHTML = template('template', {
+					document.getElementById('code_list').innerHTML = template('code-template', {
 						"record": barcodeList
 					});
 					$("#box_count").val(boxNum) //填充数据-箱数
@@ -495,7 +513,7 @@
 		})
 
 
-		$("#submitData").click(function() {
+		$("#submit_code").click(function() {
 			var type = $("input[name='radio1']:checked").val();
 			var order = $("#order").val();
 			var line = $("#line_code").val();
@@ -506,10 +524,13 @@
 			}
 			var label_list = "";
 			for (var i = 0; i < barcodeList.length; i++) {
-				codeList += barcodeList[i].barcode + ","
+				label_list += barcodeList[i].barcode + ","
 			}
-			label_list = codeList.substring(0, codeList.length - 1);
-			doLingyong(type, label_list, order, line, workCode)
+			label_list = label_list.substring(0, label_list.length - 1);
+			//console.log(label_list)
+			setTimeout(function() {
+				doLingyong(type, label_list, order, line, workCode)
+			}, 200)
 		})
 
 		function doLingyong(type, label_list, order, line, workCode) {
@@ -531,7 +552,7 @@
 						console.log(str)
 						mui.alert("领料成功");
 						$("#inputOrder").val(str)
-						lastLocation=$("#location").val();
+						lastLocation = $("#location").val();
 						toClean();
 					}
 				} else {
@@ -543,10 +564,11 @@
 			$("#select_usr").val(api_localStorageGet("code"))
 			var date_data = CurentTime()
 			$('[name=se_time]').val(date_data); //时间
-			$('[name=se_loc_code]').val(lastLocation)//库位编码
+			$('[name=se_loc_code]').val(lastLocation) //库位编码
 			byId("hisDialog").style.display = "block";
 			showMask();
 		})
+
 		function closeHisDialog() { //关闭查询弹窗
 			document.getElementById('hisDialog').style.display = 'none';
 			closeMask();
@@ -563,17 +585,17 @@
 		$("#selecttime").focus(function() { //禁止选择时间时输入法弹出
 			document.activeElement.blur();
 		});
-		
+
 		function CurentTime() { //当前时间
 			var now = new Date();
-		
+
 			var year = now.getFullYear(); //年
 			var month = now.getMonth() + 1; //月
 			var day = now.getDate(); //日
-		
+
 			var hh = now.getHours(); //时
 			var mm = now.getMinutes(); //分
-		
+
 			var clock = year + "-";
 			if (month < 10)
 				clock += "0";
@@ -614,15 +636,15 @@
 					} else {
 						mui.alert("无历史记录")
 					}
-		
+
 				}
 			})
 		})
-		
-		
+
+
 		function toClean() {
 			barcodeList = [];
-			document.getElementById('list').innerHTML = template('template', {
+			document.getElementById('code_list').innerHTML = template('code-template', {
 				"record": barcodeList
 			});
 			boxNum = 0;
@@ -630,6 +652,7 @@
 			$("#label").val("");
 			$("#order").val("");
 			$("#line_code").val("");
+			$("#scan_type").val("");
 			$("#workCode").val("");
 			$("#location").val("")
 			$("input[type=radio][name=radio1][value=正常]").attr("checked", true);

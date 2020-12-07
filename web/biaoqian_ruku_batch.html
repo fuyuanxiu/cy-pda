@@ -179,6 +179,13 @@
 									<span>条码:<%=(item.barcode)%></span>
 								</div>
 								<div class="mui-card-content">
+									<ul class="mui-table-view">
+										<li class="mui-table-view-cell mui-media">
+												<div class="mui-media-body">
+													<span>品号：<%=(item.typeCode)%></span>
+												</div>
+										</li>
+									</ul>
 									<div class="mui-card-footer">
 										<span>数量：<%=(item.boxCount)%></span>
 										<span>
@@ -275,16 +282,19 @@
 								return false;
 							}
 						}
-						$("#scan_type").val(json_obj.substring(0,json_obj.indexOf(","))); //数据操作-填充扫入品号
-						var numValue=json_obj.substring(json_obj.indexOf(",")+1,json_obj.length)
+						var typeValue = json_obj.substring(0, json_obj.indexOf(","))
+						var numValue = json_obj.substring(json_obj.indexOf(",") + 1, json_obj.length)
+						$("#scan_type").val(typeValue); //数据操作-填充扫入品号
+						
 						boxNum += 1; //更新总箱数
 						totalNum += parseInt(numValue); //更新总数
 						$("#box_count").val(boxNum) //填充数据-箱数
 						$("#total_num").val(totalNum) //填充数据-总数
-
+						
 						var arr = {}; //元素组成
 						arr["barcode"] = barcode;
 						arr["boxCount"] = numValue;
+						arr["typeCode"] = typeValue;
 						barcodeList.push(arr);
 						document.getElementById('code_list').innerHTML = template('code-template', {
 							"record": barcodeList
