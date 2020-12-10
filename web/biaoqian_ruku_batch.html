@@ -80,9 +80,8 @@
 				</div>
 			</form>
 		</dialog>
-		<dialog id="resultDialog" class="result-dialog" style="width: 99%;height: 500px; overflow:auto;">
+		<dialog id="resultDialog" class="result-dialog" style="width: 99%;height: 400px; overflow:auto;">
 			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询结果</span></p>
-			<br>
 			<div id="list">
 
 			</div>
@@ -427,7 +426,7 @@
 				if (statu == 'success') {
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
 					var data = json_obj.diffgram.NewDataSet;
-					//console.log(JSON.stringify(data))
+					console.log(JSON.stringify(data))
 					if (data != undefined) {
 						var listData = [];
 						if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
@@ -446,7 +445,12 @@
 				}
 			})
 		})
-
+		$(document).mouseup(function(e){//点击空白区域关闭拆查询结果弹窗
+		  var _con = $('#resultDialog');   // 设置目标区域
+		  if(!_con.is(e.target) && _con.has(e.target).length === 0){ // Mark 1
+		   byId("resultDialog").style.display = "none"
+		  }
+		});
 
 		function toClean() {
 			barcodeList = [];

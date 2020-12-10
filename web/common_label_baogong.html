@@ -11,7 +11,9 @@
 		<script src="../js/jquery.js"></script>
 		<script src="../js/jquery-1.11.1.js"></script>
 		<script src="../js/jquery.xml2json.js.js"></script>
+		<script src="../js/mui.picker.min.js"></script>
 		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/mui.picker.min.css" />
 		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
 		<link rel="stylesheet" type="text/css" href="css/common.css" />
 		<style type="text/css">
@@ -80,7 +82,7 @@
 				<button type="reset" style="width: 80%;margin-top: 5px;" class="mui-btn mui-btn-danger" onclick="document.getElementById('infoDialog').style.display = 'none';">关闭</button>
 			</div>
 		</dialog>
-		<dialog id="selectDialog" class="select-dialog" style="width: 90%;">
+		<dialog id="selectDialog" class="select-dialog" style="width: 95%;">
 			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询记录</span></p>
 			<br>
 			<form id="selectDateFrom">
@@ -90,7 +92,7 @@
 						<input type="text" name="se_time" class="mui-input-clear" id="selecttime" placeholder="点击选择时间">
 					</div>
 					<div class="mui-input-row">
-						<label class="dialog-label">线体编码</label>
+						<label class="dialog-label" style="font-size: 15px;">线体编码</label>
 						<input name="se_line_code" type="text" class="mui-input-clear" id="se_line_code">
 					</div>
 					<div class="mui-input-row">
@@ -112,9 +114,8 @@
 				</div>
 			</form>
 		</dialog>
-		<dialog id="resultDialog" class="result-dialog" style="width: 99%;height: 500px; overflow:auto;">
+		<dialog id="resultDialog" class="result-dialog" style="width: 99%;height: 400px; overflow:auto;">
 			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询结果</span></p>
-			<br>
 			<div id="list">
 		
 			</div>
@@ -122,7 +123,7 @@
 				<% for(var i in record){ var item=record[i];%>
 				<div class="mui-card">
 				<div class="mui-card-header">
-				入库单:<%=(item.入库单)%> 
+				<%=(item.标签条码)%> 
 				</div>
 				<div class="mui-card-content">
 					<ul class="mui-table-view">
@@ -132,14 +133,16 @@
 								<div class="mui-media-body">
 									
 									<span>工单：<%=(item.工单)%></span><br>
-									
+									<span>品号：<%=(item.品号)%></span><br>
+									<span>完工类型：<%=(item.完工类型)%></span><br>
+								
 								</div>
 							</a>
 						</li>
 					</ul>
 					<div class="mui-card-footer">
-						<span>时间： <%=(item.时间)%></span>
-						<span></span>
+						<span>数量： <%=(item.数量)%></span>
+							<span>工序：<%=(item.工序)%></span>
 					</div>
 				</div>
 				</div>
@@ -157,9 +160,9 @@
 					<label>班次</label>
 					<span class="radio_inline mui-radio">
 						<input name="radio1" type="radio" id="A" checked value="A">
-						<label for="A">A</label>
+						<label for="A">白班</label>
 						<input name="radio1" type="radio" id="B" value="B">
-						<label for="B">B</label>
+						<label for="B">夜班</label>
 					</span>
 				</div>
 				<div class="mui-input-row">
@@ -203,14 +206,17 @@
 		});
 		mui.plusReady(function() {
 			mask = mui.createMask(function() { //遮罩层callback事件
+			var re=false;
 				if (byId("infoDialog").style.display == "none") {
-					return true; //如果没有弹出框，关闭遮罩层
+					re= true; //如果没有弹出框，关闭遮罩层
 				}
-				if(byId("selectDialog").style.display == "none"||
+				if(byId("selectDialog").style.display == "none"&&
 				byId("resultDialog").style.display == "none"){
-					return true; //如果没有弹出框，关闭遮罩层
+					re =true; //如果没有弹出框，关闭遮罩层
+				}else{
+					re=false;
 				}
-				return false; //返回true,点击关闭mask
+				return re; //返回true,点击关闭mask
 			}); /*创建蒙版，保存到mask中*/
 		});
 		//遮罩层
@@ -352,8 +358,9 @@
 						mui.alert(json_obj)
 						return false;
 					}
+					
 					var data = JSON.parse(json_obj)
-					console.log(json_obj)
+					
 					for (var i = 0; i < data.length; i++) {
 						if (data[i].ITEM == "标签时间") {
 							$("#info_labelTime").text("标签时间："+data[i].VALUE);
@@ -477,17 +484,19 @@
 			var se_code = $('[name=se_code]').val(); //条码
 			var se_line_code = $('[name=se_line_code]').val(); //线体编号
 			var se_usr = $('[name=se_usr]').val(); //用户
+			if(se_line_code==""){mui.alert("必须输入线体编码");return false;}
 			jQueryWeb("PDA_GET_BG_HISTORY_TY", {
-				"LINECODE ":se_line_code,
+				"LineCode":se_line_code,
 				"inDate": se_time,
 				"inMO": se_order,
-				"inBarcode ": se_code,
+				"inBarcode": se_code,
 				"inUserCode": se_usr
 			}, function(xmlHttpRequest, statu) {
 				if (statu == 'success') {
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					//console.log(JSON.stringify(json_obj))
 					var data = json_obj.diffgram.NewDataSet;
-					//console.log(JSON.stringify(data))
+					console.log(JSON.stringify(data))
 					if (data != undefined) {
 						var listData = [];
 						if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
@@ -506,6 +515,13 @@
 				}
 			})
 		})
+		
+		$(document).mouseup(function(e){//点击空白区域关闭拆查询结果弹窗
+		  var _con = $('#resultDialog');   // 设置目标区域
+		  if(!_con.is(e.target) && _con.has(e.target).length === 0){ // Mark 1
+		   byId("resultDialog").style.display = "none"
+		  }
+		});
 		
 		function toClear() { //清空数据
 			$("#barcode").val("");
