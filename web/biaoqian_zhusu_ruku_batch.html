@@ -1,0 +1,488 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>注塑联产品批量标签入库</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<script src="../js/mui.picker.min.js"></script>
+		<script src="../js/template-web.js"></script>
+		<link rel="stylesheet" type="text/css" href="../css/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
+		<style>
+			.select-dialog {
+				position: fixed;
+				margin-top: 1.25rem;
+				z-index: 999;
+			}
+			.dialog-label {
+				font-size: 14px;
+			}
+			.result-dialog {
+				position: fixed;
+				margin-top: 0.85rem;
+				z-index: 999;
+			}
+			
+			.dialog-li {
+				font-size: 11px;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">注塑联产品批量标签入库</h1>
+		</header>
+		<dialog id="selectDialog" class="select-dialog" style="width: 90%;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询记录</span></p>
+			<br>
+			<form id="selectDateFrom">
+				<div class="mui-input-group">
+					<div class="mui-input-row">
+						<label class="dialog-label">时间</label>
+						<input type="text" name="se_time" class="mui-input-clear" id="selecttime" placeholder="点击选择时间">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">工单</label>
+						<input name="se_order" type="text" class="mui-input-clear" id="selet_order">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">批号</label>
+						<input name="se_code" type="text" class="mui-input-clear" id="select_code">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">仓库编码</label>
+						<input name="se_ware_code" type="text" class="mui-input-clear" id="se_ware_code">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">库位编码</label>
+						<input name="se_loc_code" type="text" class="mui-input-clear" id="se_loc_code">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">账号</label>
+						<input name="se_usr" type="text" class="mui-input-clear" id="select_usr">
+					</div>
+				</div>
+				<div class="mui-button-row">
+					<button type="button" id="search_record" style="width: 45%;float: left;" class="mui-btn mui-btn-primary">查询</button>
+					<button type="reset" class="mui-btn mui-btn-danger" style="width: 45%;" onclick="closeSelectDialog()">取消</button>
+				</div>
+			</form>
+		</dialog>
+		<dialog id="resultDialog" class="result-dialog" style="width: 99%;height: 400px; overflow:auto;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询结果</span></p>
+			<div id="list">
+
+			</div>
+			<script id='template' type="text/template">
+				<% for(var i in record){ var item=record[i];%>
+				<div class="mui-card">
+				<div class="mui-card-header">
+				入库单:<%=(item.入库单)%> 
+				</div>
+				<div class="mui-card-content">
+					<ul class="mui-table-view">
+						<li class="mui-table-view-cell mui-media">
+							<a href="javascript:;">
+								<span class="mui-media-object mui-pull-left mui-icon iconfont" style="color: #ADD8E6;font-size:1.875rem"></span>
+								<div class="mui-media-body">
+									<span>仓库编码：<%=(item.仓库编码)%></span><br>
+									<span>批次：<%=(item.批次)%></span><br>
+									<span>工单：<%=(item.工单)%></span><br>
+									<span>生产线体：<%=(item.生产线体)%></span><br>
+									<span>数量： <%=(item.数量)%></span>
+								</div>
+							</a>
+						</li>
+					</ul>
+					<div class="mui-card-footer">
+						<span>时间： <%=(item.时间)%></span>
+						<span></span>
+					</div>
+				</div>
+				</div>
+				<%}%>
+			</script>
+			<div class="mui-button-row">
+				<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('resultDialog').style.display = 'none';">关闭</button>
+			</div>
+		</dialog>
+		<div class="mui-content">
+			<div id="slider" class="mui-slider">
+				<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted" id="segmented">
+					<div class="mui-scroll">
+						<a class="mui-control-item mui-active" href="#item1mobile">
+							扫码
+						</a>
+						<a class="mui-control-item" href="#item2mobile">
+							清单
+							<!-- <span class="mui-badge  mui-badge-success" id="itemTotal">20</span> -->
+						</a>
+					</div>
+				</div>
+				<div class="mui-slider-group">
+					<div id="item1mobile" class="mui-slider-item mui-control-content mui-active">
+						<form class="mui-input-group" id="formId">
+							<div class="mui-input-group">
+
+								<div class="mui-input-row">
+									<label onclick="clicked('commom/saomiao.html','location','web/biaoqian_zhusu_ruku_batch.html');">扫入库位</label>
+									<input id="location" placeholder="请扫入库位" type="text" class="mui-input-clear">
+								</div>
+								<div class="mui-input-row">
+									<label>每箱数量</label>
+									<input id="s_qty" type="text" placeholder="请输入数量" class="mui-input-clear">
+								</div>
+								<div class="mui-input-row">
+									<label onclick="clicked('commom/saomiao.html','barcode','web/biaoqian_zhusu_ruku_batch.html');">标签条码</label>
+									<input id="barcode" placeholder="请扫入条码" type="text" class="mui-input-clear">
+								</div>
+
+
+								<div class="mui-input-row">
+									<label>扫入品号：</label>
+									<input id="scan_type" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+								</div>
+								<div class="mui-input-row">
+									<label>箱数：</label>
+									<input id="box_count" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+								</div>
+								<div class="mui-input-row">
+									<label>总数：</label>
+									<input id="total_num" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+								</div>
+								<div class="mui-input-row">
+									<label>入库单号：</label>
+									<input id="loc_num" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+								</div>
+							</div>
+						</form>
+						<div class="mui-content-padded" align="center">
+							<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
+							<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-warning" id="clean_code">清空</button>
+							<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn" id="history_code">历史记录</button>
+						</div>
+					</div>
+					<div id="item2mobile" class="mui-slider-item mui-control-content ">
+						<div id="code_list">
+
+						</div>
+						<script id='code-template' type="text/template">
+							<% for(var i in record){ var item=record[i];%>
+							<div class="mui-card">
+								<div class="mui-card-header">
+									<span>条码:<%=(item.barcode)%></span>
+								</div>
+								<div class="mui-card-content">
+									<ul class="mui-table-view">
+										<li class="mui-table-view-cell mui-media">
+												<div class="mui-media-body">
+													<span>品号：<%=(item.typeCode)%></span>
+												</div>
+										</li>
+									</ul>
+									<div class="mui-card-footer">
+										<span>数量：<%=(item.boxCount)%></span>
+										<span>
+											<button onclick="deleteCode(<%=(i)%>)" class="mui-btn-danger">
+											删除</button>
+											</span>
+									</div>
+								</div>
+							</div>
+							<%}%>
+						</script>
+					</div>
+				</div>
+			</div>
+	</body>
+	<script type="text/javascript">
+		mui.init();
+		var boxNum = 0; //箱数
+		var totalNum = 0; //总数
+		var barcodeList = []; //条码数组
+		var lastLocation = ""; //最后一次确认提交的库位编码
+		window.addEventListener("changeBar", function(e) {
+			var inputId = e.detail.inputId
+			document.getElementById(inputId).value = e.detail.barcode
+		});
+		mui.plusReady(function() {
+			mask = mui.createMask(function() { //遮罩层callback事件
+				if (byId("selectDialog").style.display == "none") {
+					return true; //如果没有弹出框，关闭遮罩层
+				}
+				return false; //返回true,点击关闭mask
+			});
+			/*创建蒙版*/
+		})
+		//遮罩层
+		function showMask() { /*绑定处理事件*/
+			top_value = $(document).scrollTop() //document.documentElement.scrollTop
+			document.body.style.overflow = "hidden"
+			document.body.style.width = "100%"
+			document.body.style.height = "100%"
+			document.body.style.position = "fixed"
+			mask.show(); /*调用展示遮罩*/
+		}
+
+		function closeMask() { /*绑定处理事件*/
+			document.body.style.overflow = "scroll"
+			document.body.style.width = "100%"
+			document.body.style.height = "100%"
+			document.body.style.position = "relative"
+			window.scrollTo(0, top_value); //回到原位置
+			mask.close(); /*调用展示属性*/
+		}
+
+		function clicked(url, f1, urlId) { //扫描触发
+			OpenWindow(f1, url, {
+				urlId: urlId,
+				inputId: f1
+			});
+		};
+
+		$("#location").bind('keyup', function(event) {
+			if (event.keyCode == "13") {
+				$('#s_qty').focus();
+			}
+		})
+
+		//监听条码扫描——扫描回车
+		$('#barcode').bind('keyup', function(event) {
+			if (event.keyCode == "13") {
+				var code = $("#barcode").val();
+				var s_qty = $("#s_qty").val();
+				if (code == "" || s_qty == "") {
+					mui.toast("请先完善数据")
+					return false;
+				}
+				checkBarcode(code, s_qty);
+			}
+		})
+
+		function checkBarcode(barcode, s_qty) { //扫入条码
+			jQueryWeb("PDA_Get_Barcode_Rk_LCP", {
+				"inBarcode": barcode,
+				"inQTY": s_qty
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					if (json_obj.indexOf("NG") != -1) { //结果含NG字样时
+						mui.alert(json_obj)
+					} else {
+						for (var i = 0; i < barcodeList.length; i++) { //防重处理
+							if (barcodeList[i].barcode == barcode) {
+								mui.alert("条码【" + barcode + "】已存在，请勿重复添加", function() {
+									$("#barcode").val("");
+									$("#barcode").focus();
+								})
+								return false;
+							}
+						}
+						var typeValue = json_obj.substring(0, json_obj.indexOf(","))
+						var numValue = json_obj.substring(json_obj.indexOf(",") + 1, json_obj.length)
+						$("#scan_type").val(typeValue); //数据操作-填充扫入品号
+
+						boxNum += 1; //更新总箱数
+						totalNum += parseInt(numValue); //更新总数
+						$("#box_count").val(boxNum) //填充数据-箱数
+						$("#total_num").val(totalNum) //填充数据-总数
+
+						var arr = {}; //元素组成
+						arr["barcode"] = barcode;
+						arr["boxCount"] = numValue;
+						arr["typeCode"] = typeValue;
+						barcodeList.push(arr);
+						document.getElementById('code_list').innerHTML = template('code-template', {
+							"record": barcodeList
+						});
+
+						$("#barcode").val("");
+						$("#barcode").focus();
+						mui.toast("扫描成功");
+					}
+				}
+			})
+		}
+		$("#submit_code").click(function() {
+			var location = $("#location").val()
+			if (location == "" || barcodeList.length < 1) {
+				mui.alert("请完善数据");
+				return false;
+			}
+			var codeList = "";
+			for (var i = 0; i < barcodeList.length; i++) {
+				codeList += barcodeList[i].barcode + ","
+			}
+			codeList = codeList.substring(0, codeList.length - 1);
+			var qtyList="";
+			for (var j = 0; j < barcodeList.length; j++) {
+				qtyList += barcodeList[j].boxCount + ","
+			}
+			qtyList = qtyList.substring(0, qtyList.length - 1);
+			//console.log(codeList)
+			//console.log(location)
+			//console.log(qtyList)
+			inWarehourse(codeList, location,qtyList)
+		})
+
+		function inWarehourse(codeList, location,qtyList) {
+			jQueryWeb("PDA_IN_HW_ZSLCPS", {
+				"inBinCode": location, //扫入库位
+				"inBarcodes": codeList, //条码串
+				"inQTY":qtyList,
+				"inUser": api_localStorageGet("code")
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					//console.log(json_obj)
+					//添加如果包含“NG”字符则弹出警告，无则将结果输出 loc_num
+					if (json_obj.indexOf("NG") != -1) { //结果含NG字样时
+						mui.alert(json_obj)
+					} else {
+						$("#loc_num").val(json_obj);
+						lastLocation = location;
+						toClean();
+						mui.alert("操作成功");
+					}
+				}
+			})
+		}
+
+		function deleteCode(index) { //删除清单内的条码
+			mui.confirm("是否要删除【" + barcodeList[index].barcode + "】条码？", "提示", ['否', '是'], function(e) {
+				if (e.index == 1) {
+					totalNum = parseInt(totalNum) - parseInt(barcodeList[index].boxCount); //更新生产总数
+					barcodeList.splice(index, 1);
+					boxNum = barcodeList.length; //更新条码记录数
+
+					mui.alert("删除成功");
+					document.getElementById('code_list').innerHTML = template('code-template', {
+						"record": barcodeList
+					});
+					$("#box_count").val(boxNum) //填充数据-箱数
+					$("#total_num").val(totalNum) //填充数据-总数
+				}
+			})
+		}
+		$("#clean_code").click(function() {
+			toClean()
+		})
+
+		$("#history_code").click(function() {
+			$("#select_usr").val(api_localStorageGet("code"))
+			var date_data = CurentTime()
+			$('[name=se_time]').val(date_data); //时间
+			$('[name=se_loc_code]').val(lastLocation) //库位编码
+			byId("selectDialog").style.display = "block";
+			showMask();
+		})
+
+		function closeSelectDialog() { //关闭查询弹窗
+			document.getElementById('selectDialog').style.display = 'none';
+			closeMask();
+		}
+		var selecttime = byId("selecttime");
+		selecttime.addEventListener("tap", function() {
+			var dtPicker = new mui.DtPicker({
+				type: 'date'
+			});
+			dtPicker.show(function(e) {
+				$("#selecttime").val(e.value);
+			})
+		});
+		$("#selecttime").focus(function() { //禁止选择时间时输入法弹出
+			document.activeElement.blur();
+		});
+
+		function CurentTime() { //当前时间
+			var now = new Date();
+
+			var year = now.getFullYear(); //年
+			var month = now.getMonth() + 1; //月
+			var day = now.getDate(); //日
+
+			var hh = now.getHours(); //时
+			var mm = now.getMinutes(); //分
+
+			var clock = year + "-";
+			if (month < 10)
+				clock += "0";
+			clock += month + "-";
+			if (day < 10)
+				clock += "0";
+			clock += day;
+			return (clock);
+		}
+		$("#search_record").click(function() { //历史记录查询
+			var se_time = $('[name=se_time]').val(); //时间
+			var se_order = $('[name=se_order]').val(); //工单
+			var se_code = $('[name=se_code]').val(); //批号
+			var se_ware_code = $('[name=se_ware_code]').val(); //仓库编号
+			var se_loc_code = $('[name=se_loc_code]').val(); //库位编号
+			var se_usr = $('[name=se_usr]').val(); //用户
+			jQueryWeb("PDA_GET_INWH_HISTORY", {
+				"inDate": se_time,
+				"inMO": se_order,
+				"inLotNo": se_code,
+				"inWHCODE": se_ware_code,
+				"inBINCODE": se_loc_code,
+				"inUserCode": se_usr
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					var data = json_obj.diffgram.NewDataSet;
+					console.log(JSON.stringify(data))
+					if (data != undefined) {
+						var listData = [];
+						if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+							listData = [data.Table]
+						} else {
+							listData = data.Table
+						}
+						document.getElementById('list').innerHTML = template('template', {
+							"record": listData
+						});
+						byId("resultDialog").style.display = "block"
+					} else {
+						mui.alert("无历史记录")
+					}
+
+				}
+			})
+		})
+		$(document).mouseup(function(e) { //点击空白区域关闭拆查询结果弹窗
+			var _con = $('#resultDialog'); // 设置目标区域
+			if (!_con.is(e.target) && _con.has(e.target).length === 0) { // Mark 1
+				byId("resultDialog").style.display = "none"
+			}
+		});
+
+		function toClean() {
+			barcodeList = [];
+			document.getElementById('code_list').innerHTML = template('code-template', {
+				"record": barcodeList
+			});
+			boxNum = 0;
+			totalNum = 0;
+			$("#location").val("")
+			$("#scan_type").val("")
+			$("#s_qty").val("");
+			$("#barcode").val("");
+			$("#box_count").val(boxNum) //填充数据-箱数
+			$("#total_num").val(totalNum) //填充数据-总数
+			mui.toast("所有数据已清空");
+		}
+	</script>
+</html>
