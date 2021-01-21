@@ -326,23 +326,25 @@
 				codeList += barcodeList[i].barcode + ","
 			}
 			codeList = codeList.substring(0, codeList.length - 1);
-			var qtyList="";
+			/*var qtyList="";//取每箱数量的值串成字符串
 			for (var j = 0; j < barcodeList.length; j++) {
 				qtyList += barcodeList[j].boxCount + ","
 			}
-			qtyList = qtyList.substring(0, qtyList.length - 1);
+			qtyList = qtyList.substring(0, qtyList.length - 1);*/
+			var s_qty = $("#s_qty").val();//取每箱数量当前值
 			//console.log(codeList)
 			//console.log(location)
-			//console.log(qtyList)
-			inWarehourse(codeList, location,qtyList)
+			//console.log(s_qty)
+			//console.log(api_localStorageGet("code"))
+			inWarehourse(codeList, location,s_qty)
 		})
 
 		function inWarehourse(codeList, location,qtyList) {
 			jQueryWeb("PDA_IN_HW_ZSLCPS", {
 				"inBinCode": location, //扫入库位
-				"inBarcodes": codeList, //条码串
+				"inBarcodeS": codeList, //条码串
 				"inQTY":qtyList,
-				"inUser": api_localStorageGet("code")
+				"inUserCode": api_localStorageGet("code")
 			}, function(xmlHttpRequest, statu) {
 				if (statu == 'success') {
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
