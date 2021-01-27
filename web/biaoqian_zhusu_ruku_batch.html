@@ -141,15 +141,9 @@
 									<input id="location" placeholder="请扫入库位" type="text" class="mui-input-clear">
 								</div>
 								<div class="mui-input-row">
-									<label>每箱数量</label>
-									<input id="s_qty" type="text" placeholder="请输入数量" class="mui-input-clear">
-								</div>
-								<div class="mui-input-row">
 									<label onclick="clicked('commom/saomiao.html','barcode','web/biaoqian_zhusu_ruku_batch.html');">标签条码</label>
 									<input id="barcode" placeholder="请扫入条码" type="text" class="mui-input-clear">
 								</div>
-
-
 								<div class="mui-input-row">
 									<label>扫入品号：</label>
 									<input id="scan_type" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
@@ -254,7 +248,7 @@
 
 		$("#location").bind('keyup', function(event) {
 			if (event.keyCode == "13") {
-				$('#s_qty').focus();
+				$('#barcode').focus();
 			}
 		})
 
@@ -262,19 +256,13 @@
 		$('#barcode').bind('keyup', function(event) {
 			if (event.keyCode == "13") {
 				var code = $("#barcode").val();
-				var s_qty = $("#s_qty").val();
-				if (code == "" || s_qty == "") {
-					mui.toast("请先完善数据")
-					return false;
-				}
-				checkBarcode(code, s_qty);
+				checkBarcode(code);
 			}
 		})
 
-		function checkBarcode(barcode, s_qty) { //扫入条码
-			jQueryWeb("PDA_Get_Barcode_Rk_LCP", {
-				"inBarcode": barcode,
-				"inQTY": s_qty
+		function checkBarcode(barcode) { //扫入条码
+			jQueryWeb("PDA_Get_Barcode_Rk_LCP_02", {
+				"inBarcode": barcode
 			}, function(xmlHttpRequest, statu) {
 				if (statu == 'success') {
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
@@ -292,58 +280,85 @@
 						}
 						var typeValue = json_obj.substring(0, json_obj.indexOf(","))
 						var numValue = json_obj.substring(json_obj.indexOf(",") + 1, json_obj.length)
-						$("#scan_type").val(typeValue); //数据操作-填充扫入品号
 
-						boxNum += 1; //更新总箱数
-						totalNum += parseInt(numValue); //更新总数
-						$("#box_count").val(boxNum) //填充数据-箱数
-						$("#total_num").val(totalNum) //填充数据-总数
-
-						var arr = {}; //元素组成
-						arr["barcode"] = barcode;
-						arr["boxCount"] = numValue;
-						arr["typeCode"] = typeValue;
-						barcodeList.push(arr);
-						document.getElementById('code_list').innerHTML = template('code-template', {
-							"record": barcodeList
-						});
-
-						$("#barcode").val("");
-						$("#barcode").focus();
-						mui.toast("扫描成功");
+						if (numValue == 0 || numValue == null) {
+							$("#barcode").blur()
+							setQty(barcode, typeValue, numValue)
+						} else {
+							setDataList(barcode, typeValue, numValue)
+						}
 					}
 				}
 			})
 		}
-		$("#submit_code").click(function() {
+
+		function setDataList(barcode, typeValue, numValue) {
+			$("#scan_type").val(typeValue); //数据操作-填充扫入品号
+
+			boxNum += 1; //更新总箱数
+			totalNum += parseInt(numValue); //更新总数
+			$("#box_count").val(boxNum) //填充数据-箱数
+			$("#total_num").val(totalNum) //填充数据-总数
+
+			var arr = {}; //元素组成
+			arr["barcode"] = barcode;
+			arr["boxCount"] = numValue;
+			arr["typeCode"] = typeValue;
+			barcodeList.push(arr);
+			document.getElementById('code_list').innerHTML = template('code-template', {
+				"record": barcodeList
+			});
+
+			$("#barcode").val("");
+			$("#barcode").focus();
+			mui.toast("扫描成功");
+		}
+
+		function setQty(barcode, typeValue, numValue) { //输入每箱数量
+			mui.prompt('标签条码:' + barcode, '请输入标签数量', '信息补充', ['确定', '关闭'], function(e) {
+				if (e.index == 0) { //确定
+					var s_qty = e.value
+					if (isNum(s_qty)) {
+						setDataList(barcode, typeValue, s_qty)
+					}
+				} else if (e.index == 1) { //关闭-不做任何操作
+					$("#barcode").val("");
+					$("#barcode").focus();
+					mui.toast("操作取消");
+				}
+			}, 'div')
+		}
+
+		function isNum(value) { //对数据进行判断
+			if (parseInt(value) != value || value <= 0) {
+				$("#barcode").val("");
+				$("#barcode").focus();
+				mui.toast("请输入正确数量");
+				return false
+			} else {
+				return true
+			}
+		}
+
+		$("#submit_code").click(function() { //点击提交-处理数据
 			var location = $("#location").val()
 			if (location == "" || barcodeList.length < 1) {
 				mui.alert("请完善数据");
 				return false;
 			}
-			var codeList = "";
-			for (var i = 0; i < barcodeList.length; i++) {
-				codeList += barcodeList[i].barcode + ","
+			var paramList = "";
+			for (var i = 0; i < barcodeList.length; i++) { //串成MES20210127-00259,20@MES20210127-00038,960的参数串
+				paramList += barcodeList[i].barcode + "," + barcodeList[i].boxCount + "@"
 			}
-			codeList = codeList.substring(0, codeList.length - 1);
-			/*var qtyList="";//取每箱数量的值串成字符串
-			for (var j = 0; j < barcodeList.length; j++) {
-				qtyList += barcodeList[j].boxCount + ","
-			}
-			qtyList = qtyList.substring(0, qtyList.length - 1);*/
-			var s_qty = $("#s_qty").val();//取每箱数量当前值
-			//console.log(codeList)
-			//console.log(location)
-			//console.log(s_qty)
-			//console.log(api_localStorageGet("code"))
-			inWarehourse(codeList, location,s_qty)
+			paramList = paramList.substring(0, paramList.length - 1);
+
+			inWarehourse(location, paramList)
 		})
 
-		function inWarehourse(codeList, location,qtyList) {
-			jQueryWeb("PDA_IN_HW_ZSLCPS", {
+		function inWarehourse(location, paramList) {
+			jQueryWeb("PDA_IN_HW_ZSLCPS_02", {
 				"inBinCode": location, //扫入库位
-				"inBarcodeS": codeList, //条码串
-				"inQTY":qtyList,
+				"inBarcodeS": paramList, //参数串
 				"inUserCode": api_localStorageGet("code")
 			}, function(xmlHttpRequest, statu) {
 				if (statu == 'success') {
@@ -480,7 +495,6 @@
 			totalNum = 0;
 			$("#location").val("")
 			$("#scan_type").val("")
-			$("#s_qty").val("");
 			$("#barcode").val("");
 			$("#box_count").val(boxNum) //填充数据-箱数
 			$("#total_num").val(totalNum) //填充数据-总数

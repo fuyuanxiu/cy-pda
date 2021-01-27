@@ -31,223 +31,201 @@
 			<h1 class="mui-title">工单状态查询</h1>
 		</header>
 		<div class="mui-content">
-			<div class="mui-input-group">
-				<div class="mui-input-row">
-					<label>查询类型</label>
-					<span class="radio_inline mui-radio">
-						<input name="radio1" type="radio" id="A" checked value="A">
-						<label for="A">条码</label>
-						<input name="radio1" type="radio" id="B" value="B">
-						<label for="B">工单</label>
-					</span>
+			<div id="slider" class="mui-slider">
+				<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted" id="segmented">
+					<div class="mui-scroll">
+						<a class="mui-control-item mui-active" href="#item1mobile">
+							扫码
+						</a>
+						<a class="mui-control-item" href="#item2mobile">
+							缺领
+						</a>
+					</div>
 				</div>
-				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','barcode','web/search_order.html');">查询数据</label>
-					<input id="barcode" placeholder="请扫入条码或工单" type="text" style="width: 49%;float: left;font-size: 14px;">
-					<button type="button" id="search_order" style="width:15%; height: inherit;" class="mui-btn-primary">查询</button>
-				</div>
-				<div class="mui-input-row">
-					<label>工单</label>
-					<input id="order" disabled type="text" class="mui-input-clear">
-				</div>
-				<div class="mui-input-row">
-					<label>品号</label>
-					<input id="itemNo" disabled type="text" class="mui-input-clear">
-				</div>
-				<div class="mui-input-row">
-					<label>品名</label>
-					<input id="itemName" disabled type="text" class="mui-input-clear">
-				</div>
-				<div class="mui-input-row">
-					<label>规格</label>
-					<input id="format" disabled type="text" class="mui-input-clear">
-				</div>
-				<div class="mui-input-row">
-					<label>计划数量</label>
-					<input id="plan_qty" disabled type="text" class="mui-input-clear">
-				</div>
-				<div class="mui-input-row">
-					<label>入库数量</label>
-					<input id="inware_qty" disabled type="text" class="mui-input-clear">
-				</div>
-				<div class="mui-input-row">
-					<label>未入库数</label>
-					<input id="not_inware_qty" disabled type="text" class="mui-input-clear">
-				</div>
-				<ul class="mui-table-view">
-					<li class="mui-table-view-cell mui-collapse">
-						<a class="mui-navigate-right"  onfocus="this.blur()" href="#">工序列表</a>
-						<div class="mui-collapse-content">
-								<ul class="mui-table-view mui-row" id="pro_list">
-									<script id='pr-template' type="text/template">
-										<% for(var i in record){ var item=record[i];%>
-									<li class="mui-table-view-cell mui-col-sm-4 mui-col-xs-4 dialog-li">
-										<%=item.工单工序%>
-									</li>
-									<li class="mui-table-view-cell mui-col-sm-4 mui-col-xs-4 dialog-li">
-										<%=item.已报工数%>
-									</li>
-									<li class="mui-table-view-cell  mui-col-sm-4 mui-col-xs-4 dialog-li">
-										<%=item.未报工数%>
-									</li>
-									<%}%>
-									</script>
-								</ul>	
+				<div class="mui-slider-group">
+					<div id="item1mobile" class="mui-slider-item mui-control-content mui-active">
+						<div class="mui-input-group">
+							<div class="mui-input-row">
+								<label onclick="clicked('commom/saomiao.html','barcode','web/search_order.html');">查询数据</label>
+								<input id="barcode" placeholder="请扫入条码或工单" type="text" style="width: 49%;float: left;font-size: 14px;">
+								<button type="button" id="search_order" style="width:15%; height: inherit;" class="mui-btn-primary">查询</button>
+							</div>
+							<div class="mui-input-row">
+								<label>工单</label>
+								<input id="order" disabled type="text" class="mui-input-clear">
+							</div>
+							<div class="mui-input-row">
+								<label>品号</label>
+								<input id="itemNo" disabled type="text" class="mui-input-clear">
+							</div>
+							<div class="mui-input-row">
+								<label>品名</label>
+								<input id="itemName" disabled type="text" class="mui-input-clear">
+							</div>
+							<div class="mui-input-row">
+								<label>规格</label>
+								<input id="format" disabled type="text" class="mui-input-clear">
+							</div>
+							<div class="mui-input-row">
+								<label>计划数量</label>
+								<input id="plan_qty" disabled type="text" class="mui-input-clear">
+							</div>
+							<div class="mui-input-row">
+								<label>入库数量</label>
+								<input id="inware_qty" disabled type="text" class="mui-input-clear">
+							</div>
+							<div class="mui-input-row">
+								<label>未入库数</label>
+								<input id="not_inware_qty" disabled type="text" class="mui-input-clear">
+							</div>
+							<ul class="mui-table-view">
+								<li class="mui-table-view-cell mui-collapse">
+									<a class="mui-navigate-right" onfocus="this.blur()" href="#">工序列表</a>
+									<div class="mui-collapse-content">
+										<ul class="mui-table-view mui-row" id="pro_list">
+											<script id='pr-template' type="text/template">
+												<% for(var i in record){ var item=record[i];%>
+												<li class="mui-table-view-cell mui-col-sm-4 mui-col-xs-4 dialog-li">
+													<%=item.工单工序%>
+												</li>
+												<li class="mui-table-view-cell mui-col-sm-4 mui-col-xs-4 dialog-li">
+													<%=item.已报工数%>
+												</li>
+												<li class="mui-table-view-cell  mui-col-sm-4 mui-col-xs-4 dialog-li">
+													<%=item.未报工数%>
+												</li>
+												<%}%>
+												</script>
+										</ul>
+									</div>
+								</li>
+							</ul>
 						</div>
-					</li>
-				</ul>
+					</div>
+					<div id="item2mobile" class="mui-slider-item mui-control-content" style="overflow:auto;height: 500px;" >
+						<div id="lack_list">
+
+						</div>
+						<script id='lack-template' type="text/template">
+							<% for(var i in record){ var item=record[i];%>
+							<div class="mui-card">
+								<div class="mui-card-header">
+									<span>材料品号:<%=(item.材料品号)%></span>
+								</div>
+								<div class="mui-card-content">
+									<ul class="mui-table-view">
+										<li class="mui-table-view-cell mui-media">
+												<div class="mui-media-body">
+													<span>材料品名：<%=(item.材料品名)%></span><br />
+													<span>材料规格：<%=(item.材料规格)%></span><br />
+													<span>已领用量：<%=(item.已领用量)%></span><br />
+													<span>比率：<%=(item.比率)%></span><br />
+												</div>
+										</li>
+									</ul>
+									<div class="mui-card-footer">
+										<span>缺领数量：<%=(item.缺领数量)%></span>
+										<span>可生产量：<%=(item.可生产量)%></span>
+									</div>
+								</div>
+							</div>
+							<%}%>
+						</script>
+					</div>
+				</div>
 			</div>
 		</div>
 		<script type="text/javascript">
 			mui.init();
-			mui.plusReady(function() {
-				
+			mui.plusReady(function() {})
+
+
+			$("#search_order").click(function() {
+				search_barcode();
 			})
-			
-			$("#search_order").click(function(){
-				var search_type= $("input[name='radio1']:checked").val()
-				if(search_type=='A'){//A 为条码
-					search_barcode();
-				}else{//B 为工单
-					search_TaskNo()
-				}
-				
-			})
-			
+
 			$('#barcode').bind('keyup', function(event) {
 				if (event.keyCode == "13") {
-					var search_type= $("input[name='radio1']:checked").val()
-					if(search_type=='A'){//A 为条码
-						search_barcode();
-					}else{//B 为工单
-						search_TaskNo()
-					}
+					search_barcode();
 				}
 			})
 			$('#barcode').bind('input propertychange', function() {
 				toClean();
 			});
-			
-			//$("#barcode").onchange(function(){
-			//	toClean()
-			//})
-			
-			function search_barcode(){
-				jQueryWeb("PDA_Get_MO_BGINFO_byBarcode", {
-					"inBarcode": $("#barcode").val(),
-				}, function(xmlHttpRequest, statu) {
-					if (statu == 'success') {
-						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
-						//console.log( JSON.stringify(json_obj))
-						var data = json_obj.diffgram.DocumentElement;
-						//console.log(JSON.stringify(data))
-						//console.log(JSON.stringify(data.table01))
-						
-							var temp=data.table01
-							if(JSON.stringify(temp).toString().substring(0, 1) == '{'){
-								temp=[temp];
-							}
-							//console.log(temp[0].RESULT)
-							if(temp[0].RESULT.indexOf("NG")!=-1){
-								toClean();
-								mui.alert(temp.RESULT)
-								return false;
-							}
-							
-							$("#order").val(temp[0].工单);
-							$("#itemNo").val(temp[0].品号);
-							$("#itemName").val(temp[0].品名);
-							$("#format").val(temp[0].规格);
-							$("#plan_qty").val(temp[0].计划数);
-							$("#inware_qty").val(temp[0].已入库数);
-							$("#not_inware_qty").val(temp[0].未入库数);
-							var listData = [];
-							var th_data = {};
-							th_data["工单工序"] = "工单工序";
-							th_data["已报工数"] = "已报工数";
-							th_data["未报工数"] = "未报工数"; 
 
-							if (JSON.stringify(data.table01).toString().substring(0, 1) == '{') {
-								listData = [data.table01];
-								listData.unshift(th_data);
-							} else {
-								listData = data.table01;
-								listData.unshift(th_data); //往数组首位添加数据
-							}
-							document.getElementById('pro_list').innerHTML = template('pr-template', {
-								"record": listData
-							});
-						
-					}else{
-						mui.alert("无记录")
-					}
-				})
-			}
-			
-			function search_TaskNo(){
-				jQueryWeb("PDA_Get_MO_BGINFO_byMO", {
-					"inMO": $("#barcode").val(),
+			function search_barcode() {
+				jQueryWeb("PDA_Get_MO_BGINFO_byANY", {
+					"inCode": $("#barcode").val(),
 				}, function(xmlHttpRequest, statu) {
 					if (statu == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
-						//console.log( JSON.stringify(json_obj))
 						var data = json_obj.diffgram.DocumentElement;
-						//console.log(JSON.stringify(data))
-						//console.log(JSON.stringify(data.table01))
-						
-							var temp=data.table01
-							if(JSON.stringify(temp).toString().substring(0, 1) == '{'){
-								temp=[temp];
-							}
-							//console.log(temp[0].RESULT)
-							if(temp[0].RESULT.indexOf("NG")!=-1){
-								toClean();
-								mui.alert(temp.RESULT)
-								return false;
-							}
-							
-							$("#order").val(temp[0].工单);
-							$("#itemNo").val(temp[0].品号);
-							$("#itemName").val(temp[0].品名);
-							$("#format").val(temp[0].规格);
-							$("#plan_qty").val(temp[0].计划数);
-							$("#inware_qty").val(temp[0].已入库数);
-							$("#not_inware_qty").val(temp[0].未入库数);
-							var listData = [];
-							var th_data = {};
-							th_data["工单工序"] = "工单工序";
-							th_data["已报工数"] = "已报工数";
-							th_data["未报工数"] = "未报工数"; 
-			
-							if (JSON.stringify(data.table01).toString().substring(0, 1) == '{') {
-								listData = [data.table01];
-								listData.unshift(th_data);
-							} else {
-								listData = data.table01;
-								listData.unshift(th_data); //往数组首位添加数据
-							}
-							document.getElementById('pro_list').innerHTML = template('pr-template', {
-								"record": listData
-							});
-						
-					}else{
+
+						var temp = data.table01
+						if (JSON.stringify(temp).toString().substring(0, 1) == '{') {
+							temp = [temp];
+						}
+						//console.log(temp[0].RESULT)
+						if (temp[0].RESULT.indexOf("NG") != -1) {
+							toClean();
+							mui.alert(temp.RESULT)
+							return false;
+						}
+
+						$("#order").val(temp[0].工单);
+						$("#itemNo").val(temp[0].品号);
+						$("#itemName").val(temp[0].品名);
+						$("#format").val(temp[0].规格);
+						$("#plan_qty").val(temp[0].计划数);
+						$("#inware_qty").val(temp[0].已入库数);
+						$("#not_inware_qty").val(temp[0].未入库数);
+						var listData = [];
+						var th_data = {};
+						th_data["工单工序"] = "工单工序";
+						th_data["已报工数"] = "已报工数";
+						th_data["未报工数"] = "未报工数";
+
+						if (JSON.stringify(data.table01).toString().substring(0, 1) == '{') {
+							listData = [data.table01];
+							listData.unshift(th_data);
+						} else {
+							listData = data.table01;
+							listData.unshift(th_data); //往数组首位添加数据
+						}
+						document.getElementById('pro_list').innerHTML = template('pr-template', {
+							"record": listData
+						});
+						getLackInfo($("#barcode").val())
+					} else {
 						mui.alert("无记录")
+					}
+				});
+			}
+
+			function getLackInfo(code) {
+				jQueryWeb("PDA_GET_QL_INFO", {
+					"inCode": code,
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.NewDataSet;
+						console.log(JSON.stringify(data.Table))
+						var tableList = data.Table
+						document.getElementById('lack_list').innerHTML = template('lack-template', {
+							"record": tableList
+						});
 					}
 				})
 			}
-			$('input[type=radio][name=radio1]').change(function() {
-				$("#barcode").val("");
-				toClean();
-			});
-			
+
 			function clicked(url, f1, urlId) {
 				OpenWindow(f1, url, {
 					urlId: urlId,
 					inputId: f1
 				});
 			};
-			
-			function toClean(){
+
+			function toClean() {
 				$("#order").val("");
 				$("#itemNo").val("");
 				$("#itemName").val("");
@@ -256,7 +234,7 @@
 				$("#inware_qty").val("");
 				$("#not_inware_qty").val("");
 				document.getElementById('pro_list').innerHTML = template('pr-template', {
-					"record":[]
+					"record": []
 				});
 			}
 		</script>
