@@ -203,6 +203,13 @@
 		</div>
 	</body>
 	<script>
+		window.addEventListener("offline", function(e) {
+			alert("网络中断，请检查网络");
+		})
+		
+		window.addEventListener("online", function(e) {
+			mui.toast("网络已连接")
+		})
 		mui.init();
 		var sel_type = ""; //线体的选择类型
 		window.addEventListener("changeBar", function(e) {

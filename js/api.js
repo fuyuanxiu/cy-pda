@@ -344,10 +344,17 @@ function jQueryWeb(url, data, complete) {
 		},
 		error: function(request, errorInfo) {
 			_mask.close();
-			alert("errorInfo = " + errorInfo);
-			alert("进入error---\n" + "状态码：" + request.status + "\n状态:" + request.readyState +
-				"\n错误信息:" + request.statusText +
-				"\n返回响应信息：" + request.responseText);
+			//alert("errorInfo = " + errorInfo);			
+			if(request.status==0){//网络断开时
+				alert("连接"+url+"失败，请检查网络")
+			}else{
+				alert("状态码：" + request.status +
+					"\n响应信息：" + request.responseText);
+			}
+			
+			// alert("进入error---\n" + "状态码：" + request.status + "\n状态:" + request.readyState +
+			// 	"\n错误信息:" + request.statusText +
+			// 	"\n返回响应信息：" + request.responseText);
 		}
 	});
 

@@ -102,7 +102,7 @@
 							</ul>
 						</div>
 					</div>
-					<div id="item2mobile" class="mui-slider-item mui-control-content" style="overflow:auto;height: 500px;" >
+					<div id="item2mobile" class="mui-slider-item mui-control-content" style="overflow:auto;height: 500px;">
 						<div id="lack_list">
 
 						</div>
@@ -136,9 +136,16 @@
 			</div>
 		</div>
 		<script type="text/javascript">
+			window.addEventListener("offline", function(e) {
+				alert("网络中断，请检查网络");
+			})
+
+			window.addEventListener("online", function(e) {
+				mui.toast("网络已连接")
+			})
+
 			mui.init();
 			mui.plusReady(function() {})
-
 
 			$("#search_order").click(function() {
 				search_barcode();
@@ -167,8 +174,8 @@
 						}
 						//console.log(temp[0].RESULT)
 						if (temp[0].RESULT.indexOf("NG") != -1) {
+							alert(temp[0].RESULT)
 							toClean();
-							mui.alert(temp.RESULT)
 							return false;
 						}
 
@@ -196,8 +203,6 @@
 							"record": listData
 						});
 						getLackInfo($("#barcode").val())
-					} else {
-						mui.alert("无记录")
 					}
 				});
 			}

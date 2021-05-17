@@ -232,6 +232,13 @@
 		</div>
 
 		<script type="text/javascript" charset="utf-8">
+			window.addEventListener("offline", function(e) {
+				alert("网络中断，请检查网络");
+			})
+			
+			window.addEventListener("online", function(e) {
+				mui.toast("网络已连接")
+			})
 			mui.init();
 			var isManual = false; //标志按钮最后状态
 			var bluetoothSocket = null;

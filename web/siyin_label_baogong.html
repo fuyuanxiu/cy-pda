@@ -242,6 +242,13 @@
 		</div>
 	</body>
 	<script type="text/javascript" charset="utf-8">
+		window.addEventListener("offline", function(e) {
+			alert("网络中断，请检查网络");
+		})
+		
+		window.addEventListener("online", function(e) {
+			mui.toast("网络已连接")
+		})
 		mui.init();
 		window.addEventListener("changeBar", function(e) {
 			var inputId = e.detail.inputId
