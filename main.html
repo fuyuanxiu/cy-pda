@@ -6,6 +6,8 @@
 		<title></title>
 		<script src="js/mui.min.js"></script>
 		<script src="js/api.js"></script>
+		<script src="js/jquery-1.11.1.js"></script>
+		<script src="js/jquery.xml2json.js.js"></script>
 		<link href="css/mui.min.css" rel="stylesheet" />
 		<link rel="stylesheet" type="text/css" href="css/iconfont.css" />
 		<style type="text/css">
@@ -22,7 +24,7 @@
 		</style>
 	</head>
 	<body>
-		 <header class="mui-bar mui-bar-nav">
+		<header class="mui-bar mui-bar-nav">
 			<h1 class="mui-title">MES</h1>
 		</header>
 		<div class="mui-content">
@@ -34,128 +36,81 @@
 				</div>
 			</div>
 			<ul class="mui-table-view mui-grid-view mui-grid-9" id="list">
-				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="data_11">
 					<a href="web/zhusu_label_baogong.html">
 						<span class="mui-icon iconfont icon-zhusuji" style="color:#15aa0d"></span>
 						<div class="mui-media-body">注塑-标签报工</div>
 					</a>
 				</li>
-				<!-- <li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/siyin_baogong.html" >
-						<span class="mui-icon iconfont icon-siyinUVbaogong" style="color:#CD8500"></span>
-						<div class="mui-media-body">丝印报工</div>
-					</a>
-				</li> -->
-				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/siyin_label_baogong.html" >
+
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="data_9">
+					<a href="web/siyin_label_baogong.html">
 						<span class="mui-icon iconfont icon-siyinUVbaogong" style="color:#574fcd"></span>
 						<div class="mui-media-body">丝印-标签报工</div>
 					</a>
 				</li>
-				
-				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/common_label_baogong.html" >
-						<span class="mui-icon iconfont icon-tree-round-currency" ></span>
+
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="data_10">
+					<a href="web/common_label_baogong.html">
+						<span class="mui-icon iconfont icon-tree-round-currency"></span>
 						<div class="mui-media-body">通用-标签报工</div>
 					</a>
 				</li>
-				 <!-- <li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/tiepian_baogong.html" >
-						<span class="mui-icon iconfont icon-youtiepian" style="color:#1296db"></span>
-						<div class="mui-media-body">贴片报工</div>
-					</a>
-				</li> -->
-				<!-- <li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/tieguozai_baogong.html" >
-						<span class="mui-icon iconfont icon-circuitboard" style="color:#FF7F00"></span>
-						<div class="mui-media-body">贴锅仔报工</div>
-					</a>
-				</li> -->
-				<!-- <li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/shaolu_baogong.html" >
-						<span class="mui-icon iconfont icon-shaolumoshi " style="color: #999966;"></span>
-						<div class="mui-media-body">烧录报工</div>
-					</a>
-				</li> -->
-				<li  class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="print_setting.html" >
-						<span class="mui-icon iconfont icon-dayinshezhi" style="color: #4990E2;" ></span>
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="data_5">
+					<a href="print_setting.html">
+						<span class="mui-icon iconfont icon-dayinshezhi" style="color: #4990E2;"></span>
 						<div class="mui-media-body" name="searchName">打印设置</div>
 					</a>
 				</li>
-				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/zidingyi_print.html" >
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="data_12">
+					<a href="web/zidingyi_print.html">
 						<span class="mui-icon iconfont icon-zidingyidayin" style="color:#15aa0d"></span>
 						<div class="mui-media-body">自定义打印</div>
 					</a>
 				</li>
-				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/search_order.html" >
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="data_6">
+					<a href="web/search_order.html">
 						<span class="mui-icon iconfont icon-ziyuanxhdpi" style="color:#666383"></span>
 						<div class="mui-media-body">工单查询</div>
 					</a>
 				</li>
-				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/invaild_barcode.html" >
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="data_4">
+					<a href="web/invaild_barcode.html">
 						<span class="mui-icon iconfont icon-zuofei" style="color:#FFCC00"></span>
 						<div class="mui-media-body">标签作废</div>
 					</a>
 				</li>
-				<!-- 2020-12-01停用 -->
-				<!-- <li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/biaoqian_ruku.html" >
-						<span class="mui-icon iconfont icon-402050" style="color:#427210"></span>
-						<div class="mui-media-body">标签入库</div>
-					</a>
-				</li> -->
-				<!-- 2020-12-01新增↓ -->
-				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/biaoqian_ruku_batch.html" >
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="data_2">
+					<a href="web/biaoqian_ruku_batch.html">
 						<span class="mui-icon iconfont icon-402050" style="color:#427210"></span>
 						<div class="mui-media-body">标签批量入库</div>
 					</a>
 				</li>
-				<!--2021-01-15停用 -->
-				<!--<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/biaoqian_zhusu_ruku.html" >
-						<span class="mui-icon iconfont icon-iconset0329" style="color:#15aa0d"></span>
-						<div class="mui-media-body">注塑联产品入库</div>
-					</a>
-				</li> -->
-				<!-- 2021-01-15新增↓ -->
-				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/biaoqian_zhusu_ruku_batch.html" >
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="data_7">
+					<a href="web/biaoqian_zhusu_ruku_batch.html">
 						<span class="mui-icon iconfont icon-iconset0329" style="color:#15aa0d"></span>
 						<div class="mui-media-body">联产品标签入库</div>
 					</a>
 				</li>
-				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/split_barcode.html" >
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="data_1">
+					<a href="web/split_barcode.html">
 						<span class="mui-icon iconfont icon-chaifen" style="color:#0099CC"></span>
 						<div class="mui-media-body">标签拆分</div>
 					</a>
 				</li>
-				<!-- 2020-12-01 停用 -->
-				<!-- <li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/lingyong.html" >
-						<span class="mui-icon iconfont icon-chushuikou-orange" style="color:#FF7F00"></span>
-						<div class="mui-media-body">标签领用扫描</div>
-					</a>
-				</li> -->
-				<!-- 2020-12-01 新增 -->
-				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/lingyong_batch.html" >
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="data_8">
+					<a href="web/lingyong_batch.html">
 						<span class="mui-icon iconfont icon-chushuikou-orange" style="color:#FF7F00"></span>
 						<div class="mui-media-body">批量标签领用</div>
 					</a>
-				</li> 
-				 <li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
-					<a href="web/tuiliao.html" >
+				</li>
+				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1" id="data_3">
+					<a href="web/tuiliao.html">
 						<span class="mui-icon iconfont icon-tuiliao " style="color: #999966;"></span>
 						<div class="mui-media-body">标签退料扫描</div>
 					</a>
-				</li> 
-				
+				</li>
+
 				<li class="mui-table-view-cell mui-media mui-col-xs-6 mui-col-sm-4 bg1">
 					<a href="login.html" id="login">
 						<span class="mui-icon iconfont icon-tuichu2" style="color:#de1312"></span>
@@ -196,18 +151,87 @@
 				gallery.slider({
 					interval: 5000 //自动轮播周期，若为0则不自动播放，默认为0；
 				});
-
-				//document.getElementById('iqc_badge').innerHTML = '';
+				userPowerChack() //权限检查
 			})
+
+			function userPowerChack() {
+				jQueryWeb("UserPower", {
+					"UI_TYPE": "手持",
+					"UserId": api_localStorageGet("code")
+				}, function(xmlHttpRequest, status) {
+					if (status == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.NewDataSet;
+						var arr = data.Table;
+						//console.log(JSON.stringify(arr))
+						//console.log(arr)
+						for (var i = 0; i < arr.length; i++) {
+							//console.log(JSON.stringify(arr[i]))
+							if (arr[i].UI_NAME == "标签拆分") {
+								if (arr[i].POWER_RUN != "Y") {
+									byId("data_1").style.display = "none"; //无权限则隐藏
+								}
+							} else if (arr[i].UI_NAME == "标签批量入库") {
+								if (arr[i].POWER_RUN != "Y") {
+									byId("data_2").style.display = "none"; //无权限则隐藏
+								}
+							}else if (arr[i].UI_NAME == "标签退料扫描") {
+								if (arr[i].POWER_RUN != "Y") {
+									byId("data_3").style.display = "none"; //无权限则隐藏
+								}
+							}else if (arr[i].UI_NAME == "标签作废") {
+								if (arr[i].POWER_RUN != "Y") {
+									byId("data_4").style.display = "none"; //无权限则隐藏
+								}
+							}else if (arr[i].UI_NAME == "打印设置") {
+								if (arr[i].POWER_RUN != "Y") {
+									byId("data_5").style.display = "none"; //无权限则隐藏
+								}
+							}else if (arr[i].UI_NAME == "工单查询") {
+								if (arr[i].POWER_RUN != "Y") {
+									byId("data_6").style.display = "none"; //无权限则隐藏
+								}
+							}else if (arr[i].UI_NAME == "联产品标签入库") {
+								if (arr[i].POWER_RUN != "Y") {
+									byId("data_7").style.display = "none"; //无权限则隐藏
+								}
+							}else if (arr[i].UI_NAME == "批量标签领用") {
+								if (arr[i].POWER_RUN != "Y") {
+									byId("data_8").style.display = "none"; //无权限则隐藏
+								}
+							}else if (arr[i].UI_NAME == "丝印-标签报工") {
+								if (arr[i].POWER_RUN != "Y") {
+									byId("data_9").style.display = "none"; //无权限则隐藏
+								}
+							}else if (arr[i].UI_NAME == "通用-标签报工") {
+								if (arr[i].POWER_RUN != "Y") {
+									byId("data_10").style.display = "none"; //无权限则隐藏
+								}
+							}else if (arr[i].UI_NAME == "注塑-标签报工") {
+								if (arr[i].POWER_RUN != "Y") {
+									byId("data_11").style.display = "none"; //无权限则隐藏
+								}
+							}else if (arr[i].UI_NAME == "自定义打印") {
+								if (arr[i].POWER_RUN != "Y") {
+									byId("data_12").style.display = "none"; //无权限则隐藏
+								}
+							}
+						}
+					} else {
+						mui.alert("获取权限连接超时");
+					}
+				});
+			}
+
 			mui("#list").on("tap", "a", function() {
 				var id = this.getAttribute('href');
 				var href = this.href;
 				if (id == 'login') {
 					plus.runtime.restart();
 				}
-				if(id=="web/IQC_coming_list.html"){
-					 mui.alert("正在开发中……")
-					  return false
+				if (id == "web/IQC_coming_list.html") {
+					mui.alert("正在开发中……")
+					return false
 				}
 				mui.openWindow({
 					id: id,
