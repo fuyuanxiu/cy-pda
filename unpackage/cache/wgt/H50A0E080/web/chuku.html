@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>原料出库</title>
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<script src="../js/mui.picker.min.js"></script>
+		<script src="../js/template-web.js"></script>
+		<link rel="stylesheet" type="text/css" href="../css/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
+		<style>
+			select {
+				background: url(../img/right-arrow.png) no-repeat right center;
+			}
+
+			.dialog-label {
+				font-size: 14px;
+			}
+			.mui-row label{
+				font-size: 0.625rem;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">原料出库</h1>
+		</header>
+		<div class="mui-content">
+			<div class="mui-row">
+				<div class="mui-col-sm-2">
+					<div class="mui-input-row">
+						<label style="width: 3.6875rem;">作业人</label>
+						<input type="text" class="mui-input-clear" style="float: left;width: 3.125rem;">
+					</div>
+				</div>
+				<div class="mui-col-sm-3">
+					<div class="mui-input-row">
+						<label style="width: 3.875rem;">物料类别</label>
+						<input type="text" class="mui-input-clear" style="float: left;width: 3.125rem;">
+					</div>
+				</div>
+				<div class="mui-col-sm-3">
+					<div class="mui-input-row">
+						<label>待出库项数</label>
+						<input type="text" class="mui-input-clear" style="float: left;width: 3.125rem;">
+					</div>
+				</div>
+			</div>
+
+
+
+			<!-- 	<div class="mui-content-padded" align="center">
+				<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-blue"
+					data-loading-icon="mui-spinner mui-spinner-custom" id="transferOrder">转单</button>
+				<button type="button" style="margin-top: 0.9375rem;" class="mui-btn mui-btn-warning"
+					id="close">关闭</button>
+			</div> -->
+		</div>
+		<!-- <div class="mui-content-padded" align="center">
+							<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
+							<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-warning" id="clean_code">清空</button>
+							<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn" id="history_code">历史记录</button>
+						</div> -->
+
+	</body>
+	<script type="text/javascript">
+		window.addEventListener("offline", function(e) {
+			alert("网络中断，请检查网络");
+		})
+
+		window.addEventListener("online", function(e) {
+			mui.toast("网络已连接")
+		})
+
+		mui.init();
+		window.addEventListener("changeBar", function(e) {
+			var inputId = e.detail.inputId
+			document.getElementById(inputId).value = e.detail.barcode
+		});
+		mui.plusReady(function() {
+			// document.getElementById("close").addEventListener('tap', function() {
+			// 	OpenWindow('main', 'main.html', {})
+			// })
+		})
+
+
+
+
+
+
+
+
+
+		$('#materialCode').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+
+			}
+		});
+
+		function clicked(url, f1, urlId) {
+			OpenWindow(f1, url, {
+				urlId: urlId,
+				inputId: f1
+			});
+		};
+	</script>
+</html>

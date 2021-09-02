@@ -1,0 +1,675 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/template-web.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<style type="text/css">
+			.select-dialog {
+				position: fixed;
+				margin-top: 1.25rem;
+				z-index: 999;
+			}
+
+			.record-dialog {
+				position: fixed;
+				margin-top: 0.85rem;
+				z-index: 999;
+			}
+
+			.result-dialog {
+				position: fixed;
+				margin-top: 0.85rem;
+				z-index: 999;
+			}
+
+			.dialog-label {
+				font-size: 16px;
+			}
+
+			.dialog-li {
+				font-size: 11px;
+				text-align: center;
+			}
+
+			.add-dialog {
+				position: fixed;
+				margin-top: 1.25rem;
+				z-index: 999;
+			}
+		</style>
+	</head>
+	<!--10/14
+1.未测试新增丝印记录
+-->
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">丝印-标签报工</h1>
+		</header>
+		<dialog id="selectDialog" class="select-dialog" style="width: 90%;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询记录</span></p>
+			<br>
+			<form id="selectDateFrom">
+				<div class="mui-input-group">
+					<div class="mui-input-row">
+						<label class="dialog-label">时间：</label>
+						<input type="text" name="se_time" class="mui-input-clear" id="selecttime" placeholder="点击选择时间">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">工单：</label>
+						<input name="se_order" type="text" class="mui-input-clear" id="selet_order">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">条码：</label>
+						<input name="se_code" type="text" class="mui-input-clear" id="select_code">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">账号：</label>
+						<input name="se_usr" type="text" class="mui-input-clear" id="select_usr">
+					</div>
+				</div>
+				<div class="mui-button-row">
+					<button type="button" id="search_record" style="width: 45%;float: left;" class="mui-btn mui-btn-primary">确认</button>
+					<button type="reset" class="mui-btn mui-btn-danger" style="width: 45%;" onclick="closeSelectDialog()">取消</button>
+				</div>
+			</form>
+		</dialog>
+		<dialog id="resultDialog" class="result-dialog" style="width: 99%;height: 500px; overflow:auto;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询结果</span></p>
+			<br>
+			<div id="resultlist">
+
+			</div>
+			<script id='result-template' type="text/template">
+				<% for(var i in record){ var item=record[i];%>
+				<div class="mui-card">
+				<div class="mui-card-header">
+				条码:<%=(item.条码)%> 
+				</div>
+				<div class="mui-card-content">
+					<ul class="mui-table-view">
+						<li class="mui-table-view-cell mui-media">
+							<a href="javascript:;">
+								<span class="mui-media-object mui-pull-left mui-icon iconfont" style="color: #ADD8E6;font-size:1.875rem"></span>
+								<div class="mui-media-body">
+									<span>工单： <%=(item.工单)%></span><br>
+									<span>时间： <%=(item.时间)%></span><br>
+									<span>线体： <%=(item.线体)%></span><br>
+									<span>箱类： <%=(item.箱类)%></span><br>
+									<span>操作人： <%=(item.操作人)%></span>
+								</div>
+							</a>
+						</li>
+					</ul>
+				</div>
+				</div>
+				<%}%>
+			</script>
+			<div class="mui-button-row">
+				<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('resultDialog').style.display = 'none';">关闭</button>
+			</div>
+		</dialog>
+		<dialog id="siyinRecordDialog" class="record-dialog" style="width: 99%;height: 350px; overflow:auto;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>丝印记录</span></p>
+			<button style="margin-top: 0.525rem;" type="button" class="mui-btn mui-btn-primary" id="addrecord">添加</button>
+			<div id="operator_list">
+			</div>
+			<script id='template' type="text/template">
+				<% for(var i in record){ var item=record[i];%>
+			<div class="mui-card" >
+				<div class="mui-card-content">
+					<ul class="mui-table-view">
+						<li class="mui-table-view-cell mui-media">
+							<a href="javascript:;">
+								<span></span>
+								<div class="mui-media-body">
+									<span>丝印网数：<%=(item.net)%></span><br>
+									<span>丝印数量：<%=(item.quantity)%></span><br>
+									<span>丝印人员:<%=(item.siyin_pl)%></span><br>
+									<span>质检人员:<%=(item.iqc_pl)%></span>
+								</div>
+							</a>
+						</li>
+					</ul>
+					<div class="mui-card-footer">
+						<span></span>
+						<span><button onclick="editItem(<%=(i)%>)" class="mui-btn-primary" style="margin-right: 10px;">修改</button>
+							<button onclick="deleteItem(<%=(i)%>)" class="mui-btn-warning">删除</button></span>
+					</div>
+				</div>
+			</div>
+			<%}%>
+			</script>
+			<div class="mui-button-row">
+				<button type="reset" class="mui-btn mui-btn-danger" onclick="closeSiyinRecordDialog()">关闭</button>
+			</div>
+		</dialog>
+		<dialog id="addOperatorDialog" class="add-dialog" style="width: 95%;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:100px"><span>添加丝印人员</span></p>
+			<br>
+			<form id="addRecordFrom">
+				<div class="mui-input-group">
+					<div class="mui-input-row">
+						<label style="font-size: 12px;">丝印网数</label>
+						<!-- <input id="siyin_nets" disabled type="text" class="mui-input-clear"> -->
+						<a class="mui-navigate-right">
+							<span class="mui-badge1">
+								<select class="mui-h5" style="margin:auto; color:#000;" id="siyin_nets">
+
+								</select>
+							</span>
+						</a>
+					</div>
+					<div class="mui-input-row">
+						<label style="font-size: 12px;">丝印数量</label>
+						<input id="siyin_quantity" type="text" class="mui-input-clear" placeholder="必为整数,且大于0" onkeyup="value=(value.replace(/\D/g,'')==''?'':parseInt(value))">
+					</div>
+					<div class="mui-input-row">
+						<label style="font-size: 12px;" onclick="clicked('commom/saomiao.html','siyin_pl','web/siyin_label_baogong.html');">丝印员工号</label>
+						<input id="siyin_pl" placeholder="输入后按回车验证" type="text" class="mui-input-clear">
+					</div>
+					<div class="mui-input-row">
+						<label style="font-size: 12px;" onclick="clicked('commom/saomiao.html','iqc_pl','web/siyinu_label_baogong.html');">质检员工号</label>
+						<input id="iqc_pl" placeholder="输入后按回车验证" type="text" class="mui-input-clear">
+					</div>
+				</div>
+				<div class="mui-button-row">
+					<button type="button" id="addoperator" style="width: 45%;float: left;" class="mui-btn mui-btn-primary">确认</button>
+					<button type="reset" class="mui-btn mui-btn-danger" style="width: 45%;" onclick="closeAddOperatorDialog()">取消</button>
+				</div>
+			</form>
+		</dialog>
+		<div class="mui-content">
+			<form class="mui-input-group" id="formId">
+				<div class="mui-input-row">
+					<label>班次</label>
+					<span class="radio_inline mui-radio">
+						<input name="radio1" type="radio" id="A" checked value="A">
+						<label for="A">白班</label>
+						<input name="radio1" type="radio" id="B" value="B">
+						<label for="B">夜班</label>
+					</span>
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','line_code','web/siyinu_label_baogong.html');">线体编码</label>
+					<input id="line_code" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 45%;float: left;">
+					<input disabled type="text" class="mui-input-clear" style="width: 20%;background-color: #F5F5F5;">
+				</div>
+				<div class="mui-input-row">
+					<label style="width: 52%">是否调用上笔记录</label>
+					<div class="mui-switch mui-active" id="last_switch">
+						<div class="mui-switch-handle"></div>
+					</div>
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','barcode','web/siyinu_label_baogong.html');">条码</label>
+					<input name="barcode" placeholder="请扫描" type="text" class="mui-input-clear" id="barcode">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','lingban','web/siyinu_label_baogong.html');">领班工号</label>
+					<input id="lingban" placeholder="请扫描" type="text" class="mui-input-clear" style="width: 45%;float: left;">
+					<input disabled type="text" class="mui-input-clear" style="width: 20%;background-color: #F5F5F5;">
+				</div>
+				<div class="mui-input-row">
+					<label>报工数量</label>
+					<input id="total" placeholder="请输入报工数量" type="text" class="mui-input-clear">
+				</div>
+				<div class="mui-input-row ">
+					<label>丝印网数</label>
+					<input id="nets" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+				</div>
+				<div class="mui-input-row ">
+					<label>产品类型</label>
+					<input id="proType" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+				</div>
+			</form>
+			<div class="mui-content-padded" align="center">
+				<button type="button" class="mui-btn mui-btn" id="siyin_record">丝印记录</button>
+				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-green" id="report">报工</button>
+				<button style="margin-top: 0.625rem;" type="button" class="mui-btn mui-btn-primary" id="his_record">历史记录</button>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" charset="utf-8">
+		window.addEventListener("offline", function(e) {
+			alert("网络中断，请检查网络");
+		})
+		
+		window.addEventListener("online", function(e) {
+			mui.toast("网络已连接")
+		})
+		mui.init();
+		window.addEventListener("changeBar", function(e) {
+			var inputId = e.detail.inputId
+			document.getElementById(inputId).value = e.detail.barcode
+		});
+		var pl_datalist = [];
+		var action = ""; //丝印记录的操作类型
+		var actionIndex=0;//丝印记录要操作的下标
+		mui.plusReady(function() {
+			mask = mui.createMask(function() { //遮罩层callback事件
+				if (byId("siyinRecordDialog").style.display == "none") {
+					return true; //如果没有弹出框，关闭遮罩层
+				}
+				return false; //返回true,点击关闭mask
+			}); /*创建蒙版，保存到mask中*/
+		});
+		//遮罩层
+		function showMask() { /*绑定处理事件*/
+			top_value = $(document).scrollTop() //document.documentElement.scrollTop
+			document.body.style.overflow = "hidden"
+			document.body.style.width = "100%"
+			document.body.style.height = "100%"
+			document.body.style.position = "fixed"
+			mask.show(); /*调用展示遮罩*/
+		}
+
+		function closeMask() { /*绑定处理事件*/
+			document.body.style.overflow = "scroll"
+			document.body.style.width = "100%"
+			document.body.style.height = "100%"
+			document.body.style.position = "relative"
+			window.scrollTo(0, top_value); //回到原位置
+			mask.close(); /*调用展示属性*/
+		}
+
+		//切换班次时，重置数据
+		$('input[type=radio][name=radio1]').change(function() {
+			$("#line_code").val("");
+			toClear();
+		});
+		//线体编码监听内容（逐字符监听），内容改变重置数据
+		$('#line_code').bind('input propertychange', function() {
+			toClear();
+		});
+		//丝印记录框弹出
+		$("#siyin_record").click(function() { //丝印记录
+			document.getElementById("siyinRecordDialog").style.display = "block"
+			showMask();
+		})
+		//监听线体编码——扫描回车
+		$('#line_code').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				jQueryWeb("PDA_SY_GET_LINEINFO", {
+					"inLine_NO": $('#line_code').val()
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						$('#line_code').val(json_obj);
+					} else {
+						alert("连接PDA_SY_GET_LINEINFO失败")
+					}
+				})
+			}
+		});
+		//监听条码——扫描回车
+		$('#barcode').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行  
+				timeoutflag = setTimeout(function() {
+					setBarCode();
+				}, 500);
+			}
+		});
+
+		function setBarCode() {
+			var isLast = "";
+			var isActive = byId("last_switch").classList.contains("mui-active");
+			if (isActive) {
+				isLast = "Y"
+			} else {
+				isLast = "N"
+			}
+			jQueryWeb("PDA_GET_BARCODE_BG_SY", {
+				"inClassTyep": $("input[name='radio1']:checked").val(),
+				"ISuserLast": isLast,
+				"inBarcode": $('#barcode').val(),
+				"inLineNo": $('#line_code').val()
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					if (json_obj.indexOf("NG") != -1) {
+						mui.alert(json_obj)
+					} else {
+						var data = JSON.parse(json_obj);
+						for (var i = 0; i < data.length; i++) {
+							if (data[i].ITEM == "领班工号") {
+								$("#lingban").val(data[i].VALUE);
+							} else if (data[i].ITEM == "报工数量") {
+								$("#total").val(data[i].VALUE);
+							} else if (data[i].ITEM == "丝印网数") {
+								$("#nets").val(data[i].VALUE);
+							} else if (data[i].ITEM == "产品类型") {
+								$("#proType").val(data[i].VALUE);
+							} else if (data[i].ITEM == "丝印内容") {
+								var str = data[i].VALUE;
+								var arr = str.split("$");
+								for (var j = 0; j < arr.length; j++) {
+									var list = arr[j].split("@");
+									var operator_data = {};
+									operator_data["net"] = list[0]; //丝印网数
+									operator_data["quantity"] = list[1]; //丝印数量
+									operator_data["siyin_pl"] = list[2]; //丝印员工
+									operator_data["iqc_pl"] = list[3]; //质检人员
+									pl_datalist.push(operator_data);
+									updatePl_datalist(pl_datalist)
+								}
+							}
+						}
+					}
+					//console.log(json_obj) 
+				} else {
+					alert("连接PPDA_GET_BARCODE_BG_SY失败")
+				}
+			})
+		}
+		// //监听领班——扫描回车
+		$('#lingban').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				var lingban = $('#lingban').val();
+				if (lingban.indexOf(";") != -1) {
+					lingban = lingban.substring(0, lingban.indexOf(";"));
+				}
+				getLingBan(lingban)
+			}
+		})
+
+		function getLingBan(ling_ban) { //获取领班信息
+			jQueryWeb("PDA_GET_LBINFO", {
+				"inLbWorkCode": ling_ban,
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					var data = JSON.parse(json_obj)
+					$('#lingban').val(data[0].VALUE);
+				}
+			})
+		}
+
+		function closeSiyinRecordDialog() {
+			document.getElementById("siyinRecordDialog").style.display = "none"
+			closeMask()
+		}
+		//丝印记录
+		$("#addrecord").click(function() { //添加丝印人员
+			action = "add"
+			var net = $("#nets").val();
+			if (net == "") {
+				mui.alert("请先获取丝印网数")
+				return false;
+			}
+			getNets(net);
+			document.getElementById("addOperatorDialog").style.display = "block"
+		});
+
+		function getNets(net) {//丝印网数下拉选择
+			$("#siyin_nets").empty();
+			for (var i = 0; i <= net; i++) {
+				if (i == 0) {
+					$("#siyin_nets").append("<option value=''>请选择丝印网数</option>");
+				} else {
+					$("#siyin_nets").append("<option value=" + i + ">" + i + "</option>");
+				}
+			}
+			//var n = $("#nets").val();
+			//$("#siyin_nets").val(n);
+
+			//if ($("#select_nets").val() == "") { 
+			//	mui.alert("请先选择丝印网数")
+			//	return false;
+			//}
+		}
+
+		function closeAddOperatorDialog() {
+			document.getElementById("addOperatorDialog").style.display = "none"
+		}
+		$("#his_record").click(function() { //历史记录查询
+			showMask();
+			$("#select_usr").val(api_localStorageGet("code"))
+			var date_data = CurentTime()
+			$('[name=se_time]').val(date_data); //时间
+			byId("selectDialog").style.display = "block";
+		});
+
+		function closeSelectDialog() { //关闭查询弹窗
+			document.getElementById('selectDialog').style.display = 'none';
+			closeMask();
+		}
+
+		function CurentTime() {
+			var now = new Date();
+			var year = now.getFullYear(); //年
+			var month = now.getMonth() + 1; //月
+			var day = now.getDate(); //日
+			var hh = now.getHours(); //时
+			var mm = now.getMinutes(); //分
+			var clock = year + "-";
+			if (month < 10)
+				clock += "0";
+			clock += month + "-";
+			if (day < 10)
+				clock += "0";
+			clock += day;
+			return (clock);
+		}
+		$("#search_record").click(function() { //历史记录查询
+			var se_time = $('[name=se_time]').val(); //时间
+			var se_order = $('[name=se_order]').val(); //工单
+			var se_code = $('[name=se_code]').val(); //条码
+			var se_usr = $('[name=se_usr]').val(); //用户
+			jQueryWeb("PDA_GET_BG_HISTORY", {
+				"inType": "丝印",
+				"inDate": se_time,
+				"inMo": se_order,
+				"inBarcode": se_code,
+				"inUserCode": se_usr //api_localStorageGet("code")
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					var data = json_obj.diffgram.NewDataSet;
+					//console.log(JSON.stringify(data))
+					if (data != undefined) {
+						var listData = [];
+						if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+							listData = [data.Table]
+						} else {
+							listData = data.Table
+						}
+						document.getElementById('resultlist').innerHTML = template('result-template', {
+							"record": listData
+						});
+						byId("resultDialog").style.display = "block"
+					} else {
+						mui.alert("无历史记录");
+					}
+				} else {
+					mui.alert("PDA_GET_BG_HISTORY 连接失败")
+				}
+			})
+		});
+		$('#siyin_pl').bind('keyup', function(event) { //获取丝印员工信息
+			if (event.keyCode == "13") {
+				jQueryWeb("PDA_GET_NAME_BY_CODE", {
+					"inWorkCode": $('#siyin_pl').val(),
+					"OnJobCheck": "Y"
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						$('#siyin_pl').val(json_obj)
+					}
+				})
+			}
+		})
+		$('#iqc_pl').bind('keyup', function(event) { //获取质检员信息
+			if (event.keyCode == "13") {
+				jQueryWeb("PDA_GET_NAME_BY_CODE", {
+					"inWorkCode": $('#iqc_pl').val(),
+					"OnJobCheck": "Y"
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						$('#iqc_pl').val(json_obj)
+					}
+				})
+			}
+		})
+		$("#addoperator").click(function() { //增加丝印记录
+				var operator_data = {};
+				var net = $("#siyin_nets").val();
+				var siyin_quantity = $("#siyin_quantity").val();
+				var siyin_pl = $("#siyin_pl").val();
+				var iqc_pl = $("#iqc_pl").val()
+				if (net == "" || siyin_quantity == "" ||
+					siyin_pl == "" || iqc_pl == "") {
+					mui.alert("请完善数据")
+					return false;
+				} else if (siyin_pl.indexOf("NG") != -1 || iqc_pl.indexOf("NG") != -1) {
+					mui.alert("请输入正常的工号")
+					return false;
+				} else if (siyin_pl.indexOf(";") == -1 || iqc_pl.indexOf(";") == -1) {
+					mui.alert("请先验证工号")
+					return false;
+				}
+				operator_data["net"] = $("#siyin_nets").val(); //丝印网数
+				operator_data["quantity"] = $("#siyin_quantity").val(); //丝印数量
+				operator_data["siyin_pl"] = $("#siyin_pl").val(); //丝印员工
+				operator_data["iqc_pl"] = $("#iqc_pl").val(); //质检人员
+				//console.log(JSON.stringify(operator_data))
+				if(action=="add"){
+					updateOperator(operator_data)
+				}else if(action=="edit"){
+					editOperator(operator_data)
+				}
+		})
+
+		function updateOperator(operator_data) {
+			pl_datalist.push(operator_data);
+			updatePl_datalist(pl_datalist);
+			cleanOperatorDialog();
+		}
+		
+		function editOperator(operator_data){
+			var index=actionIndex;
+			pl_datalist.splice(index,1,operator_data);//替换splice(下标，替换元素的个数，需要插入的元素)
+			updatePl_datalist(pl_datalist);
+			cleanOperatorDialog();
+		}
+		
+		function cleanOperatorDialog(){
+			$("#siyin_nets").val(""); //丝印网数
+			$("#siyin_quantity").val(""); //丝印数量
+			$("#siyin_pl").val(""); //丝印员工
+			$("#iqc_pl").val(""); //质检人员
+			mui.alert("操作成功")
+			document.getElementById("addOperatorDialog").style.display = "none";
+		}
+
+		function updatePl_datalist(pl_datalist) {
+			document.getElementById('operator_list').innerHTML = template('template', {
+				"record": pl_datalist
+			});
+		}
+
+		function editItem(index) { //修改质检员记录
+			//console.log(JSON.stringify(pl_datalist[index]))
+			var net = $("#nets").val();
+			if (net == "") {
+				mui.alert("请先获取丝印网数")
+				return false;
+			}
+			getNets(net);
+			$("#siyin_nets").val(pl_datalist[index].net); //丝印网数
+			$("#siyin_quantity").val(pl_datalist[index].quantity); //丝印数量
+			$("#siyin_pl").val(pl_datalist[index].siyin_pl); //丝印员工
+			$("#iqc_pl").val(pl_datalist[index].iqc_pl); //质检人员
+			action = "edit"
+			actionIndex=index
+			document.getElementById("addOperatorDialog").style.display = "block";
+		}
+
+		function deleteItem(index) { //删除质检员记录
+			pl_datalist.splice(index, 1);
+			document.getElementById('operator_list').innerHTML = template('template', {
+				"record": pl_datalist
+			});
+		}
+		$("#report").click(function() { //报工
+			var paramInfo = "";
+			mui('#report').button('loading');
+			for (var p = 0; p < pl_datalist.length; p++) {//处理丝印记录参数
+				paramInfo += pl_datalist[p].net + "@" + pl_datalist[p].quantity + "@" + pl_datalist[p].siyin_pl + "@" +
+					pl_datalist[p].iqc_pl + "$"
+			}
+			if (paramInfo.length > 0) { //去掉最后一个$
+				paramInfo = paramInfo.substr(0, paramInfo.length - 1);
+			} else {
+				mui("#print").button('reset');
+				mui.alert("丝印记录为空")
+				return false;
+			}
+			console.log(paramInfo)
+			if ($("#line_code").val() == "" || $("#total").val() == "" || $("#barcode").val() == "" ||
+				$("#lingban").val() == "" || $("#proType").val() == "") {
+				mui("#report").button('reset');
+				mui.alert("请完善数据！")
+			} else {
+				reportInfo(paramInfo);
+			}
+		})
+
+		function reportInfo(paramInfo) {
+			jQueryWeb("PDA_BARCODE_BG_SY", {
+				"inClassType": $("input[name='radio1']:checked").val(),
+				"inLineNo": $("#line_code").val(),
+				"inBarcode": $("#barcode").val(),
+				"inLBworkCode": $("#lingban").val(),
+				"inQTY": $("#total").val(),
+				"inSYCONTEXT": paramInfo,
+				"inUser": api_localStorageGet("code"),
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					if (json_obj.indexOf("NG") != -1) {
+						mui.alert(json_obj);
+						mui('#report').button('reset');
+					} else {
+						mui.alert("报工成功！");
+						mui('#report').button('reset');
+						toClear();
+					}
+					console.log(json_obj)
+				} else {
+					mui.alert("连接PDA_BARCODE_BG_SY失败")
+				}
+			});
+		}
+
+		function toClear() { //清空数据
+			pl_datalist = []; //丝印记录清空
+			$("#barcode").val("");
+			$("#nets").val("");
+			$("#proType").val("");
+			$("#lingban").val("");
+			$("#total").val("");
+			document.getElementById("last_switch").classList.remove("mui-active")
+			mui("#last_switch").switch().toggle();
+		}
+
+		function clicked(url, f1, urlId) {
+			OpenWindow(f1, url, {
+				urlId: urlId,
+				inputId: f1
+			});
+		};
+	</script>
+</html>

@@ -1,0 +1,255 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>标签拆分</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<script src="../js/template-web.js"></script>
+		<script src="../js/mui.picker.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="../css/mui.picker.min.css" />
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
+		<style type="text/css">
+			.select-dialog {
+				position: fixed;
+				margin-top: 1.25rem;
+				z-index: 999;
+			}
+		
+			.dialog-label {
+				font-size: 14px;
+			}
+			.li_input{
+				font-size: 12px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">标签拆分</h1>
+		</header>
+		<dialog id="selectDialog" class="select-dialog" style="width: 90%;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询记录</span></p>
+			<br>
+			<form id="selectDateFrom"> 
+				<div class="mui-input-group">
+					<div class="mui-input-row">
+						<label class="dialog-label" onclick="clicked('commom/saomiao.html','split_code','web/split_barcode.html');">被拆条码</label>
+						<input type="text" class="mui-input-clear li_input" id="split_code">
+					</div>
+				
+						<input type="text" class="mui-input-clear" id="" style="display: none;">
+					
+				</div>
+				<div class="mui-button-row">
+					<button type="button" id="reprint_code" style="width: 45%;float: left;" class="mui-btn mui-btn-primary">确认</button>
+					<button type="reset" class="mui-btn mui-btn-danger" style="width: 45%;" onclick="closeSelectDialog()">取消</button>
+				</div>
+			</form>
+		</dialog>
+		<div class="mui-content">
+			<div class="mui-input-group">
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','location','web/split_barcode.html');">扫入库位</label>
+					<input id="location" placeholder="请扫入库位" type="text" class="mui-input-clear">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','barcode','web/split_barcode.html');">扫入条码</label>
+					<input id="barcode" placeholder="请扫入条码" type="text" class="mui-input-clear">
+				</div>
+				<div class="mui-input-row">
+					<label>拆分数量</label>
+					<input id="count" type="text" class="mui-input-clear">
+				</div>
+				<div class="mui-content-padded" align="center">
+					<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
+					<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-primary" id="reprint">重新打印</button>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			window.addEventListener("offline", function(e) {
+				alert("网络中断，请检查网络");
+			})
+			
+			window.addEventListener("online", function(e) {
+				mui.toast("网络已连接")
+			})
+			
+			window.addEventListener("changeBar", function(e) {
+				var inputId = e.detail.inputId
+				document.getElementById(inputId).value = e.detail.barcode
+			});
+			mui.plusReady(function() {
+				
+				try {
+					var main = plus.android.runtimeMainActivity();
+					var BluetoothAdapter = plus.android.importClass("android.bluetooth.BluetoothAdapter");
+					var UUID = plus.android.importClass("java.util.UUID");
+				
+					uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+					var BAdapter = BluetoothAdapter.getDefaultAdapter();
+					BAdapter.cancelDiscovery(); //停止扫描  
+				
+					// var addres_mac = plus.storage.getItem("DC:1D:30:3F:D2:50");//传入打印机mac地址  
+					var address_mac = api_localStorageGet("printMac") ? api_localStorageGet("printMac") : "00:00:05:D7:49:50";
+					device = BAdapter.getRemoteDevice(address_mac);
+					plus.android.importClass(device);
+				
+					bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+					plus.android.importClass(bluetoothSocket);
+				} catch (err) {
+					// alert(err);
+					console.log(err);
+					plus.ui.toast("蓝牙连接异常！");
+				}
+			})
+
+			function clicked(url, f1, urlId) { //扫描触发
+				OpenWindow(f1, url, {
+					urlId: urlId,
+					inputId: f1
+				});
+			};
+			$("#submit_code").click(function() {
+				var code = $("#barcode").val();
+				var location = $("#location").val();
+				var count = $("#count").val();
+				var btnArray = ['否', '是'];
+				if (code == "" || location == ""||count=="") {
+					mui.alert("请先完善数据")
+					return false;
+				}
+				mui.confirm("是否将【条码：" + code + "】 拆分？", '提示', btnArray, function(e) {
+					if (e.index == 1) {
+						split(code, location, count);
+					}
+				})
+			})
+
+			function split(code, location, count) {
+				jQueryWeb("PDA_WMS_BARCODE_SPLIT", {
+					"inBinCode": location,
+					"inBarcode": code,
+					"inQTY": count,
+					"inUserCode": api_localStorageGet("code")
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						//console.log(json_obj)
+						mui.alert(json_obj)
+						if (json_obj.indexOf("NG") != -1) { //结果含NG字样时
+							mui.alert(json_obj)
+						}else{
+							//var s="MES20200907-00001@MES20200907-00002";
+							var arr = json_obj.split("@");
+							for (var i = 0; i < arr.length; i++) {
+								getReprintData(arr[i]);
+								//console.log(arr[i])
+								$("#barcode").val("");
+							}
+							mui.alert("操作成功");
+						}
+					}
+				})
+			}
+			$("#reprint").click(function(){ 
+				byId("selectDialog").style.display = "block";
+			})
+			function closeSelectDialog(){
+				$("#split_code").val("");
+				byId("selectDialog").style.display = "none";
+			}
+			$("#reprint_code").click(function(){
+				reprintBarcode();
+			})
+			$("#split_code").bind('keyup', function(event) {
+				if (event.keyCode == "13") {
+					
+					
+					reprintBarcode();
+				}
+			})
+			//获取标签信息
+			function getReprintData(barcode_data) {
+				jQueryWeb("PDA_GET_PRINT_INFO_BY_BARCODE", {
+					"BARCODE": barcode_data,
+					"JsonContext": ""
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						if (json_obj == "获取条码失败(查找不到条码)") {
+							mui.alert(json_obj+"【当前条码："+barcode_data+"】");
+						} else {
+							//console.log(json_obj)
+							var data_list = JSON.parse(json_obj)
+							sortData(data_list);
+						}
+					}
+				})
+			}
+			//重打标签
+			function reprintBarcode(){
+				var split_code=$("#split_code").val();
+				if(split_code==""){
+					mui.alert("请输入条码")
+					return false;
+				}
+				//console.log(split_code)
+				jQueryWeb("PDA_WMS_REPRINT_SPLIT", {
+					"inBarcode": split_code,
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						//console.log(json_obj)
+						if (json_obj.indexOf("NG")!=-1) {
+							mui.alert(json_obj);
+						} else {
+							//var s="MES20200907-00001@MES20200907-00002";
+							var arr = json_obj.split("@");
+							for (var i = 0; i < arr.length; i++) {
+								getReprintData(arr[i]);
+								//console.log(arr[i])
+
+							}
+							mui.alert("操作成功");
+						}
+					}
+				})
+			}
+
+			function toPrint(list) { //执行蓝牙打印
+				try {
+					if (!bluetoothSocket.isConnected()) {
+						// plus.ui.toast("重新连接");
+						bluetoothSocket.connect();
+					}
+					var outputStream = bluetoothSocket.getOutputStream();
+					plus.android.importClass(outputStream);
+					//获取内容
+					var printCmd = print_datalist(list);
+					//console.log(printCmd)
+					var arrayBuffer = plus.android.invoke(printCmd, 'getBytes', 'gbk'); //stringToByte(printCmd);  
+					outputStream.write(arrayBuffer);
+					outputStream.flush();
+				} catch (err) {
+					// alert(err);
+					console.log(err);
+					plus.ui.toast("蓝牙连接打印机失败！");
+					return;
+				}
+			}
+		</script>
+	</body>
+
+</html>
