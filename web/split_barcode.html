@@ -71,9 +71,13 @@
 					<label>拆分数量</label>
 					<input id="count" type="text" class="mui-input-clear">
 				</div>
+				<div class="mui-input-row">
+					<label style="width: 7.5rem;">打印机编码</label>
+					<input id="printNo" type="text" class="mui-input-clear" style="width: 12.5rem;">
+				</div>
 				<div class="mui-content-padded" align="center">
 					<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
-					<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-primary" id="reprint">重新打印</button>
+					<!-- <button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-primary" id="reprint">重新打印</button> -->
 				</div>
 			</div>
 		</div>
@@ -92,27 +96,27 @@
 			});
 			mui.plusReady(function() {
 				
-				try {
-					var main = plus.android.runtimeMainActivity();
-					var BluetoothAdapter = plus.android.importClass("android.bluetooth.BluetoothAdapter");
-					var UUID = plus.android.importClass("java.util.UUID");
+				// try {
+				// 	var main = plus.android.runtimeMainActivity();
+				// 	var BluetoothAdapter = plus.android.importClass("android.bluetooth.BluetoothAdapter");
+				// 	var UUID = plus.android.importClass("java.util.UUID");
 				
-					uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-					var BAdapter = BluetoothAdapter.getDefaultAdapter();
-					BAdapter.cancelDiscovery(); //停止扫描  
+				// 	uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+				// 	var BAdapter = BluetoothAdapter.getDefaultAdapter();
+				// 	BAdapter.cancelDiscovery(); //停止扫描  
 				
-					// var addres_mac = plus.storage.getItem("DC:1D:30:3F:D2:50");//传入打印机mac地址  
-					var address_mac = api_localStorageGet("printMac") ? api_localStorageGet("printMac") : "00:00:05:D7:49:50";
-					device = BAdapter.getRemoteDevice(address_mac);
-					plus.android.importClass(device);
+				// 	// var addres_mac = plus.storage.getItem("DC:1D:30:3F:D2:50");//传入打印机mac地址  
+				// 	var address_mac = api_localStorageGet("printMac") ? api_localStorageGet("printMac") : "00:00:05:D7:49:50";
+				// 	device = BAdapter.getRemoteDevice(address_mac);
+				// 	plus.android.importClass(device);
 				
-					bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-					plus.android.importClass(bluetoothSocket);
-				} catch (err) {
-					// alert(err);
-					console.log(err);
-					plus.ui.toast("蓝牙连接异常！");
-				}
+				// 	bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+				// 	plus.android.importClass(bluetoothSocket);
+				// } catch (err) {
+				// 	// alert(err);
+				// 	console.log(err);
+				// 	plus.ui.toast("蓝牙连接异常！");
+				// }
 			})
 
 			function clicked(url, f1, urlId) { //扫描触发
@@ -125,130 +129,133 @@
 				var code = $("#barcode").val();
 				var location = $("#location").val();
 				var count = $("#count").val();
+				var printNo=$("#printNo").val();
 				var btnArray = ['否', '是'];
 				if (code == "" || location == ""||count=="") {
 					mui.alert("请先完善数据")
 					return false;
 				}
-				mui.confirm("是否将【条码：" + code + "】 拆分？", '提示', btnArray, function(e) {
+				mui.confirm("是否确认将【条码：" + code + "】 拆分？", '提示', btnArray, function(e) {
 					if (e.index == 1) {
-						split(code, location, count);
+						split(printNo,code, location, count);
 					}
 				})
 			})
 
-			function split(code, location, count) {
-				jQueryWeb("PDA_WMS_BARCODE_SPLIT", {
-					"inBinCode": location,
+			function split(printNo,code,location, count) {
+				jQueryWeb("PDA_WMS_BARCODE_SPLIT2", {
+					"PrinterCode": printNo,
 					"inBarcode": code,
+					"inBinCode": location,
 					"inQTY": count,
 					"inUserCode": api_localStorageGet("code")
 				}, function(xmlHttpRequest, statu) {
 					if (statu == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
 						//console.log(json_obj)
-						mui.alert(json_obj)
+						// mui.alert(json_obj)
 						if (json_obj.indexOf("NG") != -1) { //结果含NG字样时
 							mui.alert(json_obj)
 						}else{
 							//var s="MES20200907-00001@MES20200907-00002";
-							var arr = json_obj.split("@");
-							for (var i = 0; i < arr.length; i++) {
-								getReprintData(arr[i]);
-								//console.log(arr[i])
-								$("#barcode").val("");
-							}
-							mui.alert("操作成功");
+							// var arr = json_obj.split("@");
+							// for (var i = 0; i < arr.length; i++) {
+							// 	getReprintData(arr[i]);
+							// 	//console.log(arr[i])
+							// 	$("#barcode").val("");
+							// }
+							// mui.alert("操作成功");
+							mui.toast("标签拆分成功")
 						}
 					}
 				})
 			}
-			$("#reprint").click(function(){ 
-				byId("selectDialog").style.display = "block";
-			})
-			function closeSelectDialog(){
-				$("#split_code").val("");
-				byId("selectDialog").style.display = "none";
-			}
-			$("#reprint_code").click(function(){
-				reprintBarcode();
-			})
-			$("#split_code").bind('keyup', function(event) {
-				if (event.keyCode == "13") {
+			// $("#reprint").click(function(){ 
+			// 	byId("selectDialog").style.display = "block";
+			// })
+			// function closeSelectDialog(){
+			// 	$("#split_code").val("");
+			// 	byId("selectDialog").style.display = "none";
+			// }
+			// $("#reprint_code").click(function(){
+			// 	reprintBarcode();
+			// })
+			// $("#split_code").bind('keyup', function(event) {
+			// 	if (event.keyCode == "13") {
 					
 					
-					reprintBarcode();
-				}
-			})
+			// 		reprintBarcode();
+			// 	}
+			// })
 			//获取标签信息
-			function getReprintData(barcode_data) {
-				jQueryWeb("PDA_GET_PRINT_INFO_BY_BARCODE", {
-					"BARCODE": barcode_data,
-					"JsonContext": ""
-				}, function(xmlHttpRequest, statu) {
-					if (statu == 'success') {
-						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
-						if (json_obj == "获取条码失败(查找不到条码)") {
-							mui.alert(json_obj+"【当前条码："+barcode_data+"】");
-						} else {
-							//console.log(json_obj)
-							var data_list = JSON.parse(json_obj)
-							sortData(data_list);
-						}
-					}
-				})
-			}
-			//重打标签
-			function reprintBarcode(){
-				var split_code=$("#split_code").val();
-				if(split_code==""){
-					mui.alert("请输入条码")
-					return false;
-				}
-				//console.log(split_code)
-				jQueryWeb("PDA_WMS_REPRINT_SPLIT", {
-					"inBarcode": split_code,
-				}, function(xmlHttpRequest, statu) {
-					if (statu == 'success') {
-						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
-						//console.log(json_obj)
-						if (json_obj.indexOf("NG")!=-1) {
-							mui.alert(json_obj);
-						} else {
-							//var s="MES20200907-00001@MES20200907-00002";
-							var arr = json_obj.split("@");
-							for (var i = 0; i < arr.length; i++) {
-								getReprintData(arr[i]);
-								//console.log(arr[i])
+			// function getReprintData(barcode_data) {
+			// 	jQueryWeb("PDA_GET_PRINT_INFO_BY_BARCODE", {
+			// 		"BARCODE": barcode_data,
+			// 		"JsonContext": ""
+			// 	}, function(xmlHttpRequest, statu) {
+			// 		if (statu == 'success') {
+			// 			var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+			// 			if (json_obj == "获取条码失败(查找不到条码)") {
+			// 				mui.alert(json_obj+"【当前条码："+barcode_data+"】");
+			// 			} else {
+			// 				//console.log(json_obj)
+			// 				var data_list = JSON.parse(json_obj)
+			// 				sortData(data_list);
+			// 			}
+			// 		}
+			// 	})
+			// }
+			// //重打标签
+			// function reprintBarcode(){
+			// 	var split_code=$("#split_code").val();
+			// 	if(split_code==""){
+			// 		mui.alert("请输入条码")
+			// 		return false;
+			// 	}
+			// 	//console.log(split_code)
+			// 	jQueryWeb("PDA_WMS_REPRINT_SPLIT", {
+			// 		"inBarcode": split_code,
+			// 	}, function(xmlHttpRequest, statu) {
+			// 		if (statu == 'success') {
+			// 			var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+			// 			//console.log(json_obj)
+			// 			if (json_obj.indexOf("NG")!=-1) {
+			// 				mui.alert(json_obj);
+			// 			} else {
+			// 				//var s="MES20200907-00001@MES20200907-00002";
+			// 				var arr = json_obj.split("@");
+			// 				for (var i = 0; i < arr.length; i++) {
+			// 					getReprintData(arr[i]);
+			// 					//console.log(arr[i])
 
-							}
-							mui.alert("操作成功");
-						}
-					}
-				})
-			}
+			// 				}
+			// 				mui.alert("操作成功");
+			// 			}
+			// 		}
+			// 	})
+			// }
 
-			function toPrint(list) { //执行蓝牙打印
-				try {
-					if (!bluetoothSocket.isConnected()) {
-						// plus.ui.toast("重新连接");
-						bluetoothSocket.connect();
-					}
-					var outputStream = bluetoothSocket.getOutputStream();
-					plus.android.importClass(outputStream);
-					//获取内容
-					var printCmd = print_datalist(list);
-					//console.log(printCmd)
-					var arrayBuffer = plus.android.invoke(printCmd, 'getBytes', 'gbk'); //stringToByte(printCmd);  
-					outputStream.write(arrayBuffer);
-					outputStream.flush();
-				} catch (err) {
-					// alert(err);
-					console.log(err);
-					plus.ui.toast("蓝牙连接打印机失败！");
-					return;
-				}
-			}
+			// function toPrint(list) { //执行蓝牙打印
+			// 	try {
+			// 		if (!bluetoothSocket.isConnected()) {
+			// 			// plus.ui.toast("重新连接");
+			// 			bluetoothSocket.connect();
+			// 		}
+			// 		var outputStream = bluetoothSocket.getOutputStream();
+			// 		plus.android.importClass(outputStream);
+			// 		//获取内容
+			// 		var printCmd = print_datalist(list);
+			// 		//console.log(printCmd)
+			// 		var arrayBuffer = plus.android.invoke(printCmd, 'getBytes', 'gbk'); //stringToByte(printCmd);  
+			// 		outputStream.write(arrayBuffer);
+			// 		outputStream.flush();
+			// 	} catch (err) {
+			// 		// alert(err);
+			// 		console.log(err);
+			// 		plus.ui.toast("蓝牙连接打印机失败！");
+			// 		return;
+			// 	}
+			// }
 		</script>
 	</body>
 

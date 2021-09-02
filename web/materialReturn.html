@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>注塑生产退料</title>
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<script src="../js/mui.picker.min.js"></script>
+		<script src="../js/template-web.js"></script>
+		<link rel="stylesheet" type="text/css" href="../css/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
+		<style>
+			select {
+				background: url(../img/right-arrow.png) no-repeat right center;
+			}
+
+			.dialog-label {
+				font-size: 14px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">注塑生产退料</h1>
+		</header>
+		<div class="mui-content">
+			<form class="mui-input-group">
+				<div class="mui-input-row">
+					<label
+						onclick="clicked('commom/saomiao.html','materialCode','web/materialReturn.html');">原料条码:</label>
+					<input type="text" id="materialCode" class="mui-input-clear" placeholder="请扫描">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','positions','web/materialReturn.html');">扫入仓位:</label>
+					<input type="text" id="positions" class="mui-input-clear" placeholder="请扫描">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','elecScale','web/materialReturn.html');">电子秤:</label>
+					<input type="text" id="elecScale" class="mui-input" style="width: 50%;float: left;font-size: 17px;">
+					<button type="button" id="getElecScale"
+						style="width:14%; height: inherit;font-size: 12px;color: #000000;"
+						class="mui-btn-grey">读取</button>
+				</div>
+				<div class="mui-input-row">
+					<label>重量:</label>
+					<input type="text" id="weight" readonly="readonly" class="mui-input"
+						style="width: 50%;float: left;">
+					<select id="weightUnit" class="mui-select" style="width:12%; height: inherit;">
+						<option value="KG">KG</option>
+						<option value="G">G</option>
+					</select>
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','printer','web/materialReturn.html');">打印机:</label>
+					<input type="text" id="printer" class="mui-input-clear" placeholder="请扫描">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','returnNo','web/materialReturn.html');" style="width: 7.5rem;">退料人工号:</label>
+					<input type="text" id="returnNo" class="mui-input-clear" placeholder="请扫描" style="width: 12.5rem;">
+				</div>
+			</form>
+
+			<div class="mui-content-padded" align="center">
+				<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-success"
+					data-loading-icon="mui-spinner mui-spinner-custom" id="print">打印</button>
+				<button type="button" style="margin-top: 0.9375rem;" class="mui-btn mui-btn-warning"
+					id="close">关闭</button>
+			</div>
+		</div>
+		<!-- <div class="mui-content-padded" align="center">
+							<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
+							<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-warning" id="clean_code">清空</button>
+							<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn" id="history_code">历史记录</button>
+						</div> -->
+
+	</body>
+	<script type="text/javascript">
+		window.addEventListener("offline", function(e) {
+			alert("网络中断，请检查网络");
+		})
+
+		window.addEventListener("online", function(e) {
+			mui.toast("网络已连接")
+		})
+
+		mui.init();
+		window.addEventListener("changeBar", function(e) {
+			var inputId = e.detail.inputId
+			document.getElementById(inputId).value = e.detail.barcode
+		});
+		mui.plusReady(function() {
+             document.getElementById("close").addEventListener('tap',function(){
+             	OpenWindow('main','main.html',{})
+             })
+		})
+		//遮罩层
+
+
+
+
+
+		$('#materialCode').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+
+			}
+		});
+
+		function clicked(url, f1, urlId) {
+			OpenWindow(f1, url, {
+				urlId: urlId,
+				inputId: f1
+			});
+		};
+	</script>
+</html>

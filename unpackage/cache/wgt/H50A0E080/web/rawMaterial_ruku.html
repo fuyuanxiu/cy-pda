@@ -1,0 +1,268 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>原料入库</title>
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<script src="../js/mui.picker.min.js"></script>
+		<script src="../js/template-web.js"></script>
+		<link rel="stylesheet" type="text/css" href="../css/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
+		<style>
+			select {
+				background: url(../img/right-arrow.png) no-repeat right center;
+			}
+
+			.dialog-label {
+				font-size: 14px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">原料入库</h1>
+		</header>
+	<!-- 	<div class="mui-content">
+			<div id="slider" class="mui-slider">
+			<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted" id="segmented">
+				<div class="mui-scroll">
+					<a class="mui-control-item mui-active" href="#item1mobile">
+						操作
+					</a>
+					<a class="mui-control-item" href="#item2mobile">
+						扫入原料
+					</a>
+				</div>
+			</div>
+			<form class="mui-input-group">
+				<div class="mui-input-row">
+					<label
+						onclick="clicked('commom/saomiao.html','materialCode','web/rawMaterial_ruku.html');">原料条码</label>
+					<input type="text" id="materialCode" class="mui-input-clear" placeholder="请扫描">
+				</div>
+				<div class="mui-input-row">
+					<label>扫入箱数</label>
+					<input type="text" id="boxNum" readonly="readonly" class="mui-input">
+				</div>
+				<div class="mui-input-row">
+					<label>库位条码</label>
+					<input type="text" id="positionCode" class="mui-input-clear">
+				</div>
+				<div class="mui-input-row">
+					<label>采购单号</label>
+					<input type="text" id="purchaseNo" class="mui-input-clear">
+				</div>
+				<div class="mui-content-padded" align="center">
+					<button type="button" class="mui-btn mui-btn-blue"
+						data-loading-icon="mui-spinner mui-spinner-custom" id="storage">入库</button>
+					<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-warning"
+						id="close">关闭</button>
+				</div>
+			</form>
+
+			
+		</div>
+	
+      </div> -->
+	  <div class="mui-content">
+	  	<div id="slider" class="mui-slider">
+	  		<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted" id="segmented">
+	  			<div class="mui-scroll">
+	  				<a class="mui-control-item mui-active" href="#item1mobile">
+	  					操作
+	  				</a>
+	  				<a class="mui-control-item" href="#item2mobile">
+	  					扫入原料
+	  				</a>
+	  			</div>
+	  		</div>
+	  		<div class="mui-slider-group">
+	  			<div id="item1mobile" class="mui-slider-item mui-control-content mui-active">
+	  				<form class="mui-input-group">
+	  					<div class="mui-input-row">
+	  						<label onclick="clicked('commom/saomiao.html','materialCode','web/rawMaterial_ruku.html');">原料条码:</label>
+	  						<input type="text" id="materialCode" class="mui-input-clear" placeholder="请扫描">
+	  					</div>
+	  					<div class="mui-input-row">
+	  						<label>扫入箱数</label>
+	  						<input type="text" id="boxNum" readonly="readonly" class="mui-input">
+	  					</div>
+	  					<div class="mui-input-row">
+	  						<label>库位条码</label>
+	  						<input type="text" id="positionCode" class="mui-input-clear">
+	  					</div>
+	  					<div class="mui-input-row">
+	  						<label>采购单号</label>
+	  						<input type="text" id="purchaseNo" class="mui-input-clear">
+	  					</div>
+	  		
+	  				</form>
+	  				
+	  				<div class="mui-content-padded" align="center">
+	  					<button type="button" class="mui-btn mui-btn-blue"
+	  						data-loading-icon="mui-spinner mui-spinner-custom" id="storage">入库</button>
+	  					<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-warning"
+	  						id="close">关闭</button>
+	  				</div>
+	  				<!-- <div class="mui-content-padded" align="center">
+	  					<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
+	  					<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-warning" id="clean_code">清空</button>
+	  					<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn" id="history_code">历史记录</button>
+	  				</div> -->
+	  			</div>
+	  			<div id="item2mobile" class="mui-slider-item mui-control-content ">
+	  				<div id="code_list">
+	  				</div>
+	  				<script id='code-template' type="text/template">
+	  					<% for(var i in record){ var item=record[i];%>
+	  					<div class="mui-card">
+	  						<div class="mui-card-header">
+	  							<span><%=(item.barcode)%>(原料条码)</span>
+	  						</div>
+	  						<div class="mui-card-content">
+	  							<ul class="mui-table-view">
+	  								<li class="mui-table-view-cell mui-media">
+	  										<div class="mui-media-body">
+	  											<span>品号：<%=(item.goodsNo)%></span>
+	  										</div>
+	  								</li>
+	  							</ul>
+	  							<div class="mui-card-footer">
+	  								<span>类型：<%=(item.type)%></span>
+	  								<span>
+	  									重量：<%=(item.weight)%><%=(item.unit)%>
+	  									</span>
+	  							</div>
+	  						</div>
+	  					</div>
+	  					<%}%>
+	  				</script>
+	  			</div>
+	  		</div>
+	  	</div>
+	</body>
+	<script type="text/javascript">
+		var barcodeList=[];
+		window.addEventListener("offline", function(e) {
+			alert("网络中断，请检查网络");
+		})
+
+		window.addEventListener("online", function(e) {
+			mui.toast("网络已连接")
+		})
+
+		mui.init();
+		window.addEventListener("changeBar", function(e) {
+			var inputId = e.detail.inputId
+			document.getElementById(inputId).value = e.detail.barcode
+		});
+		mui.plusReady(function() {
+			document.getElementById("close").addEventListener('tap', function() {
+				OpenWindow('main', 'main.html', {})
+			})
+		})
+
+
+
+		$('#materialCode').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				var num = $("#boxNum").val();
+				for (var i = 0; i < barcodeList.length; i++) {
+					if (barcodeList[i].barcode == $("#materialCode").val()) {
+						mui.alert("不能扫入重复条码");
+						$("#materialCode").val("")
+						return false;
+					}
+				}
+				jQueryWeb("YlBarcodeInfo_ZS00", {
+					"inBarcode": $("#materialCode").val()
+				}, function(xmlHttpRequest, status) {
+					if (status = 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML)
+						var data = json_obj.diffgram.NewDataSet.Table;
+						// console.log(data.RESULT)
+						if (data.RESULT == "OK") {
+							var arr = {}; //元素组成
+							arr["barcode"] = data.原料条码;
+							arr["goodsNo"] = data.品号;
+							arr["type"] = data.原料类型;
+							arr["weight"] = data.数量;
+							arr["unit"]= data.单位;
+							barcodeList.push(arr);
+							console.log(JSON.stringify(barcodeList)) 
+							document.getElementById('code_list').innerHTML = template('code-template', {
+								"record": barcodeList
+							});
+							$("#boxNum").val($("#boxNum").val() == "" ? 1 : ++num)
+							$("#materialCode").val("")
+						} else {
+							mui.alert(data.RESULT)
+							$("#materialCode").val("")
+						}
+					}
+
+
+				})
+			}
+		});
+  $("#storage").click(function(){
+  			 var list="";
+  			 for (var i = 0; i < barcodeList.length; i++) {
+  			 	list+=barcodeList[i].barcode+"@"
+  			 }
+			 console.log(list)
+  	var InBarcoeS=list;
+  	var BinCode=$("#positionCode").val();
+  	var CGNO=$("#purchaseNo").val();
+  	
+  	// console.log("类型"+type+";品号"+itemNo+";供应商"+supplier+";编号"+printNo+";重量"+weight+";单位"+unit+";账号"+userCode+";打印份数"+PrintQty);
+  	jQueryWeb("YL_InWH",{
+  		"InBarcoeS": InBarcoeS,
+  		"BinCode": BinCode,
+  		"CGNO": CGNO
+  	},function(xmlHttpRequest, status){
+  		if(status== 'success'){
+  			var json_obj = $.xml2json(xmlHttpRequest.responseXML)
+  			var data = json_obj;
+  			if(data.indexOf("NG")!=-1){
+  				mui.alert(data)
+  			}else if(data=="OK"){
+  				mui.toast("入库成功")
+  				        barcodeList=[];
+  						clean(barcodeList)
+  				$("#materialCode").val("");
+  				$("#boxNum").val("");
+  				$("#positionCode").val("");
+  				$("#purchaseNo").val("");
+  			}else{
+  				mui.alert(data)
+  			}
+  		}
+  	})
+  })
+  function clean(barcodeList){
+  			 document.getElementById('code_list').innerHTML = template('code-template', {
+  			 	"record": barcodeList
+  			 });
+  }
+		function clicked(url, f1, urlId) {
+			OpenWindow(f1, url, {
+				urlId: urlId,
+				inputId: f1
+			});
+		};
+	</script>
+</html>

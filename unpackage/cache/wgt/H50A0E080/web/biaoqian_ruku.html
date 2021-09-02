@@ -1,0 +1,337 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>标签入库</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<script src="../js/mui.picker.min.js"></script>
+		<script src="../js/template-web.js"></script>
+		<link rel="stylesheet" type="text/css" href="../css/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
+		<style>
+			.select-dialog {
+				position: fixed;
+				margin-top: 1.25rem;
+				z-index: 999;
+			}
+			.dialog-label {
+				font-size: 14px;
+			}
+			.result-dialog {
+				position: fixed;
+				margin-top: 0.85rem;
+				z-index: 999;
+			}
+			
+			.dialog-li {
+				font-size: 11px;
+				text-align: center;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">标签入库</h1>
+		</header>
+		<dialog id="selectDialog" class="select-dialog" style="width: 90%;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询记录</span></p>
+			<br>
+			<form id="selectDateFrom">
+				<div class="mui-input-group">
+					<div class="mui-input-row">
+						<label class="dialog-label">时间</label>
+						<input type="text" name="se_time" class="mui-input-clear" id="selecttime" placeholder="点击选择时间">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">工单</label>
+						<input name="se_order" type="text" class="mui-input-clear" id="selet_order">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">批号</label>
+						<input name="se_code" type="text" class="mui-input-clear" id="select_code">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">仓库编码</label>
+						<input name="se_ware_code" type="text" class="mui-input-clear" id="se_ware_code">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">库位编码</label>
+						<input name="se_loc_code" type="text" class="mui-input-clear" id="se_loc_code">
+					</div>
+					<div class="mui-input-row">
+						<label class="dialog-label">账号</label>
+						<input name="se_usr" type="text" class="mui-input-clear" id="select_usr">
+					</div>
+				</div>
+				<div class="mui-button-row">
+					<button type="button" id="search_record" style="width: 45%;float: left;" class="mui-btn mui-btn-primary">查询</button>
+					<button type="reset" class="mui-btn mui-btn-danger" style="width: 45%;" onclick="closeSelectDialog()">取消</button>
+				</div>
+			</form>
+		</dialog>
+		<dialog id="resultDialog" class="result-dialog" style="width: 99%;height: 500px; overflow:auto;">
+			<p style="font-size: 16px;color: #000000;margin:0 auto;width:70px"><span>查询结果</span></p>
+			<br>
+			<div id="list">
+		
+			</div>
+			<script id='template' type="text/template">
+				<% for(var i in record){ var item=record[i];%>
+				<div class="mui-card">
+				<div class="mui-card-header">
+				入库单:<%=(item.入库单)%> 
+				</div>
+				<div class="mui-card-content">
+					<ul class="mui-table-view">
+						<li class="mui-table-view-cell mui-media">
+							<a href="javascript:;">
+								<span class="mui-media-object mui-pull-left mui-icon iconfont" style="color: #ADD8E6;font-size:1.875rem"></span>
+								<div class="mui-media-body">
+									<span>仓库编码：<%=(item.仓库编码)%></span><br>
+									<span>批次：<%=(item.批次)%></span><br>
+									<span>工单：<%=(item.工单)%></span><br>
+									<span>生产线体：<%=(item.生产线体)%></span><br>
+									<span>数量： <%=(item.数量)%></span>
+								</div>
+							</a>
+						</li>
+					</ul>
+					<div class="mui-card-footer">
+						<span>时间： <%=(item.时间)%></span>
+						<span></span>
+					</div>
+				</div>
+				</div>
+				<%}%>
+			</script>
+			<div class="mui-button-row">
+				<button type="reset" class="mui-btn mui-btn-danger" onclick="document.getElementById('resultDialog').style.display = 'none';">关闭</button>
+			</div>
+		</dialog>
+
+		<div class="mui-content">
+			<div class="mui-input-group">
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','location','web/biaoqian_ruku.html');">库位：</label>
+					<input id="location" placeholder="请扫入库位" type="text" class="mui-input-clear">
+				</div>
+				<div class="mui-input-row">
+					<label onclick="clicked('commom/saomiao.html','barcode','web/biaoqian_ruku.html');">条码：</label>
+					<input id="barcode" placeholder="请扫入条码" type="text" class="mui-input-clear">
+				</div>
+				<div class="mui-input-row">
+					<label>入库单号：</label>
+					<input id="loc_num" disabled type="text" class="mui-input-clear" style="background-color: #f3f3f3;">
+				</div>
+				<div class="mui-content-padded" align="center">
+					<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
+					<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-primary" id="history">历史记录</button>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			
+			window.addEventListener("offline", function(e) {
+				alert("网络中断，请检查网络");
+			})
+			
+			window.addEventListener("online", function(e) {
+				mui.toast("网络已连接")
+			})
+			
+			mui.init();
+			window.addEventListener("changeBar", function(e) {
+				var inputId = e.detail.inputId
+				document.getElementById(inputId).value = e.detail.barcode
+			});
+			
+			mui.plusReady(function() {
+				mask = mui.createMask(function() { //遮罩层callback事件
+					if (byId("selectDialog").style.display == "none") {
+						return true; //如果没有弹出框，关闭遮罩层
+					}
+					return false; //返回true,点击关闭mask
+				}); /*创建蒙版，保存到mask中*/
+			})
+			//遮罩层
+			function showMask() { /*绑定处理事件*/
+				top_value = $(document).scrollTop() //document.documentElement.scrollTop
+				document.body.style.overflow = "hidden"
+				document.body.style.width = "100%"
+				document.body.style.height = "100%"
+				document.body.style.position = "fixed"
+				mask.show(); /*调用展示遮罩*/
+			}
+
+			function closeMask() { /*绑定处理事件*/
+				document.body.style.overflow = "scroll"
+				document.body.style.width = "100%"
+				document.body.style.height = "100%"
+				document.body.style.position = "relative"
+				window.scrollTo(0, top_value); //回到原位置
+				mask.close(); /*调用展示属性*/
+			}
+
+			function clicked(url, f1, urlId) { //扫描触发
+				OpenWindow(f1, url, {
+					urlId: urlId,
+					inputId: f1
+				});
+			};
+			
+			$("#location").bind('keyup',function(event){
+				if (event.keyCode == "13") {
+					$('#barcode').focus();
+				}
+				
+			})
+			
+			//监听条码扫描——扫描回车
+			$('#barcode').bind('keyup', function(event) {
+				if (event.keyCode == "13") {
+					var code = $("#barcode").val();
+					var location = $("#location").val();
+					var btnArray = ['否', '是'];
+					if (code == "" || location == "") {
+						mui.alert("请先完善数据")
+						return false;
+					}
+					mui.confirm("是否将【条码：" + code + "】入库【" + location + "】", '提示', btnArray, function(e) {
+						if (e.index == 1) {
+							wareHousing(code, location);
+						}
+					})
+				}
+			})
+			$("#submit_code").click(function() {
+				var code = $("#barcode").val();
+				var location = $("#location").val();
+				var btnArray = ['否', '是'];
+				if (code == "" || location == "") {
+					mui.alert("请先完善数据")
+					return false;
+				}
+				mui.confirm("是否将【条码：" + code + "】入库【" + location + "】", '提示', btnArray, function(e) {
+					if (e.index == 1) {
+						//mui.alert("正在开发中。。")
+						wareHousing(code, location);
+					}
+				})
+			})
+
+			function wareHousing(code, location) {
+				jQueryWeb("PDA_LOT_IN_WareHouse", {
+					"inLotNo": code,
+					"inBinCode": location,
+					"userCode": api_localStorageGet("code")
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						console.log(json_obj)
+						//添加如果包含“NG”字符则弹出警告，无则将结果输出 loc_num
+						if (json_obj.indexOf("NG") != -1) { //结果含NG字样时
+							mui.alert(json_obj)
+						} else {
+							$("#loc_num").val(json_obj);
+							$("#barcode").val("");
+							mui.alert("操作成功");
+						}
+					}
+				})
+			}
+			$("#history").click(function() {
+				//mui.alert("正在开发中。。")
+				$("#select_usr").val(api_localStorageGet("code"))
+				var date_data = CurentTime()
+				$('[name=se_time]').val(date_data); //时间
+				 byId("selectDialog").style.display = "block";
+				 showMask();
+			})
+
+			function closeSelectDialog() { //关闭查询弹窗
+				document.getElementById('selectDialog').style.display = 'none';
+				closeMask();
+			}
+			var selecttime = byId("selecttime");
+			selecttime.addEventListener("tap", function() {
+				var dtPicker = new mui.DtPicker({
+					type: 'date'
+				});
+				dtPicker.show(function(e) {
+					$("#selecttime").val(e.value);
+				})
+			});
+			$("#selecttime").focus(function() { //禁止选择时间时输入法弹出
+				document.activeElement.blur();
+			});
+			function CurentTime() {
+				var now = new Date();
+			
+				var year = now.getFullYear(); //年
+				var month = now.getMonth() + 1; //月
+				var day = now.getDate(); //日
+			
+				var hh = now.getHours(); //时
+				var mm = now.getMinutes(); //分
+			
+				var clock = year + "-";
+				if (month < 10)
+					clock += "0";
+				clock += month + "-";
+				if (day < 10)
+					clock += "0";
+				clock += day;
+				return (clock);
+			}
+			$("#search_record").click(function() { //历史记录查询
+				var se_time = $('[name=se_time]').val(); //时间
+				var se_order = $('[name=se_order]').val(); //工单
+				var se_code = $('[name=se_code]').val(); //批号
+				var se_ware_code = $('[name=se_ware_code]').val(); //仓库编号
+				var se_loc_code = $('[name=se_loc_code]').val(); //库位编号
+				var se_usr = $('[name=se_usr]').val(); //用户
+				jQueryWeb("PDA_GET_INWH_HISTORY", {
+					"inDate": se_time,
+					"inMO": se_order,
+					"inLotNo": se_code,
+					"inWHCODE": se_ware_code,
+					"inBINCODE": se_loc_code,
+					"inUserCode": se_usr
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.NewDataSet;
+						//console.log(JSON.stringify(data))
+						if (data != undefined) {
+							var listData = [];
+							if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+								listData = [data.Table]
+							} else {
+								listData = data.Table
+							}
+							document.getElementById('list').innerHTML = template('template', {
+								"record": listData
+							});
+							byId("resultDialog").style.display = "block"
+						} else {
+							mui.alert("无历史记录")
+						}
+					}
+				})
+			})
+		</script>
+	</body>
+
+</html>
