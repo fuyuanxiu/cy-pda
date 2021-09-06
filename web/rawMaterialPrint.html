@@ -136,8 +136,8 @@
 			<div class="mui-content-padded" align="center">
 				<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom"
 					id="print">打印</button>
-				<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-warning"
-					id="close">关闭</button>
+				<!-- <button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-warning"
+					id="close">关闭</button> -->
 			</div>
 		</div>
 		<script type="text/javascript">
@@ -158,9 +158,9 @@
 				// console.log(api_localStorageGet("printNo"))
 			});
 			mui.plusReady(function() {
-				document.getElementById("close").addEventListener('tap',function(){
-					OpenWindow('main','main.html',{})
-				})
+				// document.getElementById("close").addEventListener('tap',function(){
+				// 	OpenWindow('main','main.html',{})
+				// })
 				// mask = mui.createMask(function() { //遮罩层callback事件
 
 				// 	if (byId("selectDialog").style.display == "none" ) {

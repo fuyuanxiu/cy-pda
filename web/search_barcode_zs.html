@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>注塑条码查询</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<script src="../js/mui.picker.min.js"></script>
+		<script src="../js/template-web.js"></script>
+		<link rel="stylesheet" type="text/css" href="../css/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
+		<style>
+			.dialog-li {
+				font-size: 11px;
+				text-align: center;
+				white-space:nowrap; 
+			}
+		</style>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">注塑条码查询</h1>
+		</header>
+		<div class="mui-content">
+			<div class="mui-input-group">
+				<div class="mui-input-row">
+					<!-- <label onclick="clicked('commom/saomiao.html','barcode','web/search_barcode_zs.html');">扫描条码</label>
+					<input id="barcode" placeholder="请扫入条码或工单" type="text" style="width: 49%;float: left;font-size: 14px;">
+					<button type="button" id="search_order" style="width:15%; height: inherit;" class="mui-btn-primary">查询</button> -->
+					<label onclick="clicked('commom/saomiao.html','barcode','web/search_barcode_zs.html');">扫描条码</label>
+					<input id="barcode" placeholder="请扫入条码或" type="text" style="width: 49%;float: left;font-size: 14px;">
+				</div>
+				<div class="mui-input-row">
+					<label>物料条码</label>
+					<input id="materialCode" disabled type="text" class="mui-input-clear" style="background-color: #efefef;">
+				</div>
+				<div class="mui-input-row">
+					<label>条码类型 </label>
+					<input id="barcodeType" disabled type="text" class="mui-input-clear" style="background-color: #efefef;">
+				</div>
+				<div class="mui-input-row">
+					<label>品号</label>
+					<input id="itemNo" disabled type="text" class="mui-input-clear" style="background-color: #efefef;">
+				</div>
+				<div class="mui-input-row">
+					<label>重量</label>
+					<input id="weight" disabled type="text" class="mui-input-clear" style="background-color: #efefef;">
+				</div>
+				<div class="mui-input-row">
+					<label>品名</label>
+					<input id="itemName" disabled type="text" class="mui-input-clear" style="background-color: #efefef;">
+				</div>
+				<div class="mui-input-row">
+					<label>规格</label>
+					<input id="itemFormat" disabled type="text" class="mui-input-clear">
+				</div>
+				<div style="margin-top: 1rem; padding-bottom: 1rem;">
+					<table class="table" style="margin: auto;">
+						<thead>
+							<tr>
+								<th>工单</th>
+								<th>机台</th>
+								<th>用量</th>
+								<th>单位</th>
+							</tr>
+						</thead>
+						<tbody id="orderList">
+							<tr>
+								<td>工单</td>
+								<td>机台</td>
+								<td>用量</td>
+								<td>单位</td>
+							</tr>
+							<tr>
+								<td>工单</td>
+								<td>机台</td>
+								<td>用量</td>
+								<td>单位</td>
+							</tr>
+							<tr>
+								<td>工单</td>
+								<td>机台</td>
+								<td>用量</td>
+								<td>单位</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			window.addEventListener("offline", function(e) {
+				alert("网络中断，请检查网络");
+			})
+
+			window.addEventListener("online", function(e) {
+				mui.toast("网络已连接")
+			})
+
+			mui.init();
+			window.addEventListener("changeBar", function(e) {
+				var inputId = e.detail.inputId
+				document.getElementById(inputId).value = e.detail.barcode
+			});
+			mui.plusReady(function() {})
+
+			$("#search_order").click(function() {
+				search_barcode();
+			})
+
+			$('#barcode').bind('keyup', function(event) {
+				if (event.keyCode == "13") {
+					search_barcode();
+				}
+			})
+			$('#barcode').bind('input propertychange', function() {
+				toClean();
+			});
+
+			function getLackInfo(code) {
+				jQueryWeb("PDA_GET_QL_INFO", {
+					"inCode": code,
+				}, function(xmlHttpRequest, statu) {
+					if (statu == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+						var data = json_obj.diffgram.NewDataSet;
+						console.log(JSON.stringify(data.Table))
+					}
+				})
+			}
+
+			function clicked(url, f1, urlId) {
+				OpenWindow(f1, url, {
+					urlId: urlId,
+					inputId: f1
+				});
+			};
+
+			function toClean() {
+				$("#order").val("");
+				$("#itemNo").val("");
+				$("#itemName").val("");
+				$("#format").val("");
+				$("#plan_qty").val("");
+				$("#inware_qty").val("");
+				$("#not_inware_qty").val("");
+				document.getElementById('pro_list').innerHTML = template('pr-template', {
+					"record": []
+				});
+			}
+		</script>
+	</body>
+</html>
