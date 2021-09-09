@@ -3,7 +3,7 @@
 
 	<head>
 		<meta charset="utf-8">
-		<title>原料拆分</title>
+		<title>注塑原料出库</title>
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="css/mui.css" rel="stylesheet" />
 		<script src="../js/mui.min.js"></script>
@@ -37,7 +37,7 @@
 	<body>
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-			<h1 class="mui-title">原料拆分</h1>
+			<h1 class="mui-title">注塑原料出库</h1>
 		</header>
 		<dialog id="selectDialog" class="select-dialog" style="width: 95%;">
 			<form class="mui-input-group">
@@ -68,7 +68,7 @@
 					<input type="text" id="printCode" class="mui-input-clear" placeholder="请扫描" style="width: 12.5rem;">
 				</div>
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','positionCode','web/rawMaterial_split.html');">仓位编码:</label>
+					<label onclick="clicked('commom/saomiao.html','positionCode','web/rawMaterial_split.html');">库位编码:</label>
 					<input type="text" id="positionCode" class="mui-input-clear" placeholder="请扫描">
 				</div>
 
@@ -77,12 +77,12 @@
 					<input type="text" id="pickMaterial" class="mui-input-clear" placeholder="请扫描">
 				</div>
 				<div class="mui-input-row">
-					<label>打标类型</label>
+					<label>标签类型</label>
 					<span class="radio_inline mui-radio">
-						<input name="radio1" type="radio" id="A" checked value="合并打标">
-						<label for="合并打标">合并打标</label>
-						<input name="radio1" type="radio" id="B" value="拆分打标">
-						<label for="拆分打标">拆分打标</label>
+						<input name="radio1" type="radio" id="A" checked value="出库一个标签">
+						<label for="出库一个标签">出库一个标签</label>
+						<input name="radio1" type="radio" id="B" value="出库多个标签">
+						<label for="出库多个标签">出库多个标签</label>
 					</span>
 				</div>
 				<div class="mui-input-row" id="addDiv" style="align-items: center;display: flex;">
@@ -125,7 +125,7 @@
 
 			<div class="mui-content-padded" align="center">
 				<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-green" data-loading-icon="mui-spinner mui-spinner-custom"
-				 id="doSure">确定</button>
+				 id="doSure">出库打标</button>
 				<button type="button" style="margin-top: 0.9375rem;" class="mui-btn mui-btn-warning" id="close">关闭</button>
 			</div>
 		</div>
@@ -191,7 +191,14 @@
 						var data = json_obj.diffgram.NewDataSet.Table;
 						// console.log(data.RESULT)
 						if (data.RESULT == "OK") {
+							endNum=0
+							allocated=0
+							totalWeight=0
 							$("#add").empty()
+							barcodeList=[];
+							document.getElementById('resultlist').innerHTML = template('result-template', {
+								"record": barcodeList
+							});
 							totalWeight = (data.数量) / 1000
 							$("#add").append("总重:" + totalWeight + "KG;已分配:" + allocated + "KG;尾数:0KG")
 							document.getElementById('addDiv').classList.remove('mui-hidden');
@@ -311,7 +318,7 @@
 			var BinCode = $("#positionCode").val()
 			var LLUsercode = $("#pickMaterial").val()
 			var PrintType = $('input:radio[name="radio1"]:checked').val()
-			var WS = Number(endNum) * 1000
+			var WS = Number(endNum) * 1000			
 			console.log(WS)
 			jQueryWeb("Ylbarcode_split01", {
 				"Barcode": materialCode,
@@ -335,6 +342,10 @@
 							"record": barcodeList
 						});
 						mui.alert("操作成功")
+						totalWeight=0;
+						allocated=0;
+						endNum=0;
+						$("#add").attr('value','');
 					}
 					
 				}

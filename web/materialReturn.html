@@ -37,6 +37,18 @@
 			<h1 class="mui-title">注塑生产退料</h1>
 		</header>
 		<div class="mui-content">
+			<div id="slider" class="mui-slider">
+				<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted" id="segmented">
+					<div class="mui-scroll">
+						<a class="mui-control-item mui-active" href="#item1mobile">
+							操作
+						</a>
+						<a class="mui-control-item" href="#item2mobile">
+							已扫条码
+						</a>
+					</div>
+				</div>
+				<div id="item1mobile" class="mui-slider-item mui-control-content mui-active">
 			<form class="mui-input-group">
 				<div class="mui-input-row">
 					<label>退料类型</label>
@@ -93,6 +105,33 @@
 				<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom"
 				 id="print">打印</button>
 			</div>
+			</div>
+			<div id="item2mobile" class="mui-slider-item mui-control-content ">
+				<div id="code_list">
+				</div>
+				<script id='code-template' type="text/template">
+					<% for(var i in record){ var item=record[i];%>
+					<div class="mui-card">
+					<div class="mui-card-content">
+						<ul class="mui-table-view">
+							<li class="mui-table-view-cell mui-media">
+								<a href="javascript:;">
+									<span class="mui-media-object mui-pull-left mui-icon iconfont" style="color: #ADD8E6;font-size:1.875rem"></span>
+									<div class="mui-media-body">
+										<div style="float: left;">
+												<span>原料条码:<%=(item.barcode)%></span><br>
+											<span>品号:<%=(item.itemNo)%></span><br>
+											<span>类型:<%=(item.material)%>  数量:<%=(item.qty)%><%=(item.unit)%></span><br>
+										</div>
+									</div>
+								</a>
+							</li>
+						</ul>
+					</div>
+					</div>
+					<%}%>
+				</script>
+		</div>
 		</div>
 		<!-- <div class="mui-content-padded" align="center">
 							<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
@@ -102,6 +141,7 @@
 
 	</body>
 	<script type="text/javascript">
+		var barcodeList = [];
 		window.addEventListener("offline", function(e) {
 			alert("网络中断，请检查网络");
 		})
@@ -142,16 +182,32 @@
 					"chType": 5,
 					"inBarcode": $("#labelCode").val()
 				}, function(xmlHttpRequest, status) {
-					if (status = 'success') {
+					if (status == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML)
-						//console.log(JSON.stringify(json_obj))
 
+						//错误结果返回处理
 						var result = JSON.stringify(json_obj.diffgram);
 						if (result.indexOf('ResultInfo') != -1) {
 							mui.alert(json_obj.diffgram.DocumentElement.ResultInfo.Result);
 							return false;
 						}
-						mui.toast("扫入成功")
+						var data = json_obj.diffgram.NewDataSet.Table
+						console.log(JSON.stringify(data))
+						var arr = {}; //元素组成
+						arr["barcode"] = data.BARCODE;
+						arr["itemNo"] = data.ITEM_NO;
+						arr["material"] = data.MATERIALS_TYPE;
+						arr["qty"] = data.QTY;
+						arr["unit"] = data.UNIT;
+						// arr["taskNo"] = data.TASK_NO
+						// arr["itemQty"] = data.ITEM_QTY
+						// arr["itemUnit"] = data.ITEM_UNIT
+						barcodeList.push(arr);
+						document.getElementById('code_list').innerHTML = template('code-template', {
+							"record": barcodeList
+						});
+					} else {
+						mui.alert("YlBarcodeInfo_ZS 连接失败")
 					}
 				})
 			}
@@ -338,9 +394,69 @@
 		}
 		
 		$("#print").click(function(){
+			var ctype = $('input:radio[name="radio1"]:checked').val();
+			if (ctype=="标签退料"){
+				ctype=1
+			}else{
+				ctype=2
+			}
+			var taskNo=$("#returnTaskNo").val()
+			var lineCode=$("#returnMachine").val()
+			var barcode_list=""
+			for (var i = 0; i < barcodeList.length; i++) {
+				if($('input:radio[name="radio1"]:checked').val()=="品号退料"){
+					if(i==barcodeList.length-1){
+						barcode_list+=barcodeList[i].itemNo+"@"+barcodeList[i].qty
+					}else{
+						barcode_list+=barcodeList[i].itemNo+"@"+barcodeList[i].qty+","
+					}
+				
+				}else{
+					if(i==barcodeList.length-1){
+						barcode_list+=barcodeList[i].barcode+"@"+barcodeList[i].qty
+					}else{
+						barcode_list+=barcodeList[i].barcode+"@"+barcodeList[i].qty+","
+					}
+				}
+				
+			}
+			console.log(barcode_list)
+			var sectionCode=$("#positions").val()
+			var returnCode=$("#returnNo").val()
+			var userCode=api_localStorageGet("code")
+			jQueryWeb("PDA_ZS_RebackWL", {
+				"type": ctype,
+				"taskNo": taskNo,
+				"lineCode": lineCode,
+				"barcodeList": barcode_list,
+				"sectionCode": sectionCode,
+				"userT1": returnCode,
+				"userCode": userCode
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					if(json_obj.indexOf("NG")!=-1){
+						mui.alert(json_obj)
+					}else{
+						mui.toast("打印成功");
+						toClean();
+					}
+					console.log(json_obj)
+				} else {
+					alert("连接PDA_ZS_RebackWL失败")
+				}
+			})
 			
+			// console.log(barcode_list)
 		})
-
+   
+   function toClean(){
+	   $("#labelCode").val("")
+	   $("#weight").val("")
+	   $("#weight").val("")
+	    $("#returnTaskNo").val("")
+		$("#returnMachine").val("")
+   }
 		function clicked(url, f1, urlId) {
 			OpenWindow(f1, url, {
 				urlId: urlId,

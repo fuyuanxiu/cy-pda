@@ -3,7 +3,7 @@
 
 	<head>
 		<meta charset="utf-8">
-		<title>原材料标签打印</title>
+		<title>注塑原料打印</title>
 		<meta name="viewport"
 			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="css/mui.css" rel="stylesheet" />
@@ -54,7 +54,7 @@
 	<body>
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-			<h1 class="mui-title">原材料标签打印</h1>
+			<h1 class="mui-title">注塑原料打印</h1>
 		</header>
 		<dialog id="selectDialog" class="select-dialog" style="width: 95%;">
 			<table id="supplierTable" border="1">
@@ -64,37 +64,12 @@
 				
 				<th style="width: 45%;">供应商全称</th>
 				</tr>
-				
-<!-- 				<tr>
-					<td>1</td>
-					<td>303010000000</td>
-					<td>打算大苏打</td>
-					<td>广东省撒大苏打实打实</td>
-				</tr>
-				<tr>
-					<td>1</td>
-					<td>303010000000</td>
-					<td>打算大苏打</td>
-					<td>广东省撒大苏打实打实</td>
-				</tr>
-				<tr>
-					<td>1</td>
-					<td>303010000000</td>
-					<td>打算大苏打</td>
-					<td>广东省撒大苏打实打实</td>
-				</tr>
-				<tr>
-					<td>1</td>
-					<td>303010000000</td>
-					<td>打算大苏打</td>
-					<td>广东省撒大苏打实打实</td>
-				</tr> -->
 			</table>
 		</dialog>
 		<div class="mui-content">
 			<form class="mui-input-group">
 				<div class="mui-input-row">
-					<label>原材料类型:</label>
+					<label>原料类型:</label>
 					<select id="materialType" class="mui-select">
 					</select>
 				</div>
@@ -110,6 +85,10 @@
 						class="mui-btn-primary">...</button>
 				</div>
 				<div class="mui-input-row">
+					<label>采购订单:</label>
+					<input type="text" id="poNo" class="mui-input-clear" placeholder="请输入采购订单">
+				</div>
+				<div class="mui-input-row">
 					<label onclick="clicked('commom/saomiao.html','printNo','web/rawMaterialPrint.html');">打印机编码:</label>
 					<input type="text" id="printNo" class="mui-input-clear" placeholder="请扫描">
 				</div>
@@ -119,7 +98,7 @@
 					<button type="button" id="getElecScale"
 						style="width:14%; height: inherit;font-size: 12px;color: #000000;" class="mui-btn-grey">读取</button>
 				</div>
-				<div class="mui-input-row">
+				<div class="mui-input-row" id="elecWeight">
 					<label>重量:</label>
 					<input type="text" id="weight" oninput="value=value.replace(/^\D*(\d*(?:\.\d{0,5})?).*$/g, '$1')" class="mui-input" style="width: 50%;float: left;">
 					<select id="weightUnit" class="mui-select" style="width:12%; height: inherit;">
@@ -231,8 +210,14 @@
 						} else {
 							$("#isSupplier").hide()
 						}
+						
+					if(selectedType == "色粉"){
+						$("#elecWeight").hide()
+					}else{
+						$("#elecWeight").show()
+					}
 						if (selectedType == "原材料" || selectedType == "色粉") {
-							$("#isPrint").show()
+							$("#isPrint").show()					
 						} else {
 							$("#isPrint").hide()
 						}
@@ -395,7 +380,7 @@
 			// 	document.body.style.position = "relative"
 			// 	window.scrollTo(0, top_value); //回到原位置
 			// 	mask.close(); /*调用展示属性*/
-			// }
+			// }			
 			$("#getSupplier").click(function(){
 				// showMask();
 		        getSupplierList();
@@ -425,6 +410,7 @@
 					}
 				})
 			}
+			
 			function clicked(url, f1, urlId) {
 				OpenWindow(f1, url, {
 					urlId: urlId,
@@ -492,6 +478,10 @@
 				var printNo=$("#printNo").val();
 				var weight=$("#weight").val();
 				var unit=$("#weightUnit option:selected").text();
+				// if($("#weightUnit option:selected").text()=="色粉"){
+				// 	weight=1
+				// 	unit="PCS"
+				// }
 				var userCode= api_localStorageGet("code");
 				var PrintQty=$("#printNum").val();
 				console.log("类型"+type+";品号"+itemNo+";供应商"+supplier+";编号"+printNo+";重量"+weight+";单位"+unit+";账号"+userCode+";打印份数"+PrintQty);
@@ -527,6 +517,5 @@
 				})
 			})
 		</script>
-
 	</body>
 </html>
