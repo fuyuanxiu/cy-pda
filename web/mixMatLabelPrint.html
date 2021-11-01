@@ -3,8 +3,9 @@
 
 	<head>
 		<meta charset="utf-8">
-		<title>拌料标签打印</title>
-		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>注塑拌料打印</title>
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="css/mui.css" rel="stylesheet" />
 		<script src="../js/mui.min.js"></script>
 		<script src="../js/api.js"></script>
@@ -21,13 +22,14 @@
 		<link rel="stylesheet" type="text/css" href="css/common.css" />
 		<link rel="stylesheet" type="text/css" href="../css/comment.css" />
 		<style>
-			label{
-				 font-size: 0.9375rem;
+			label {
+				font-size: 0.9375rem;
 			}
+
 			.table {
 				border: 1px solid #cad9ea;
 				color: #666;
-		
+
 			}
 
 			.table th {
@@ -69,7 +71,7 @@
 	<body>
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-			<h1 class="mui-title">拌料标签打印</h1>
+			<h1 class="mui-title">注塑拌料打印</h1>
 		</header>
 		<dialog id="selectDialog" class="select-dialog" style="width: 95%;">
 			<ul class="mui-table-view" style="height:12.5rem;overflow:auto;" id="mixList">
@@ -77,7 +79,8 @@
 		</dialog>
 		<div class="mui-content">
 			<div id="slider" class="mui-slider">
-				<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted" id="segmented">
+				<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted"
+					id="segmented">
 					<div class="mui-scroll">
 						<a class="mui-control-item mui-active" href="#item1mobile">
 							操作
@@ -91,21 +94,46 @@
 					<div id="item1mobile" class="mui-slider-item mui-control-content mui-active">
 						<form class="mui-input-group">
 							<div class="mui-input-row">
+								<label
+									onclick="clicked('commom/saomiao.html','materialCode','web/mixMatLabelPrint.html');">物料条码:</label>
+								<input type="text" id="materialCode" class="mui-input-clear" placeholder="请扫描">
+							</div>
+							<div class="mui-input-row"
+								style="background-color: #efefef;display: flex;align-items: center;margin-left:0.8rem ;">
+								<p id="b_info" style="font-size: 1rem;color: #000000;margin: 0 auto;"></p>
+							</div>
+							<div class="mui-input-row">
+								<label>拌料批次:</label>
+								<input type="text" id="mixBatch" class="mui-input" disabled
+									style="background-color: #efefef;">
+							</div>
+							<div class="mui-input-row">
 								<label>工单:</label>
-								<input type="text" id="workOrder" class="mui-input" style="width: 29%;float: left;font-size: 13px;" placeholder="请输入工单">
-								<input type="text" id="goodsNums" class="mui-input" style="width: 22%;font-size: 13px;float: left;border: #000000 1px solid;;"
-								 placeholder="成品数量">
-								<button type="button" id="pcs" style="width:14%; height: inherit;font-size: 13px;color: #282828;" class="mui-btn-grey">PCS</button>
+								<input type="text" id="workOrder" class="mui-input-clear" placeholder="请输入工单">
+
+							</div>
+							<div class="mui-input-row">
+								<label>已拌重量:</label>
+								<input type="text" id="Order_yi" class="mui-input" disabled
+									style="width: 43%;float: left;background-color: #efefef;">								
+								<input disabled type="text" id="kg_yi" placeholder="KG" class="mui-input-clear" style="width: 22%;background-color: #F5F5F5;">
+							</div>
+							<div class="mui-input-row">
+								<label>本次生产:</label>
+								<input type="text" id="goodsNums" class="mui-input-clear"
+									style="width: 43%;float: left;" placeholder="工单数量">
+								<input disabled type="text" id="pcs" placeholder="PCS" class="mui-input-clear" style="width: 22%;background-color: #F5F5F5;">		
 							</div>
 
-							<div class="mui-input-row">
-								<label>机台:</label>
-								<input type="text" id="machineNo" class="mui-input-clear">
-							</div>
-							<div class="mui-input-row">
+							<!-- 							<div class="mui-input-row">
+															<label>上料机台:</label>
+															<input type="text" id="machineNo" class="mui-input-clear">
+														</div> -->
+							<!-- <div class="mui-input-row">
 								<label>拌料类型:</label>
-								<input id="mixType" placeholder="请选择拌料类型" type="text" class="mui-input">
-							</div>
+								<input type="text" id="mixType" class="mui-input" disabled
+									style="background-color: #efefef;">
+							</div> -->
 							<div>
 								<table class="table" style="margin: auto;">
 									<thead>
@@ -113,7 +141,7 @@
 											<th>类型</th>
 											<th>品号</th>
 											<th>占比</th>
-											<th>重量</th>
+											<th>重量(KG)</th>
 										</tr>
 									</thead>
 									<tbody id="matType">
@@ -121,43 +149,39 @@
 								</table>
 								<script id='tr-template' type="text/template">
 									<% for(var i in record){ var item=record[i];%>
-									<tr>
-									<td><%=(item.TYPE)%></td>
-									<td><%=(item.ITEMNO)%></td>
-									<td><%=(item.PERCENT)%></td>
-									<td><%=(item.ITEM_QTY)%></td>
-									</tr>
-									<%}%>
-								</script>
-							</div>
-							<div class="mui-input-row">
-								<label onclick="clicked('commom/saomiao.html','materialCode','web/mixMatLabelPrint.html');">原料条码:</label>
-								<input type="text" id="materialCode" class="mui-input" placeholder="请扫描">
-							</div>
-							<div class="mui-input-row" style="background-color: #efefef;display: flex;align-items: center;margin-left:0.8rem ;">
-								<p id="b_info" style="font-size: 1rem;color: #000000;margin: 0 auto;"></p>
-							</div>
-							<div class="mui-input-row">
-								<label>拌料批次:</label>
-								<input type="text" id="mixBatch" class="mui-input" disabled style="background-color: #efefef;">
+																<tr>
+																<td><%=(item.TYPE)%></td>
+																<td><%=(item.ITEMNO)%></td>
+																<td><%=(item.PERCENT)%></td>
+																<td><%=(item.ITEM_QTY)%></td>
+																</tr>
+																<%}%>
+															</script>
 							</div>
 							<div class="mui-input-row">
 								<label>电子秤:</label>
-								<input type="text" id="elecScale" class="mui-input" style="width: 51%;float: left;font-size: 17px;">
-								<button type="button" id="getElecScale" style="width:14%; height: inherit;font-size: 12px;color: #ffffff;"
-								 class="mui-btn-blue">读取</button>
+								<input type="text" id="elecScale" class="mui-input"
+									style="width: 43%;float: left;font-size: 17px;">
+								<button type="button" id="getElecScale"
+									style="width:22%; float: left;height: inherit;font-size: 14px;color: #ffffff;"
+									class="mui-btn-blue">读取重量</button>
 							</div>
 							<div class="mui-input-row">
 								<label>重量:</label>
-								<input type="text" id="weight" class="mui-input" style="width: 51%;float: left;" disabled>
-								<button type="button" id="weightUnit" style="width:14%; height: inherit;font-size: 12px;color: #000000;" class="mui-btn-grey">KG</button>
+								<input type="text" id="weight" class="mui-input" style="width: 43%;float: left;">
+								<input disabled type="text" id="weightUnit" placeholder="KG" class="mui-input-clear" style="width: 22%;background-color: #F5F5F5;">									
 							</div>
-							<div class="mui-input-row" style="display:flex;align-items: center;justify-content:center;">
-								<button type="button" id="sureWeight" style="color: #ffffff;" class="mui-btn-blue">确认重量(KG)</button>
+							<div class="mui-input-row">
+								<label>已确认(KG):</label>
+								<input type="text" id="Weight_yi" class="mui-input" disabled
+									style="width: 43%;float: left;background-color: #efefef;">								
+								<button type="button" id="sureWeight" style="width:22%; float: left;height: inherit;font-size: 14px;color: #ffffff;"
+									class="mui-btn-blue">确认重量</button>
 							</div>
-							<div class="mui-input-row" style="background-color: #efefef; display:flex;align-items: center;margin-left:0.8rem ;">
+							<!-- <div class="mui-input-row"
+								style="background-color: #efefef; display:flex;align-items: center;margin-left:0.8rem ;">
 								<p id="weightInfo" style="font-size: 1rem;color: #000000;margin: 0 auto;"></p>
-							</div>
+							</div> -->
 							<div class="mui-input-row">
 								<label>打印机:</label>
 								<input type="text" id="printCode" class="mui-input">
@@ -166,8 +190,8 @@
 						</form>
 
 						<div class="mui-content-padded" align="center">
-							<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom"
-							 id="print">打印</button>
+							<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-success"
+								data-loading-icon="mui-spinner mui-spinner-custom" id="bl_print">拌料打印</button>
 							<!-- <button type="button" style="margin-top: 0.9375rem;" class="mui-btn mui-btn-warning" id="close">关闭</button> -->
 						</div>
 					</div>
@@ -201,10 +225,13 @@
 			</div>
 	</body>
 	<script type="text/javascript">
+		var allWeight = 0;
 		var old_value = "";
+		var mix_code = "";
 		var barcodeList = [];
-		var weightStr = ""; //重量合计记录
+		var weightStr = 0; //重量合计记录
 		var weigthParm = "";
+		var totalWeight = 0;
 		window.addEventListener("offline", function(e) {
 			alert("网络中断，请检查网络");
 		})
@@ -222,14 +249,28 @@
 			// document.getElementById("close").addEventListener('tap', function() {
 			// 	OpenWindow('main', 'main.html', {})
 			// })
+			$("#materialCode").focus()
 			getScaleNoAndWeight();
-			getPrintAndMix();
-			getMachineNoData();
+			// getMachineNoData();
 		})
 
 		$('#workOrder').bind('keyup', function(event) {
 			if (event.keyCode == "13") { //输入回车执行
 				getTaskInfo()
+				goodsNums.focus()
+			}			
+		});
+
+		$('#goodsNums').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				getTaskInfo()
+				elecScale.focus()
+			}			
+		});
+
+		$('#printCode').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				api_localStorageSave("printCode", $('#printCode').val())
 			}
 		});
 
@@ -250,21 +291,59 @@
 					}
 
 					var data = json_obj.diffgram.NewDataSet.Table;
+					allWeight = 0;
+					//console.log(data.length)
 					//console.log(JSON.stringify(data))
-					document.getElementById('matType').innerHTML = template('tr-template', {
-						"record": data
-					});
-					$("#goodsNums").val(data[0].TASK_QTY)
-					if (data[0].LINE) {
-						$("#machineNo").val(data[0].LINE) //机台
+					//当WEB SERVICE返回的表只有一行数据时，data.length == undefined，并且返回的data首尾都缺少了[]
+					if (data.length == undefined) {
+						var listData = [];
+						if (JSON.stringify(data).toString().substring(0, 1) == '{') {
+							listData = [data]
+						} else {
+							listData = data
+						}
+						document.getElementById('matType').innerHTML = template('tr-template', {
+							"record": listData
+						});
+						for (i = 0; i < listData.length; i++) {
+							if (listData[i].TYPE != "色粉") {
+								allWeight = Number(allWeight) + Number(listData[i].ITEM_QTY)
+							}
+						}
+					} else { //当WEB SERVICE返回的表有多行数据时，data.length表示行数，并且返回的data首尾都有[]
+						document.getElementById('matType').innerHTML = template('tr-template', {
+							"record": data
+						});
+						for (i = 0; i < data.length; i++) {
+							if (data[i].TYPE != "色粉") {
+								allWeight = Number(allWeight) + Number(data[i].ITEM_QTY)
+							}
+							//console.log(data[i].ITEM_QTY)
+						}
 					}
-					$("#mixType").val(data[0].BL_TYPE) //拌料类型
+
+					if (data.length > 1) {
+						$("#Order_yi").val(data[0].QTY_YI)
+						$("#goodsNums").val(data[0].CURR_QTY)
+						//$("#mixType").val(data[0].BL_TYPE) //拌料类型
+						mix_code = data[0].BL_CODE
+
+					} else { //此时data.length == undefined，
+						$("#Order_yi").val(data.QTY_YI)
+						$("#goodsNums").val(data.CURR_QTY)
+						//$("#mixType").val(data.BL_TYPE) //拌料类型
+						mix_code = data.BL_CODE
+					}
+
+					// if (data[0].LINE) {
+					// 	$("#machineNo").val(data[0].LINE) //机台
+					// }
 
 				} else {
 					$("#matType").empty()
 					$("#goodsNums").val(0)
-					$("#machineNo").val("") //机台
-					$("#mixType").val("") //拌料类型
+					//$("#machineNo").val("") //机台
+					//$("#mixType").val("") //拌料类型
 					mui.toast("WS_TASK_INFO 连接失败")
 				}
 			})
@@ -284,7 +363,8 @@
 				}
 				jQueryWeb("YlBarcodeInfo_ZS", {
 					"inBarcode": $("#materialCode").val(),
-					"chType": "1"
+					"chType": "1",
+					"Condition": ""
 				}, function(xmlHttpRequest, status) {
 					if (status == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML)
@@ -296,8 +376,9 @@
 							return false;
 						}
 						var data = json_obj.diffgram.NewDataSet.Table
-						console.log(JSON.stringify(data))
+						//console.log(JSON.stringify(data))
 						var arr = {}; //元素组成
+						//if (data.BL_LOT == "") {
 						arr["barcode"] = data.BARCODE;
 						arr["itemNo"] = data.ITEM_NO;
 						arr["qty"] = data.QTY;
@@ -309,9 +390,15 @@
 						document.getElementById('code_list').innerHTML = template('code-template', {
 							"record": barcodeList
 						});
+						//}
 						$("#materialCode").val("")
 						$("#mixBatch").val(data.BL_LOT)
-						$("#b_info").text("总重：" + data.QTY_SUM + "，已打标：" + data.QTY_YI + "，未打标：" + data.QTY_WEI)
+						if (data.FTYPE != "色粉") {
+							totalWeight = Number(totalWeight) + Number(data.QTY)
+						}
+						totalWeight = totalWeight.toFixed(3)
+						//$("#b_info").text("总重(KG)：" + totalWeight + "，已打标：" + data.QTY_YI + "，未打标：" + data.QTY_WEI)
+						$("#b_info").text("总重(KG)：" + totalWeight)
 					} else {
 						mui.alert("YlBarcodeInfo_ZS 连接失败")
 					}
@@ -322,18 +409,20 @@
 		$("#sureWeight").click(function() {
 			var w = $("#weight").val();
 			if (w == "") {
-				mui.toast("请先读取重量")
+				mui.toast("重量不能为空")
 				return false
 			}
-			weightStr += w + "KG;";
-			$("#weightInfo").text(weightStr);
+			weightStr = weightStr + Number(w);
+			console.log(weightStr)
+			$("#Weight_yi").val(weightStr);
 			weigthParm += w + "@"; //打印用的参数
+			$("#weight").val('')
 		})
 
 		$("#getElecScale").click(function() {
 			var eleData = $("#elecScale").val()
 			if (eleData == "") {
-				mui.toast('请先扫入电子秤信息')
+				mui.toast('请先扫入电子秤条码')
 				return false
 			}
 			jQueryWeb("GetScaleInfo", {
@@ -346,6 +435,7 @@
 						mui.alert(json_obj)
 					} else {
 						$("#weight").val(json_obj);
+						api_localStorageSave("elecScale", $("#elecScale").val())
 					}
 				} else {
 					mui.alert("GetScaleInfo 连接失败")
@@ -353,14 +443,14 @@
 			})
 		})
 
-		function getMachineNoData() {
+		/* function getMachineNoData() {
 			var machineNoList = [];
 			$("#machineNo").on('input', function() {
 				if ($("#machineNo").val().length > 0) {
 					old_value = $("#machineNo").val();
 					jQueryWeb("WS_LINE_INFO", {
 						"lineNo": old_value,
-						"chType":1,
+						"chType": 1,
 					}, function(xmlHttpRequest, status) {
 						if (status == 'success') {
 							var json_obj = $.xml2json(xmlHttpRequest.responseXML);
@@ -401,7 +491,7 @@
 			// if(api_localStorageGet("goodsNo")!=""){
 			// 	$("#goodsNo").val(api_localStorageGet("goodsNo"))
 			// }
-		}
+		} 
 
 		function getDataByCode(machineNoList) {
 			$("#machineNo").bigAutocomplete({
@@ -416,48 +506,40 @@
 				}
 			});
 			// api_localStorageSave("goodsNo",$("#goodsNo").val());
-		}
+		} */
 
 
 		function getScaleNoAndWeight() {
-			if (api_localStorageGet("scaleCode") != null) {
-				$("#elecScale").val(api_localStorageGet("scaleCode"));
+			if (api_localStorageGet("mixBatch") != null) {
+				$("#mixBatch").val(api_localStorageGet("mixBatch"));
 			}
-			if (api_localStorageGet("selectWeight") != null) {
-				$("#weightUnit").val(api_localStorageGet("selectWeight"))
-				// api_localStorageSave("selected","");
-			} else {
-				$("#weightUnit").val("KG")
+			if (api_localStorageGet("elecScale") != null) {
+				$("#elecScale").val(api_localStorageGet("elecScale"))
 			}
-		}
-
-
-		//获取拌料人工号和打印机
-		function getPrintAndMix() {
-			// console.log(api_localStorageGet("printCode"))
 			if (api_localStorageGet("printCode") != null) {
 				$("#printCode").val(api_localStorageGet("printCode"));
 			}
-			// if (api_localStorageGet("mixNo") != null) {
-			// 	$("#mixNo").val(api_localStorageGet("mixNo"));
-			// }
 		}
+
+
+
 		//获取打印数据
-		$("#print").click(function() {
+		$("#bl_print").click(function() {
+			api_localStorageSave("mixBatch", $('#mixBatch').val())
 			var taskNo = $("#workOrder").val()
 			var taskQty = $("#goodsNums").val()
-			var blCode = $("#mixType").val()
-			var lineCode = $("#machineNo").val()
+			var blCode = mix_code
+			//var lineCode = $("#machineNo").val()
 			if (taskNo == "") {
 				mui.toast("请先填写工单")
 				return false
 			}
-			if (taskQty == "" || blCode == "" || lineCode == "") {
+			if (taskQty == "" || blCode == "") {
 				mui.toast("请获取工单信息")
 				return false
 			}
 			if (barcodeList.length == 0) {
-				mui.toast("未添加任何条码条码")
+				mui.toast("未添加任何条码")
 				return false
 			}
 			var list = "";
@@ -469,45 +551,46 @@
 			var weight = $("#weight").val();
 			var unit = $("#weightUnit option:selected").text();
 			var PrintCode = $("#printCode").val();
-			if (PrintCode == "") {
-				mui.toast("请先填入打印机编码")
-				return false
-			}
 			//var BlUserCode = $("#mixNo").val();
 			var userCode = api_localStorageGet("code");
+			//console.log(allWeight)
 			// console.log("类型"+type+";品号"+itemNo+";供应商"+supplier+";编号"+printNo+";重量"+weight+";单位"+unit+";账号"+userCode+";打印份数"+PrintQty);
-			jQueryWeb("YlBl_ZS", {
-				// "InBarcoeS": InBarcoeS,
-				// "BlType": BlType,
-				// "Weight": weight,
-				// "Unit": unit,
-				// "PrintCode": PrintCode,
-				// "BlUserCode": BlUserCode,
-				// "UserCode": userCode
+			jQueryWeb("WS_ZS_BL_PRINT", {
+				"barcodeList": InBarcoeS,
+				"Blot": $("#mixBatch").val(),
 				"taskNo": taskNo,
 				"taskQty": taskQty,
-				"blCode": blCode,
-				"lineCode": lineCode,
-				"barcodeList": InBarcoeS,
+				"blCode": "",
+				"blQtySum": allWeight,
 				"blQtyList": weigthParm,
-				"userCode": userCode,
-				"printCode": PrintCode,
+				"blUnit": 'KG',
+				"UserCode": userCode,
+				"PrinterCode": PrintCode,
 				"blUserCode": userCode
 			}, function(xmlHttpRequest, status) {
 				if (status == 'success') {
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML)
 					var data = json_obj.diffgram.DocumentElement.ResultInfo.Result
-					console.log(data)
+					//console.log(data)
 					if (data.indexOf("NG") != -1) {
 						mui.alert(data)
 					} else if (data == "OK") {
-						mui.toast("打印成功")
-						barcodeList = [];
-						clean(barcodeList)
+						mui.toast("拌料成功")
+						//barcodeList = [];
+						//clean(barcodeList)
 						$("#materialCode").val("");
+						$("#Weight_yi").val("");
+						$("#workOrder").val("");
+						$("#goodsNums").val("");
 						$("#scanNum").val("");
-						$("#mixType").val("");
+						//$("#mixType").val("");
 						$("#weight").val("");
+						//$("#weightInfo").text("");
+						$('#materialCode').attr("readonly", "readonly"); //物料条码设为只读
+						weightStr = "";
+						allWeight = "";
+						weigthParm = "";
+						$("#matType").empty()
 					} else {
 						mui.alert(data)
 					}

@@ -3,8 +3,9 @@
 
 	<head>
 		<meta charset="utf-8">
-		<title>注塑生产退料</title>
-		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>注塑退料打印</title>
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="css/mui.css" rel="stylesheet" />
 		<script src="../js/mui.min.js"></script>
 		<script src="../js/api.js"></script>
@@ -34,67 +35,141 @@
 	<body>
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-			<h1 class="mui-title">注塑生产退料</h1>
+			<h1 class="mui-title">注塑退料打印</h1>
 		</header>
 		<div class="mui-content">
-			<form class="mui-input-group">
-				<div class="mui-input-row">
-					<label>退料类型</label>
-					<span class="radio_inline mui-radio">
-						<input name="radio1" type="radio" id="A" value="标签退料" checked>
-						<label for="标签退料">标签退料</label>
-						<input name="radio1" type="radio" id="B" value="品号退料">
-						<label for="品号退料">品号退料</label>
-					</span>
+			<div id="slider" class="mui-slider">
+				<!-- 				<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted"
+					id="segmented">
+					<div class="mui-scroll">
+						<a class="mui-control-item mui-active" href="#item1mobile">
+							操作
+						</a>
+						<a class="mui-control-item" href="#item2mobile">
+							已扫条码
+						</a>
+					</div>
+				</div> -->
+				<div id="item1mobile" class="mui-slider-item mui-control-content mui-active">
+					<form class="mui-input-group">
+						<!-- 						<div class="mui-input-row">
+							<label>退料类型</label>
+							<span class="radio_inline mui-radio">
+								<input name="radio1" type="radio" id="A" value="标签退料" checked>
+								<label for="标签退料">标签退料</label>
+								<input name="radio1" type="radio" id="B" value="品号退料">
+								<label for="品号退料">品号退料</label>
+							</span>
+						</div> -->
+						<div class="mui-input-row" id="labelCode_div">
+							<label
+								onclick="clicked('commom/saomiao.html','labelCode','web/materialReturn.html');">物料条码:</label>
+							<input type="text" id="labelCode" class="mui-input-clear" placeholder="请扫描">
+						</div>
+						<div class="mui-input-row">
+							<!-- <label
+								onclick="clicked('commom/saomiao.html','materialType','web/materialReturn.html');">物料类型:</label>
+							<input type="text" id="materialType" class="mui-input" disabled> -->
+							<label>物料类型:</label>
+							<input type="text" id="materialType" class="mui-input" disabled
+								style="background-color: #efefef;">
+						</div>
+						<div class="mui-input-row">
+							<!-- <label
+								onclick="clicked('commom/saomiao.html','goodsNo','web/materialReturn.html');">品号:</label>
+							<input type="text" id="goodsNo" class="mui-input" readonly="readonly"> -->
+							<label>品号:</label>
+							<input type="text" id="goodsNo" class="mui-input" disabled
+								style="background-color: #efefef;">
+						</div>
+						<!-- 						<div class="mui-input-row" style="display: none;" id="goodsNo_div">
+							<label
+								onclick="clicked('commom/saomiao.html','goodsNo','web/materialReturn.html');">品号:</label>
+							<input type="text" id="goodsNo" class="mui-input-clear" placeholder="请扫描">
+						</div> -->
+						<div class="mui-input-row">
+							<label
+								onclick="clicked('commom/saomiao.html','positionCode','web/materialReturn.html');">库位编码:</label>
+							<input type="text" id="positionCode" class="mui-input-clear" placeholder="请扫描">
+						</div>
+						<div class="mui-input-row" id="elecRow">
+							<label
+								onclick="clicked('commom/saomiao.html','elecScale','web/materialReturn.html');">电子秤:</label>
+							<input type="text" id="elecScale" class="mui-input"
+								style="width: 43%;float: left;font-size: 17px;">
+							<button type="button" id="getElecScale"
+								style="width:22%; height: inherit;font-size: 14px;color: #ffffff;"
+								class="mui-btn-blue">读取重量</button>
+						</div>
+						<div class="mui-input-row" id="weightRow">
+							<label>重量:</label>
+							<input type="text" id="weight" class="mui-input" style="width: 50%;float: left;">
+							<!-- <select id="weightUnit" class="mui-select" disabled=""</dis>style="width:12%; height: inherit;">
+								<option value="KG">KG</option>
+								<option value="G">G</option>
+							</select> -->
+							<select id="weightUnit" class="mui-select" style="width:12%; height: inherit;">
+								<option value="KG">KG</option>
+								<option value="G">G</option>
+							</select>
+						</div>
+						<div class="mui-input-row">
+							<label
+								onclick="clicked('commom/saomiao.html','printer','web/materialReturn.html');">打印机:</label>
+							<input type="text" id="printer" class="mui-input-clear" placeholder="请扫描">
+						</div>
+						<div class="mui-input-row">
+							<!-- <label
+								onclick="clicked('commom/saomiao.html','returnTaskNo','web/materialReturn.html');">退料工单:</label>
+							<input type="text" id="returnTaskNo" class="mui-input-clear" placeholder="请扫描"> -->
+							<label>退料工单:</label>
+							<input type="text" id="returnTaskNo" class="mui-input-clear">
+						</div>
+						<div class="mui-input-row">
+							<label onclick="clicked('commom/saomiao.html','returnUser','web/materialReturn.html');"
+								style="width: 7.5rem;">退料人:</label>
+							<input type="text" id="returnUser" class="mui-input-clear" placeholder="请扫描"
+								style="width: 12.5rem;">
+						</div>
+						<!-- 						<div class="mui-input-row">
+							<label
+								onclick="clicked('commom/saomiao.html','returnMachine','web/materialReturn.html');">退料机台:</label>
+							<input type="text" id="returnMachine" class="mui-input-clear" placeholder="请扫描">
+						</div> -->
+					</form>
+					<div class="mui-content-padded" align="center">
+						<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-success"
+							data-loading-icon="mui-spinner mui-spinner-custom" id="tl_print">退料打印</button>
+					</div>
 				</div>
-				<div class="mui-input-row" id="labelCode_div">
-					<label onclick="clicked('commom/saomiao.html','labelCode','web/materialReturn.html');">标签:</label>
-					<input type="text" id="labelCode" class="mui-input-clear" placeholder="请扫描">
+				<div id="item2mobile" class="mui-slider-item mui-control-content ">
+					<div id="code_list">
+					</div>
+					<script id='code-template' type="text/template">
+						<% for(var i in record){ var item=record[i];%>
+					<div class="mui-card">
+					<div class="mui-card-content">
+						<ul class="mui-table-view">
+							<li class="mui-table-view-cell mui-media">
+								<a href="javascript:;">
+									<span class="mui-media-object mui-pull-left mui-icon iconfont" style="color: #ADD8E6;font-size:1.875rem"></span>
+									<div class="mui-media-body">
+										<div style="float: left;">
+												<span>原料条码:<%=(item.barcode)%></span><br>
+											<span>品号:<%=(item.itemNo)%></span><br>
+											<span>类型:<%=(item.material)%>  数量:<%=(item.qty)%><%=(item.unit)%></span><br>
+										</div>
+									</div>
+								</a>
+							</li>
+						</ul>
+					</div>
+					</div>
+					<%}%>
+				</script>
 				</div>
-				<div class="mui-input-row" style="display: none;" id="goodsNo_div">
-					<label onclick="clicked('commom/saomiao.html','goodsNo','web/materialReturn.html');">品号:</label>
-					<input type="text" id="goodsNo" class="mui-input-clear" placeholder="请扫描">
-				</div>
-				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','positions','web/materialReturn.html');">扫入仓位:</label>
-					<input type="text" id="positions" class="mui-input-clear" placeholder="请扫描">
-				</div>
-				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','elecScale','web/materialReturn.html');">电子秤:</label>
-					<input type="text" id="elecScale" class="mui-input" style="width: 50%;float: left;font-size: 17px;">
-					<button type="button" id="getElecScale" style="width:14%; height: inherit;font-size: 12px;color: #000000;" class="mui-btn-grey">读取</button>
-				</div>
-				<div class="mui-input-row">
-					<label>重量:</label>
-					<input type="text" id="weight" readonly="readonly" class="mui-input" style="width: 50%;float: left;background-color: #efefef;">
-					<select id="weightUnit" class="mui-select" style="width:12%; height: inherit;">
-						<option value="KG">KG</option>
-						<option value="G">G</option>
-					</select>
-				</div>
-				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','printer','web/materialReturn.html');">打印机:</label>
-					<input type="text" id="printer" class="mui-input-clear" placeholder="请扫描">
-				</div>
-				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','returnNo','web/materialReturn.html');" style="width: 7.5rem;">退料人工号:</label>
-					<input type="text" id="returnNo" class="mui-input-clear" placeholder="请扫描" style="width: 12.5rem;">
-				</div>
-				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','returnTaskNo','web/materialReturn.html');">退料工单:</label>
-					<input type="text" id="returnTaskNo" class="mui-input-clear" placeholder="请扫描">
-				</div>
-				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','returnMachine','web/materialReturn.html');">退料机台:</label>
-					<input type="text" id="returnMachine" class="mui-input-clear" placeholder="请扫描">
-				</div>
-			</form>
-			<div class="mui-content-padded" align="center">
-				<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom"
-				 id="print">打印</button>
 			</div>
-		</div>
-		<!-- <div class="mui-content-padded" align="center">
+			<!-- <div class="mui-content-padded" align="center">
 							<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
 							<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-warning" id="clean_code">清空</button>
 							<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn" id="history_code">历史记录</button>
@@ -102,6 +177,7 @@
 
 	</body>
 	<script type="text/javascript">
+		var barcodeList = [];
 		window.addEventListener("offline", function(e) {
 			alert("网络中断，请检查网络");
 		})
@@ -116,11 +192,12 @@
 			document.getElementById(inputId).value = e.detail.barcode
 		});
 		mui.plusReady(function() {
-			getGoodsListData()
-			getMachineNoData()
+			getInitData();
+			// getGoodsListData()
+			// getMachineNoData()
 		})
 
-		$('input:radio[name="radio1"]').click(function() {
+		/* $('input:radio[name="radio1"]').click(function() {
 			var ctype = $('input:radio[name="radio1"]:checked').val();
 			if (ctype == "标签退料") {
 				document.getElementById("labelCode_div").style.display = "block"
@@ -129,63 +206,174 @@
 				document.getElementById("labelCode_div").style.display = "none"
 				document.getElementById("goodsNo_div").style.display = "block"
 			}
-		})
+		}) */
 
-		$('#labelCode').bind('keyup', function(event) { //标签退料
+		/* $('#goodsNo').bind('keyup', function(event) { //品号退料
 			if (event.keyCode == "13") { //输入回车执行
-				if ($("#labelCode").val() == "") {
-					mui.alert("请输入或扫入标签")
+				if ($("#goodsNo").val() == "") {
+					mui.alert("请输入或扫入品号")
 					return false
 				}
 
-				jQueryWeb("YlBarcodeInfo_ZS", {
-					"chType": 5,
-					"inBarcode": $("#labelCode").val()
-				}, function(xmlHttpRequest, status) {
-					if (status = 'success') {
-						var json_obj = $.xml2json(xmlHttpRequest.responseXML)
-						//console.log(JSON.stringify(json_obj))
+				// for (var i = 0; i < barcodeList.length; i++) {
+				// 	if (barcodeList[i].barcode == $("#materialCode").val()) {
+				// 		mui.alert("不能扫入重复品号");
+				// 		$("#materialCode").val("")
+				// 		return false;
+				// 	}
+				// }
 
+				jQueryWeb("WS_ITEM_INFO", {
+					"chType": 1,
+					"itemNo": $("#goodsNo").val()
+				}, function(xmlHttpRequest, status) {
+					if (status == 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML)
+
+						//错误结果返回处理
 						var result = JSON.stringify(json_obj.diffgram);
 						if (result.indexOf('ResultInfo') != -1) {
 							mui.alert(json_obj.diffgram.DocumentElement.ResultInfo.Result);
 							return false;
 						}
-						mui.toast("扫入成功")
+						/* var data = json_obj.diffgram.NewDataSet.Table
+						console.log(JSON.stringify(data))
+						var arr = {}; //元素组成
+						arr["itemNo"] = data.ITEM_NO;
+						//arr["item_name"] = data.item_name;
+						barcodeList.push(arr);
+						document.getElementById('code_list').innerHTML = template('code-template', {
+							"record": barcodeList
+						}); 
+		}
+		else {
+			mui.alert("WS_ITEM_INFO 连接失败")
+		}
+		})
+		}
+		});*/
+
+		$('#labelCode').bind('keyup', function(event) { //标签退料
+			if (event.keyCode == "13") { //输入回车执行
+				/* if ($("#labelCode").val() == "") {
+					mui.alert("请输入或扫入标签")
+					return false
+				} */
+				//console.log($('#labelCode').val());
+				//$("#sectionCode").focus()
+				/* for (var i = 0; i < barcodeList.length; i++) {
+					if (barcodeList[i].barcode == $("#materialCode").val()) {
+						mui.alert("不能扫入重复条码");
+						$("#materialCode").val("")
+						return false;
+					}
+				} */
+
+				jQueryWeb("YlBarcodeInfo_ZS", {
+						"chType": 5,
+						"inBarcode": $("#labelCode").val(),
+						"Condition": ""
+					},
+					function(xmlHttpRequest, status) {
+						if (status == 'success') {
+							var json_obj = $.xml2json(xmlHttpRequest.responseXML)
+
+							//错误结果返回处理
+							var result = JSON.stringify(json_obj.diffgram);
+							if (result.indexOf('ResultInfo') != -1) {
+								mui.alert(json_obj.diffgram.DocumentElement.ResultInfo.Result);
+								$("#labelCode").val("")
+								return false;
+							}
+							var data = json_obj.diffgram.NewDataSet.Table;
+							if (data.FTYPE == "色粉") {
+								document.getElementById('elecRow').classList.add('mui-hidden');
+								document.getElementById('weightRow').classList.add('mui-hidden');
+							} else {
+								document.getElementById('elecRow').classList.remove('mui-hidden');
+								document.getElementById('weightRow').classList.remove('mui-hidden');
+							}
+							$("#materialType").val(data.FTYPE)
+							$("#goodsNo").val(data.ITEM_NO)
+							//$("#weight").val(data.QTY)
+							$("#returnTaskNo").val(data.TASK_NO)
+							//console.log(result)
+							$("#positionCode").focus();
+							/* var data = json_obj.diffgram.NewDataSet.Table
+							console.log(JSON.stringify(data))
+							var arr = {}; //元素组成
+							arr["barcode"] = data.BARCODE;
+							arr["itemNo"] = data.ITEM_NO;
+							arr["material"] = data.MATERIALS_TYPE;
+							arr["qty"] = data.QTY;
+							arr["unit"] = data.UNIT;
+							// arr["taskNo"] = data.TASK_NO
+							// arr["itemQty"] = data.ITEM_QTY
+							// arr["itemUnit"] = data.ITEM_UNIT
+							barcodeList.push(arr);
+							document.getElementById('code_list').innerHTML = template('code-template', {
+								"record": barcodeList
+							}); */
+						} else {
+							mui.alert("YlBarcodeInfo_ZS 连接失败")
+						}
+					})
+			}
+		});
+
+		$('#positionCode').bind('keyup', function(event) { //库位
+			if (event.keyCode == "13") { //输入回车执行
+				api_localStorageSave("positionCode", $("#positionCode").val())
+				$("#elecScale").focus()
+			}
+		});
+
+		$('#elecScale').bind('keyup', function(event) { //退料工单
+			if (event.keyCode == "13") { //输入回车执行
+				api_localStorageSave("elecScale", $("#elecScale").val())
+				$("#printer").focus()
+			}
+		});
+
+		$('#printer').bind('keyup', function(event) { //退料工单
+			if (event.keyCode == "13") { //输入回车执行
+				api_localStorageSave("printer", $("#printer").val())
+				$("#returnTaskNo").focus()
+			}
+		});
+
+		$('#returnTaskNo').bind('keyup', function(event) { //退料工单
+			if (event.keyCode == "13") { //输入回车执行
+				$("#returnUser").focus()
+			}
+		});
+		$('#returnUser').bind('keyup', function(event) { //退料人
+			if (event.keyCode == "13") {
+				api_localStorageSave("returnUser", $("#returnUser").val())
+				if ($("#returnUser").val() == "") {
+					mui.toast("退料人工号不可为空")
+					return false
+				}
+				jQueryWeb("PDA_GET_NAME_BY_CODE", {
+					"inWorkCode": $("#returnUser").val(),
+					"OnJobCheck": "Y"
+				}, function(xmlHttpRequest, status) {
+					if (status = 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML)
+						//console.log(JSON.stringify(json_obj))
+						if (json_obj.indexOf('NG') != -1) {
+							mui.alert(json_obj)
+							$("#returnUser").val('')
+							return false;
+						}
+						$("#returnUser").val(json_obj)
+						api_localStorageSave("returnUserCode", $("#returnUser").val())
+						// mui.toast("扫入成功")
 					}
 				})
 			}
 		});
-		
-		$('#returnTaskNo').bind('keyup', function(event) { //退料工单
-			if (event.keyCode == "13") { //输入回车执行
-				$("#returnMachine").focus()
-			}
-		});
 
-		$('#returnNo').bind('keyup', function(event) { //退料人
-			if($("#returnNo").val()==""){
-				mui.toast("退料人工号不可为空")
-				return false
-			}
-			jQueryWeb("PDA_GET_NAME_BY_CODE", {
-				"inWorkCode":$("#returnNo").val(),
-				"OnJobCheck":"Y"
-			}, function(xmlHttpRequest, status) {
-				if (status = 'success') {
-					var json_obj = $.xml2json(xmlHttpRequest.responseXML)
-					//console.log(JSON.stringify(json_obj))
-					if (json_obj.indexOf('NG') != -1) {
-						mui.alert(json_obj)
-						$("#returnNo").val('')
-						return false;
-					}
-					$("#returnNo").val(json_obj)
-					// mui.toast("扫入成功")
-				}
-			})
-		});
-		
 		$("#getElecScale").click(function() {
 			var eleData = $("#elecScale").val()
 			if (eleData == "") {
@@ -208,73 +396,56 @@
 				}
 			})
 		})
-		
-		function getMachineNoData() {
-			var machineNoList = [];
-			$("#returnMachine").on('input', function() {
-				if ($("#returnMachine").val().length > 0) {
-					old_value = $("#returnMachine").val();
-					jQueryWeb("WS_LINE_INFO", {
-						"lineNo": old_value,
-						"chType":1,
-					}, function(xmlHttpRequest, status) {
-						if (status == 'success') {
-							var json_obj = $.xml2json(xmlHttpRequest.responseXML);
-							// console.log(JSON.stringify(json_obj.diffgram.NewDataSet))
-							if (json_obj.diffgram.NewDataSet == undefined) {
-								mui.toast("输入的机台号不存在匹配值")
-							} else {
-								var data = json_obj.diffgram.NewDataSet.Table;
-								if (machineNoList.length != 0) {
-									machineNoList = [];
-								}
-								// console.log(JSON.stringify(data))	
-								for (var i = 0; i < data.length; i++) {
-									var a = {}
-									a['title'] = data[i].LINE_INFO
-									machineNoList.push(a)
-								}
-								// console.log(JSON.stringify(GoodsNoList))
-								getDataByCodeM(machineNoList);
-								// console.log($(api_localStorageGet(""))
-								// api_localStorageSave("goodsNo",$("#goodsNo").val());
-								// $("#goodsNo").bigAutocomplete({
-								// 	width:380,
-								// 	minMatch: 5,
-								// 	data:GoodsNoList,
-								// callback:function(data){
-								// 	alert(data);
-								// }});
-		
-							}
-		
-						}
-					})
-		
-				}
-		
-			})
-			// if(api_localStorageGet("goodsNo")!=""){
-			// 	$("#goodsNo").val(api_localStorageGet("goodsNo"))
-			// }
-		}
-		
-		function getDataByCodeM(machineNoList) {
-			$("#returnMachine").bigAutocomplete({
-				width: 205,
-				data: machineNoList,
-				callback: function(data) {
-					var a = []
-					a.push(data)
-					// console.log(JSON.stringify(a[0].title.split(";")[0]))
-					$("#returnMachine").val(a[0].title.split(";")[0])
-					// api_localStorageSave("goodsNo",$("#goodsNo").val());
-				}
-			});
-			// api_localStorageSave("goodsNo",$("#goodsNo").val());
-		}
 
-		function getGoodsListData() { //品号联想-1
+		// function getMachineNoData() {
+		// 	var machineNoList = [];
+		// 	$("#returnMachine").on('input', function() {
+		// 		if ($("#returnMachine").val().length > 0) {
+		// 			old_value = $("#returnMachine").val();
+		// 			jQueryWeb("WS_LINE_INFO", {
+		// 				"lineNo": old_value,
+		// 				"chType": 1,
+		// 			}, function(xmlHttpRequest, status) {
+		// 				if (status == 'success') {
+		// 					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+		// 					// console.log(JSON.stringify(json_obj.diffgram.NewDataSet))
+		// 					if (json_obj.diffgram.NewDataSet == undefined) {
+		// 						mui.toast("输入的机台号不存在匹配值")
+		// 					} else {
+		// 						var data = json_obj.diffgram.NewDataSet.Table;
+		// 						if (machineNoList.length != 0) {
+		// 							machineNoList = [];
+		// 						}
+		// 						// console.log(JSON.stringify(data))	
+		// 						for (var i = 0; i < data.length; i++) {
+		// 							var a = {}
+		// 							a['title'] = data[i].LINE_INFO
+		// 							machineNoList.push(a)
+		// 						}
+		// 						getDataByCodeM(machineNoList);
+		// 					}
+		// 				}
+		// 			})
+		// 		}
+		// 	})
+		// }
+
+		// function getDataByCodeM(machineNoList) {
+		// 	$("#returnMachine").bigAutocomplete({
+		// 		width: 205,
+		// 		data: machineNoList,
+		// 		callback: function(data) {
+		// 			var a = []
+		// 			a.push(data)
+		// 			// console.log(JSON.stringify(a[0].title.split(";")[0]))
+		// 			$("#returnMachine").val(a[0].title.split(";")[0])
+		// 			// api_localStorageSave("goodsNo",$("#goodsNo").val());
+		// 		}
+		// 	});
+		// 	// api_localStorageSave("goodsNo",$("#goodsNo").val());
+		// }
+
+		/* function getGoodsListData() { //品号联想-1
 			var GoodsNoList = [];
 			$("#goodsNo").on('input', function() {
 				if ($("#goodsNo").val().length >= 4) {
@@ -297,32 +468,15 @@
 									a['title'] = data[i].ItemInfo
 									GoodsNoList.push(a)
 								}
-								// console.log(JSON.stringify(GoodsNoList))
 								getDataByCode(GoodsNoList);
-								// console.log($(api_localStorageGet(""))
-								// api_localStorageSave("goodsNo",$("#goodsNo").val());
-								// $("#goodsNo").bigAutocomplete({
-								// 	width:380,
-								// 	minMatch: 5,
-								// 	data:GoodsNoList,
-								// callback:function(data){
-								// 	alert(data);
-								// }});
-
 							}
-
 						}
 					})
-
 				}
-
 			})
-			// if(api_localStorageGet("goodsNo")!=""){
-			// 	$("#goodsNo").val(api_localStorageGet("goodsNo"))
-			// }
-		}
+		} */
 
-		function getDataByCode(GoodsNoList) { //品号联想-2
+		/* function getDataByCode(GoodsNoList) { //品号联想-2
 			$("#goodsNo").bigAutocomplete({
 				width: 205,
 				data: GoodsNoList,
@@ -335,11 +489,117 @@
 				}
 			});
 			// api_localStorageSave("goodsNo",$("#goodsNo").val());
-		}
-		
-		$("#print").click(function(){
-			
+		} */
+
+		$("#tl_print").click(function() {
+			/* var ctype = $('input:radio[name="radio1"]:checked').val();
+			if (ctype == "标签退料") {
+				ctype = 1
+			} else {
+				ctype = 2
+			} */
+			var taskNo = $("#returnTaskNo").val()
+			var barcode_list = $("#labelCode").val()
+			/* var lineCode = $("#returnMachine").val()
+			var barcode_list = ""
+			for (var i = 0; i < barcodeList.length; i++) {
+				if ($('input:radio[name="radio1"]:checked').val() == "品号退料") {
+					if (i == barcodeList.length - 1) {
+						barcode_list += barcodeList[i].itemNo + "@" + barcodeList[i].qty
+					} else {
+						barcode_list += barcodeList[i].itemNo + "@" + barcodeList[i].qty + ","
+					}
+
+				} else {
+					if (i == barcodeList.length - 1) {
+						barcode_list += barcodeList[i].barcode + "@" + barcodeList[i].qty
+					} else {
+						barcode_list += barcodeList[i].barcode + "@" + barcodeList[i].qty + ","
+					}
+				}
+
+			}
+			console.log(barcode_list) */
+			var sectionCode = $("#positionCode").val()
+			var returnCode = $("#returnUser").val()
+			var userCode = api_localStorageGet("code")
+			jQueryWeb("WS_ZS_TL_PRINT", {
+				"taskNo": taskNo,
+				"Barcode": barcode_list,
+				"Weight": $("#weight").val(),
+				"Unit": $("#weightUnit").val(),
+				"sectionCode": sectionCode,
+				"PrinterCode": $("#printer").val(),
+				"userT1": returnCode,
+				"UserCode": userCode
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					//错误结果返回处理
+					//var result = JSON.stringify(json_obj.diffgram);
+					// if (result.indexOf('ResultInfo') != -1) {
+					// 	mui.alert(json_obj.diffgram.DocumentElement.ResultInfo.Result);
+					// 	$("#materialCode").val("")
+					// 	return false;
+					// }
+					/* var data = json_obj.diffgram.NewDataSet.Table;
+					var arr = {}; //元素组成
+					arr["barcode"] = data.BARCODE;
+					arr["goodsNo"] = data.ITEM_NO;
+					arr["type"] = data.MATERIALS_TYPE;
+					//arr["purchaseNo"] = data.PO_NO;
+					arr["weight"] = data.QTY;
+					arr["unit"] = data.UNIT;
+					barcodeList.push(arr);
+					//console.log(JSON.stringify(barcodeList))
+					document.getElementById('code_list').innerHTML = template('code-template', {
+						"record": barcodeList
+					}); */
+					var data = json_obj.diffgram.DocumentElement.ResultInfo.Result
+					//console.log(data)
+					if (data.indexOf("NG") != -1) {
+						mui.alert(data)
+					} else if (data == "OK") {
+						mui.toast("退料成功")
+						$("#labelCode").val("")
+						$("#weight").val("");
+					} else {
+						mui.alert(data)
+					}
+				}
+			})
+
+			// console.log(barcode_list)
 		})
+
+		function clean(barcodeList) {
+			document.getElementById('code_list').innerHTML = template('code-template', {
+				"record": barcodeList
+			});
+		}
+
+		function toClean() {
+			$("#labelCode").val("")
+			$("#weight").val("")
+			$("#weight").val("")
+			$("#returnTaskNo").val("")
+			$("#returnMachine").val("")
+		}
+
+		function getInitData() {
+			if (api_localStorageGet("returnUser") != null) {
+				$("#returnUser").val(api_localStorageGet("returnUser"))
+			}
+			if (api_localStorageGet("printer") != null) {
+				$("#printer").val(api_localStorageGet("printer"))
+			}
+			if (api_localStorageGet("elecScale") != null) {
+				$("#elecScale").val(api_localStorageGet("elecScale"))
+			}
+			if (api_localStorageGet("positionCode") != null) {
+				$("#positionCode").val(api_localStorageGet("positionCode"))
+			}
+		}
 
 		function clicked(url, f1, urlId) {
 			OpenWindow(f1, url, {
@@ -347,5 +607,10 @@
 				inputId: f1
 			});
 		};
+
+		mui.ready(function() {
+			$("#labelCode").focus()
+			$("#positionCode").val("D1201")
+		})
 	</script>
 </html>

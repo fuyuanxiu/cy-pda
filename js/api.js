@@ -2,6 +2,7 @@ var API = window.API = {
 	//webPath			: "http://192.168.1.105:9999/",
 	webPathWai: "http://120.234.223.173:8081/",
 	webPath: "http://192.168.10.50:8081/",
+	//webPath: "http://192.168.1.6:80/",  //本机
 	version: "test", //demo:静态，prod:正式，test:测试
 	urls: {
 		login: "anon/login!login.action",

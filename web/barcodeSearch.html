@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>注塑条码查询</title>
+		<script src="../js/jquery-1.11.1.js"></script>
+		<script src="../js/jquery.xml2json.js.js"></script>
+		<script src="../js/template-web.js"></script>
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/api.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<!--选择器-->
+		<script src="../js/mui.picker.js"></script>
+		<script src="../js/mui.poppicker.js"></script>
+		<link href="../css/mui.picker.css" rel="stylesheet" />
+		<link href="../css/mui.poppicker.css" rel="stylesheet" />
+		<!--end选择器-->
+		<style type="text/css">
+			.mui-content {
+				margin-top: 12px;
+			}
+
+			.mui-btn {
+				width: 80px;
+			}
+
+			.ulcss {
+				margin-top: 0.625rem;
+			}
+
+			.acss a {
+				text-align: center;
+				color: #fff;
+				text-decoration: none;
+				/* background-color: rgb(100,149,237); */
+			}
+		</style>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">注塑条码查询</h1>
+		</header>
+		<div class="mui-content">
+			<div class="mui-input-group">
+				<div class="mui-input-row">
+					<label>扫描条码:</label>
+					<input id="tonCode" type="text" class="mui-input" style="width: 40%;float: left;" placeholder="请扫描">
+					<!-- <button type="button" id="but"  style="width: 25%;height: inherit;float: left;background-color: #007AFF;" class="mui-btn-blue">查询</button> -->
+				</div>
+
+			</div>
+			<div id="resultlist">
+			</div>
+			<script id='result-template' type="text/template">
+				<% for(var i in record){ var item=record[i];%>
+			<div class="mui-card">
+			<div class="mui-card-header">
+			物料条码:<%=(item.barcode)%> 
+			</div>
+			<div class="mui-card-content">
+				<ul class="mui-table-view">
+					<li class="mui-table-view-cell mui-media">
+						<a href="javascript:;">
+							<span class="mui-media-object mui-pull-left mui-icon iconfont" style="color: #ADD8E6;font-size:1.875rem"></span>
+							<div class="mui-media-body">
+								<span>条码类型： <%=(item.type)%></span><br>
+								<span>条码品号： <%=(item.itemNo)%></span><br>
+								<span>条码重量： <%=(item.weight)%> <%=(item.unit)%></span><br>
+								<span>品名： <%=(item.itemName)%></span><br>
+								<span>规格： <%=(item.model)%></span><br>
+								<span>工单： <%=(item.taskNo)%></span><br>
+								<span>机台： <%=(item.lineName)%></span><br>
+								<span>用量： <%=(item.bindQty)%> <%=(item.bindUnit)%></span><br>
+							</div>
+						</a>
+					</li>
+				</ul>
+			</div>
+			</div>
+			<%}%>
+		</script>
+		</div>
+		<script type="text/javascript" charset="utf-8">
+			mui.init();
+			var listData = [];
+			mui.plusReady(function() {
+
+			});
+			// $("#but").click(function(){
+			// 	getRecord()
+			// })
+			$("#tonCode").bind('keyup', function(e) {
+				if (e.keyCode == 13) {
+					getRecord()
+					$("#tonCode").val("")
+				}
+			})
+
+			function getRecord() {
+				jQueryWeb("YlBarcodeInfo_ZS", {
+					"inBarcode": $("#tonCode").val(),
+					"chType": "2",
+				"Condition": ""
+				}, function(xmlHttpRequest, status) {
+					// console.log(JSON.stringify(xmlHttpRequest))
+					// console.log(status)
+					// console.log($("#tonCode").val())
+					if (status == 'success') {
+						/* for (var i = 0; i < listData.length; i++) {
+							if (listData[i].barcode == $("#tonCode").val()) {
+								mui.alert("不能查询重复条码");
+								$("#tonCode").val("")
+								return false;
+							}
+						} */
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+
+						//错误结果返回处理
+						var result = JSON.stringify(json_obj.diffgram);
+						if (result.indexOf('ResultInfo') != -1) {
+							mui.alert(json_obj.diffgram.DocumentElement.ResultInfo.Result);
+							$("#materialCode").val("")
+							return false;
+						}
+
+						var data = json_obj.diffgram.NewDataSet;
+						// console.log(JSON.stringify(json_obj))
+						if (data != undefined) {
+
+							// if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+							// 	listData = [data.Table]
+							// } else {
+							// 	listData = data.Table
+							// }
+							var arr = []; //元素组成
+							if (data.Table.length > 1) {
+								for (var i = 0; i <= data.Table.length - 1; i++) {									
+									var arr1 = {};
+									arr1["barcode"] = data.Table[i].BARCODE;
+									arr1["type"] = data.Table[i].FTYPE;
+									arr1["itemNo"] = data.Table[i].ITEM_NO;
+									arr1["weight"] = data.Table[i].QTY;
+									arr1["unit"] = data.Table[i].UNIT;
+									arr1["itemName"] = data.Table[i].ITEM_NAME;
+									arr1["model"] = data.Table[i].MODEL;
+									arr1["taskNo"] = data.Table[i].BIND_TASK_NO;
+									arr1["lineName"] = data.Table[i].BIND_LINE_NAME;
+									arr1["bindQty"] = data.Table[i].BIND_QTY;
+									arr1["bindUnit"] = data.Table[i].BIND_UNIT;
+									arr.push(arr1);
+								}
+							} else {
+								var arr1 = {};
+								arr1["barcode"] = data.Table.BARCODE;
+								arr1["type"] = data.Table.MATERIALS_TYPE;
+								arr1["itemNo"] = data.Table.ITEM_NO;
+								arr1["weight"] = data.Table.QTY;
+								arr1["unit"] = data.Table.UNIT;
+								arr1["itemName"] = data.Table.ITEM_NAME;
+								arr1["model"] = data.Table.MODEL;
+								arr1["taskNo"] = data.Table.BIND_TASK_NO;
+								arr1["lineName"] = data.Table.BIND_LINE_NAME;
+								arr1["bindQty"] = data.Table.BIND_QTY;
+								arr1["bindUnit"] = data.Table.BIND_UNIT;
+								arr.push(arr1);
+							}
+
+							// listData.push(arr);
+							document.getElementById('resultlist').innerHTML = template('result-template', {
+								"record": arr
+							});
+							// arr["unit"]= data.单位;
+
+							// console.log(JSON.stringify(listData))
+
+						} else {
+							mui.alert("无吨桶信息");
+						}
+					} else {
+						mui.alert("连接失败")
+					}
+				})
+			}
+			
+			function clean(listData) {
+				document.getElementById('resultlist').innerHTML = template('code-template', {
+					"record": listData
+				});
+			}
+		</script>
+	</body>
+</html>

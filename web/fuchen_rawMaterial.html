@@ -3,8 +3,9 @@
 
 	<head>
 		<meta charset="utf-8">
-		<title>注塑原料复称</title>
-		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>注塑复称</title>
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<script src="../js/mui.min.js"></script>
 		<script src="../js/api.js"></script>
 		<script src="../js/jquery.js"></script>
@@ -23,14 +24,16 @@
 				margin-top: 1.25rem;
 				z-index: 999;
 			}
+
 			select {
 				background: url(../img/right-arrow.png) no-repeat right center;
 			}
-		
+
 			.dialog-label {
 				font-size: 14px;
 			}
-			.li_input{
+
+			.li_input {
 				font-size: 12px;
 			}
 		</style>
@@ -39,56 +42,61 @@
 	<body>
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-			<h1 class="mui-title">注塑原料复称</h1>
+			<h1 class="mui-title">注塑复称</h1>
 		</header>
 		<div class="mui-content">
 			<div class="mui-input-group">
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','materialCode','web/fuchen_rawMaterial.html');">原料条码</label>
+					<label
+						onclick="clicked('commom/saomiao.html','materialCode','web/fuchen_rawMaterial.html');">原料条码</label>
 					<input id="materialCode" placeholder="请扫描" type="text" class="mui-input-clear">
 				</div>
 				<div class="mui-input-row">
 					<label>所属工单</label>
 					<input id="workOrder" type="text" readonly="readonly" class="mui-input">
 				</div>
-				<div class="mui-input-row">
+				<!-- 				<div class="mui-input-row">
 					<label>所属机台</label>
 					<input id="machine" type="text" readonly="readonly" class="mui-input">
-				</div>
+				</div> -->
 				<div class="mui-input-row">
 					<label>原重量</label>
-					<input id="oldWeight" type="text" readonly="readonly" class="mui-input" style="width: 45%;float: left;">
-					<input id="oldUnit" type="text" readonly="readonly" class="mui-input" style="width: 18%;background-color: #F5F5F5;">
+					<input id="oldWeight" type="text" readonly="readonly" class="mui-input"
+						style="width: 45%;float: left;">
+					<input id="oldUnit" type="text" readonly="readonly" class="mui-input"
+						style="width: 18%;background-color: #F5F5F5;">
 				</div>
 				<div class="mui-input-row">
 					<label>电子秤:</label>
-					<input type="text" id="elecScale" class="mui-input"  style="width: 51%;float: left;font-size: 17px;">
+					<input type="text" id="elecScale" class="mui-input" style="width: 51%;float: left;font-size: 17px;">
 					<button type="button" id="getElecScale"
-						style="width:14%; height: inherit;font-size: 12px;color: #000000;" class="mui-btn-grey">读取</button>
+						style="width:14%; height: inherit;font-size: 12px;color: #000000;"
+						class="mui-btn-blue">读取</button>
 				</div>
 				<div class="mui-input-row">
 					<label>重量:</label>
-					<input type="text" id="weight" readonly="readonly" class="mui-input" style="width: 50%;float: left;">
+					<input type="text" id="weight" class="mui-input"
+						style="width: 50%;float: left;">
 					<select id="weightUnit" class="mui-select" style="width:12%; height: inherit;">
 						<option value="KG">KG</option>
 						<option value="G">G</option>
 					</select>
 				</div>
 				<div class="mui-input-row mui-checkbox mui-left">
-					<label>是否挪料</label>
-					  <input name="checkbox1" value="" type="checkbox" onclick="checkMachine(this)" id="">
+					<label>是否转单</label>
+					<input name="checkbox1" value="" type="checkbox" onclick="checkMachine(this)" id="">
 				</div>
 				<div class="mui-input-row" id="aimOrder">
 					<label>目标工单</label>
-					<input id="targetOrder" type="text" readonly="readonly" class="mui-input">
+					<input id="targetOrder" type="text" class="mui-input">
 				</div>
-				<div class="mui-input-row" id="aimMachine">
+				<!-- <div class="mui-input-row" id="aimMachine">
 					<label>目标机台</label>
 					<input id="targetMachine" type="text" readonly="readonly" class="mui-input">
-				</div>
+				</div> -->
 				<div class="mui-content-padded" align="center">
-					<button type="button" class="mui-btn mui-btn-success" data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
-					<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-warning" id="close">关闭</button>
+					<button type="button" class="mui-btn mui-btn-success"
+						data-loading-icon="mui-spinner mui-spinner-custom" id="submit_code">确定</button>
 				</div>
 			</div>
 		</div>
@@ -96,28 +104,28 @@
 			window.addEventListener("offline", function(e) {
 				alert("网络中断，请检查网络");
 			})
-			
+
 			window.addEventListener("online", function(e) {
 				mui.toast("网络已连接")
 			})
-			
+
 			window.addEventListener("changeBar", function(e) {
 				var inputId = e.detail.inputId
 				document.getElementById(inputId).value = e.detail.barcode
 			});
 			mui.plusReady(function() {
 				$("#aimOrder").hide();
-				 $("#aimMachine").hide();
+				$("#aimMachine").hide();
 			})
-			
-			function checkMachine(obj){
-				if(obj.checked){
-				                $("#aimOrder").show();
-								 $("#aimMachine").show();
-				            }else{
-				                $("#aimOrder").hide();
-				                 $("#aimMachine").hide();
-				            }
+
+			function checkMachine(obj) {
+				if (obj.checked) {
+					$("#aimOrder").show();
+					$("#aimMachine").show();
+				} else {
+					$("#aimOrder").hide();
+					$("#aimMachine").hide();
+				}
 			}
 
 			function clicked(url, f1, urlId) { //扫描触发
@@ -128,23 +136,41 @@
 			};
 			$("#materialCode").bind('keyup', function(event) {
 				if (event.keyCode == "13") {
-					jQueryWeb("Get_WlMOinfo",{
-						"Wlcode": $("#materialCode").val()
-					},function(xmlHttpRequest, status){
-  		if(status== 'success'){
-  			var json_obj = $.xml2json(xmlHttpRequest.responseXML)
-  			var data = json_obj;
-			$("#workOrder").val();
-			$("#workOrder").val()
-  			
-  		}
-  	})
-				}
+					jQueryWeb("YlBarcodeInfo_ZS", {
+								"chType": 7,
+								"inBarcode": $("#materialCode").val(),
+				"Condition": ""
+							},				
+							function(xmlHttpRequest, status) {
+								if (status == 'success') {
+									var json_obj = $.xml2json(xmlHttpRequest.responseXML)
+									//console.log(JSON.stringify(json_obj))
+									//错误结果返回处理
+									var result = JSON.stringify(json_obj.diffgram);
+									if (result.indexOf('ResultInfo') != -1) {
+										mui.alert(json_obj.diffgram.DocumentElement.ResultInfo.Result);
+										$("#materialCode").val("")
+										return false;
+									}
+																		
+									var data = json_obj.diffgram.NewDataSet.Table;
+									console.log(data)
+									//console.log(data.TASK_NO)
+									//if (data.RESULT == "OK") {
+										 $("#workOrder").val(data.TASK_NO)
+										 $("#oldWeight").val(data.UNIT)						
+									//}
+								} else {
+									mui.alert("YlBarcodeInfo_ZS 连接失败")
+								}
+							})
+					$("#elecScale").focus()
+					}
 			})
-			$("#getElecScale").click(function(){
-				var scaleNo=$("#elecScale").val();
-				var selectedWeight=$("#weightUnit option:selected").text()
-				if(scaleNo==""){
+			$("#getElecScale").click(function() {
+				var scaleNo = $("#elecScale").val();
+				var selectedWeight = $("#weightUnit option:selected").text()
+				if (scaleNo == "") {
 					mui.alert("请先扫入电子秤编码")
 					return false;
 				}
@@ -155,45 +181,60 @@
 					if (status == 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML);
 						console.log(json_obj)
-						if(json_obj.indexOf("NG")!=-1){
+						if (json_obj.indexOf("NG") != -1) {
 							mui.alert(json_obj)
-						}else{
+						} else {
 							$("#weight").val(json_obj)
-							// api_localStorageSave("scaleCode",scaleNo);
+							api_localStorageSave("scaleNo",scaleNo);
 						}
-						
+
 					}
 				})
 			});
-			$("#submit_code").click(function(){
-				jQueryWeb("ZS_ReScale",{
-					"Wlcode":  $("#materialCode").val(),
+			$("#submit_code").click(function() {
+				var trans_flag = $("#IsNl").val()
+				var ctype
+				if (ctype == "Y") {
+					ctype = 1
+				} else {
+					ctype = 0
+				}
+				jQueryWeb("WS_ZS_FC", {
+					"Wlcode": $("#materialCode").val(),
 					"Weight": $("#weight").val(),
 					"Unit": $("#weightUnit option:selected").text(),
-					"IsNl": "Y",
+					"IsNl": ctype,
 					// "ToMo": $("#aimOrder").val(),
 					// "ToLineCode": $("#aimMachine").val(),
-					"ToMo": "123",
-					"ToLineCode": "123",
+					"ToMo": $("#workOrder").val(),					
 					"UserCode": api_localStorageGet("code")
-				},function(xmlHttpRequest, status){
-  		if(status== 'success'){
-  			var json_obj = $.xml2json(xmlHttpRequest.responseXML)
-  			var data = json_obj;
-			if(data=="OK"){
-				mui.toast("复称成功")
-			}else{
-				alert(data)
-			}
-			
-  			
-  		}
-  	})
+				}, function(xmlHttpRequest, status) {
+					if (status = 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML)
+						console.log(JSON.stringify(json_obj))
+					
+						//错误结果返回处理
+						var result = JSON.stringify(json_obj.diffgram);
+						if (result.indexOf('ResultInfo') != -1) {
+							mui.alert(json_obj.diffgram.DocumentElement.ResultInfo.Result);
+							$("#materialCode").val("")
+							return false;
+						}
+					
+						//var data = json_obj.diffgram.NewDataSet.Table;
+						//console.log(JSON.stringify(data))
+					mui.toast("操作成功")
+						$("#materialCode").val("")
+						//$("#checkbox1").val("")
+						$("#targetOrder").val("")
+					}
+				})
 			})
-			
-		
-
+			function getInitData(){
+				if (api_localStorageGet("scaleNo") != null) {
+					$("#elecScale").val(api_localStorageGet("scaleNo"));
+				}
+			}
 		</script>
 	</body>
-
 </html>

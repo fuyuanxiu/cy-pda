@@ -224,7 +224,9 @@
 				} 
 			}
 			jQueryWeb("YlBarcodeInfo_ZS",{
-				"inBarcode": $("#materialCode").val()
+				"chType": 1,
+				"inBarcode": $("#materialCode").val(),
+				"Condition": ""
 			},function(xmlHttpRequest, status){
 				if(status='success'){
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML)

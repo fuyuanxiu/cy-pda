@@ -3,8 +3,9 @@
 
 	<head>
 		<meta charset="utf-8">
-		<title>原料拆分</title>
-		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>注塑领料打印</title>
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="css/mui.css" rel="stylesheet" />
 		<script src="../js/mui.min.js"></script>
 		<script src="../js/api.js"></script>
@@ -22,6 +23,7 @@
 			.select-dialog label {
 				font-size: 14px;
 			}
+
 			.select-dialog {
 				position: fixed;
 				margin-top: 3rem;
@@ -30,64 +32,100 @@
 				background-color: #f0f1f1;
 				overflow: hidden;
 			}
-		
 		</style>
 	</head>
 
 	<body>
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-			<h1 class="mui-title">原料拆分</h1>
+			<h1 class="mui-title">注塑领料打印</h1>
 		</header>
 		<dialog id="selectDialog" class="select-dialog" style="width: 95%;">
 			<form class="mui-input-group">
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','targetOrder','web/rawMaterial_split.html');">目标工单:</label>
+					<label
+						onclick="clicked('commom/saomiao.html','targetOrder','web/rawMaterial_split.html');">目标工单:</label>
 					<input type="text" id="targetOrder" class="mui-input-clear">
 				</div>
 				<div class="mui-input-row">
+					<label
+						onclick="clicked('commom/saomiao.html','tarreq_no','web/rawMaterial_split.html');">申请单:</label>
+					<input type="text" id="tarreq_no" class="mui-input-clear">
+				</div>
+				<div class="mui-input-row">
 					<label onclick="clicked('commom/saomiao.html','weight','web/rawMaterial_split.html');">分配重量:</label>
-					<input type="text" onkeyup="value=value.replace(/^(0+)|[^\d]+/g,'')" id="weight" class="mui-input" style="width: 46%;float: left;">
-					<button type="button" style="width:17%; height: inherit;" class="mui-btn">KG</button>
+					<!--<input type="text" onkeyup="value=value.replace(/^(0+)|[^\d]+/g,'')" id="weight" class="mui-input"-->
+					<input type="text" id="weight" class="mui-input-clear" style="width: 46%;float: left;">
 				</div>
 			</form>
 			<div class="mui-content-padded" align="center">
-				<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-green" data-loading-icon="mui-spinner mui-spinner-custom"
-				 id="confirm">确定</button>
-				<button type="button" style="margin-top: 0.9375rem;" class="mui-btn mui-btn-warning" id="dialClose">关闭</button>
+				<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-green"
+					data-loading-icon="mui-spinner mui-spinner-custom" id="confirm">确定</button>
+				<button type="button" style="margin-top: 0.9375rem;" class="mui-btn mui-btn-warning"
+					id="dialClose">关闭</button>
 			</div>
 		</dialog>
 		<div class="mui-content">
+			<!-- <div id="slider" class="mui-slider">
+				<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted" id="segmented">
+					<div class="mui-scroll">
+						<a class="mui-control-item mui-active" href="#item1mobile">
+							工单领料
+						</a>
+						<a class="mui-control-item" href="#item2mobile">
+							已扫条码
+						</a> 
+						<a class="mui-control-item" href="#item3mobile">
+							尾数领料
+						</a>
+					</div>
+				</div>
+			</div>-->
+			
 			<div class="mui-input-group">
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','materialCode','web/rawMaterial_split.html');">原料条码:</label>
+					<label>领用类型</label>
+					<span class="radio_inline mui-radio">
+						<input name="radio1" type="radio" id="A" checked="checked" value="正常">
+						<label for="正常">正常</label>
+						<input name="radio1" type="radio" id="B" value="超领">
+						<label for="超领">超领</label>
+					</span>
+				</div>
+				<div class="mui-input-row">
+					<label
+						onclick="clicked('commom/saomiao.html','materialCode','web/rawMaterial_split.html');">原料条码:</label>
 					<input type="text" id="materialCode" class="mui-input-clear" placeholder="请扫描">
 				</div>
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','printCode','web/rawMaterial_split.html');" style="width: 7.5rem;">打印机编码:</label>
+					<label onclick="clicked('commom/saomiao.html','printCode','web/rawMaterial_split.html');"
+						style="width: 7.5rem;">打印机:</label>
 					<input type="text" id="printCode" class="mui-input-clear" placeholder="请扫描" style="width: 12.5rem;">
 				</div>
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','positionCode','web/rawMaterial_split.html');">仓位编码:</label>
+					<label
+						onclick="clicked('commom/saomiao.html','positionCode','web/rawMaterial_split.html');">库位编码:</label>
 					<input type="text" id="positionCode" class="mui-input-clear" placeholder="请扫描">
 				</div>
 
 				<div class="mui-input-row">
-					<label onclick="clicked('commom/saomiao.html','pickMaterial','web/rawMaterial_split.html');">领料人:</label>
+					<label
+						onclick="clicked('commom/saomiao.html','pickMaterial','web/rawMaterial_split.html');">领料人:</label>
 					<input type="text" id="pickMaterial" class="mui-input-clear" placeholder="请扫描">
 				</div>
 				<div class="mui-input-row">
-					<label>打标类型</label>
+					<label>标签类型</label>
 					<span class="radio_inline mui-radio">
-						<input name="radio1" type="radio" id="A" checked value="合并打标">
-						<label for="合并打标">合并打标</label>
-						<input name="radio1" type="radio" id="B" value="拆分打标">
-						<label for="拆分打标">拆分打标</label>
+						<input name="radio2" type="radio" id="C" checked value="一个标签">
+						<label for="一个标签">一个标签</label>
+						<input name="radio2" type="radio" id="D" value="多个标签">
+						<label for="多个标签">多个标签</label>
 					</span>
 				</div>
 				<div class="mui-input-row" id="addDiv" style="align-items: center;display: flex;">
 					<p id="add" style="width: 85%;float: left;font-size: 0.9375rem;color: #000000;margin: 0 auto;"></p>
-					<button type="button" id="addBut" style="width:13%; height: inherit;font-size: 1.0625rem;" class="mui-btn-primary">+</button>
+					<button type="button" id="addBut" style="width:13%; height: inherit;font-size: 1.0625rem;"
+						class="mui-btn-primary">+</button>
 				</div>
 				<!-- <div class="mui-input-row">
 					<p id="minus"  style="width: 85%;float: left;font-size: 0.9375rem;color: #000000;">工单:moxxx01;重量:10KG</p>
@@ -107,6 +145,7 @@
 			  					<div class="mui-media-body">
 									<div style="float: left;">
 										<span>工单:<%=(item.workorder)%></span><br>
+										<span>申请单:<%=(item.req_no)%></span><br>
 										<span>重量:<%=(item.weight)%></span>
 									</div>
 									
@@ -124,9 +163,8 @@
 			</div>
 
 			<div class="mui-content-padded" align="center">
-				<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-green" data-loading-icon="mui-spinner mui-spinner-custom"
-				 id="doSure">确定</button>
-				<button type="button" style="margin-top: 0.9375rem;" class="mui-btn mui-btn-warning" id="close">关闭</button>
+				<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-green"
+					data-loading-icon="mui-spinner mui-spinner-custom" id="doSure">领料打印</button>
 			</div>
 		</div>
 		<!-- <div class="mui-content-padded" align="center">
@@ -139,6 +177,7 @@
 	<script type="text/javascript">
 		var barcodeList = [];
 		var totalWeight = 0;
+		var item_Unit = '';
 		var allocated = 0;
 		var endNum = 0;
 		var currWeight = 0;
@@ -156,9 +195,8 @@
 			document.getElementById(inputId).value = e.detail.barcode
 		});
 		mui.plusReady(function() {
-			document.getElementById("close").addEventListener('tap', function() {
-				OpenWindow('main', 'main.html', {})
-			})
+			getInitData();
+			$('#materialCode').focus()
 			mask = mui.createMask(function() { //遮罩层callback事件
 				if (byId("selectDialog").style.display == "none") {
 					return false; //如果没有弹出框，关闭遮罩层
@@ -170,8 +208,27 @@
 		})
 
 		$('#targetOrder').bind('keyup', function(event) {
+			var order = $("#targetOrder").val();
+			for (var i = 0; i < barcodeList.length; i++) {
+				if (barcodeList[i].workorder == order) {
+					mui.alert("工单不能重复")
+					$("#targetOrder").val("")
+					return false
+				}
+			}			
+			if (event.keyCode == "13") { //输入回车执行
+				getTaskInfo()
+				$('#tarreq_no').focus()
+			}
+		});
+		$('#tarreq_no').bind('keyup', function(event) {
 			if (event.keyCode == "13") { //输入回车执行
 				$('#weight').focus()
+			}
+		});
+		$('#weight').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				$('#confirm').focus()
 			}
 		});
 		$("#positionCode").bind('keyup', function(event) {
@@ -179,37 +236,151 @@
 				$("#pickMaterial").focus()
 			}
 		})
-
-
-		$('#materialCode').bind('keyup', function(event) {
-			if (event.keyCode == "13") { //输入回车执行
-				jQueryWeb("YlBarcodeInfo_ZS01", {
-					"inBarcode": $("#materialCode").val()
+		$('#pickMaterial').bind('keyup', function(event) { //退料人
+			if (event.keyCode == "13") {
+				if ($("#pickMaterial").val() == "") {
+					mui.toast("退料人工号不可为空")
+					return false
+				}
+				jQueryWeb("PDA_GET_NAME_BY_CODE", {
+					"inWorkCode": $("#pickMaterial").val(),
+					"OnJobCheck": "Y"
 				}, function(xmlHttpRequest, status) {
 					if (status = 'success') {
 						var json_obj = $.xml2json(xmlHttpRequest.responseXML)
-						var data = json_obj.diffgram.NewDataSet.Table;
-						// console.log(data.RESULT)
-						if (data.RESULT == "OK") {
-							$("#add").empty()
-							totalWeight = (data.数量) / 1000
-							$("#add").append("总重:" + totalWeight + "KG;已分配:" + allocated + "KG;尾数:0KG")
-							document.getElementById('addDiv').classList.remove('mui-hidden');
-						} else {
-							mui.alert(data.RESULT)
-
+						//console.log(JSON.stringify(json_obj))
+						if (json_obj.indexOf('NG') != -1) {
+							mui.alert(json_obj)
+							$("#pickMaterial").val('')
+							return false;
 						}
+						api_localStorageSave("returnUser", $("#pickMaterial").val())
+						$("#pickMaterial").val(json_obj)
+						// mui.toast("扫入成功")
 					}
+				})
+			}
+		});
+
+		$('#materialCode').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				//jQueryWeb("WS_BARCODE_INFO", {
+				jQueryWeb("YlBarcodeInfo_ZS", {
+					"inBarcode": $("#materialCode").val(),
+					"chType": "8",
+					"Condition": $("#positionCode").val(), //库位编码
+				}, function(xmlHttpRequest, status) {
+					if (status = 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML)
+						var data = json_obj.diffgram;
+						var result = JSON.stringify(json_obj.diffgram);
+
+						if (result.indexOf('ResultInfo') != -1) {
+							mui.alert(json_obj.diffgram.DocumentElement.ResultInfo.Result);
+							$("#materialCode").val("")
+							return false;
+						}
+
+						var data = json_obj.diffgram.NewDataSet.Table;
+						// console.log(JSON.stringify(data))
+
+						endNum = 0
+						allocated = 0
+						totalWeight = 0
+						$("#add").empty()
+						barcodeList = [];
+						document.getElementById('resultlist').innerHTML = template('result-template', {
+							"record": barcodeList
+						});
+						totalWeight = data.QTY
+						item_Unit = data.UNIT
+						$("#add").append("总重(" + item_Unit + "):" + totalWeight + ";已分配:" + allocated +
+							";尾数:" + endNum.toFixed(3))
+						document.getElementById('addDiv').classList.remove('mui-hidden');
+						$("#addBut").show();
+						$("#printCode").focus();
+					} else {
+						mui.alert(data.RESULT)
+
+					}
+
 
 
 				})
 			}
 		});
+
+		$('#positionCode').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				//jQueryWeb("WS_BARCODE_INFO", {
+				jQueryWeb("YlBarcodeInfo_ZS", {
+					"inBarcode": $("#materialCode").val(),
+					"chType": "8",
+					"Condition": $("#positionCode").val(), //库位编码
+				}, function(xmlHttpRequest, status) {
+					if (status = 'success') {
+						var json_obj = $.xml2json(xmlHttpRequest.responseXML)
+						var data = json_obj.diffgram;
+						var result = JSON.stringify(json_obj.diffgram);
+
+						if (result.indexOf('ResultInfo') != -1) {
+							mui.alert(json_obj.diffgram.DocumentElement.ResultInfo.Result);
+							$("#materialCode").val("")
+							return false;
+						}
+
+						var data = json_obj.diffgram.NewDataSet.Table;
+						// console.log(JSON.stringify(data))
+
+						endNum = 0
+						allocated = 0
+						totalWeight = 0
+						$("#add").empty()
+						barcodeList = [];
+						document.getElementById('resultlist').innerHTML = template('result-template', {
+							"record": barcodeList
+						});
+						totalWeight = data.QTY
+						item_Unit = data.UNIT
+						$("#add").append("总重(" + item_Unit + "):" + totalWeight + ";已分配:" + allocated +
+							";尾数:" + endNum.toFixed(3))
+						document.getElementById('addDiv').classList.remove('mui-hidden');
+						$("#addBut").show();
+						$("#printCode").focus();
+					} else {
+						mui.alert(data.RESULT)
+
+					}
+
+
+
+				})
+			}
+		});
+
+		$('#printCode').bind('keyup', function(event) {
+			api_localStorageSave("printCode", $("#printCode").val())
+			if (event.keyCode == "13") { //输入回车执行				
+				$("#positionCode").focus()
+			}
+		});
+		$('#positionCode').bind('keyup', function(event) { //退料工单
+			if (event.keyCode == "13") { //输入回车执行
+				api_localStorageSave("positionCode", $("#positionCode").val())
+				$("#pickMaterial").focus()
+			}
+		});
+
 		$("#addBut").click(function() {
 			mask.show()
 			byId("selectDialog").style.display = "block";
 			$("#targetOrder").val("")
-			$("#weight").val("")
+			$("#targetOrder").focus()
+			if (barcodeList.length <= 0) {
+				$("#weight").val(totalWeight)
+			} else {
+				$("#weight").val(endNum.toFixed(3))
+			}
 		})
 		$("#dialClose").click(function() {
 			mask.close()
@@ -222,31 +393,34 @@
 				byId("selectDialog").style.display = "block";
 				return false;
 			}
+
 			jQueryWeb("YLBarcode_check00", {
 				"Barcode": $("#materialCode").val(),
 				"MO": $("#targetOrder").val()
 			}, function(xmlHttpRequest, status) {
 				if (status = 'success') {
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML)
-					console.log(JSON.stringify(json_obj))
+					//console.log(JSON.stringify(json_obj))
 
 					$("#add").empty();
 					currWeight = $("#weight").val();
-					if (allocated == 0 && currWeight > totalWeight) {
-						mui.alert("填写分配重量:" + currWeight + "KG,不能超过总重:" + totalWeight + "KG")
+					if (allocated == 0 && Number(currWeight) > Number(totalWeight)) {
+						mui.alert("填写分配重量:" + currWeight + ",不能超过总重:" + totalWeight)
 						mask.show()
 						byId("selectDialog").style.display = "block";
-						$("#add").append("总重:" + totalWeight + "KG;已分配:" + allocated + "KG;尾数:" + endNum + "KG")
+						$("#add").append("总重(" + item_Unit + "):" + totalWeight + ";已分配:" + allocated +
+							";尾数:" + endNum.toFixed(3))
 						return false;
 					}
 
 
 
 					if (allocated > 0 && currWeight > endNum) {
-						mui.alert("填写分配重量:" + currWeight + "KG,不能超过尾数:" + endNum + "KG")
+						mui.alert("填写分配重量:" + currWeight + ",不能超过尾数:" + endNum)
 						mask.show()
 						byId("selectDialog").style.display = "block";
-						$("#add").append("总重:" + totalWeight + "KG;已分配:" + allocated + "KG;尾数:" + endNum + "KG")
+						$("#add").append("总重(" + item_Unit + "):" + totalWeight + ";已分配:" + allocated +
+							";尾数:" + endNum.toFixed(3))
 						return false;
 					}
 					allocated = Number(allocated) + Number(currWeight)
@@ -254,7 +428,8 @@
 					endNum = Number(totalWeight) - Number(allocated)
 					var arr = {};
 					arr["workorder"] = $("#targetOrder").val()
-					arr["weight"] = $("#weight").val() + "KG"
+					arr["req_no"] = $("#tarreq_no").val()
+					arr["weight"] = $("#weight").val()
 					barcodeList.push(arr)
 					document.getElementById('resultlist').innerHTML = template('result-template', {
 						"record": barcodeList
@@ -262,7 +437,8 @@
 					if (totalWeight == allocated) {
 						$("#addBut").hide();
 					}
-					$("#add").append("总重:" + totalWeight + "KG;已分配:" + allocated + "KG;尾数:" + endNum + "KG")
+					$("#add").append("总重(" + item_Unit + "):" + totalWeight + ";已分配:" + allocated + ";尾数:" +
+						endNum.toFixed(3))
 				}
 
 
@@ -271,13 +447,36 @@
 			byId("selectDialog").style.display = "none";
 		})
 
+		function getTaskInfo() {
+			jQueryWeb("WS_TASK_INFO", {
+				"taskNo": $("#targetOrder").val(),
+				"taskQty": "",
+				"chType": 99
+			}, function(xmlHttpRequest, status) {
+				if (status == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML)
+					//console.log(JSON.stringify(json_obj))
+					//错误结果返回处理
+					var result = JSON.stringify(json_obj.diffgram);
+					if (result.indexOf('ResultInfo') != -1) {
+						mui.alert(json_obj.diffgram.DocumentElement.ResultInfo.Result);
+						return false;
+					}
+
+				} else {
+					$("#targetOrder").empty()
+					mui.toast("WS_TASK_INFO 连接失败")
+				}
+			})
+		}
+
 		function deleteCode(index) { //删除清单内的条码
-			mui.confirm("是否删除【条码：" + barcodeList[index].workorder, '提示', ['否', '是'], function(e) {
+			mui.confirm("是否删除工单：" + barcodeList[index].workorder + "？", '提示', ['否', '是'], function(e) {
 				if (e.index == 1) {
 					var iWeight = barcodeList[index].weight;
-					var subWeight = iWeight.indexOf("KG");
-					var finalWeight = iWeight.substring(0, subWeight);
-					console.log(finalWeight)
+					//var subWeight = iWeight.indexOf("KG");
+					var finalWeight = iWeight; //.substring(0, subWeight);
+					//console.log(finalWeight)
 					barcodeList.splice(index, 1);
 					document.getElementById('resultlist').innerHTML = template('result-template', {
 						"record": barcodeList
@@ -291,29 +490,35 @@
 						endNum = 0
 					}
 					$("#addBut").show();
-					$("#add").append("总重:" + totalWeight + "KG;已分配:" + allocated + "KG;尾数:" + endNum + "KG")
+					$("#add").append("总重(" + item_Unit + "):" + totalWeight + ";已分配:" + allocated + ";尾数:" + endNum
+						.toFixed(3))
 				}
 			})
 		}
 
 		$("#doSure").click(function() {
+			var type = $("input[name='radio1']:checked").val(); //领用类型
 			var context = "";
 			for (var i = 0; i < barcodeList.length; i++) {
 				var alloWeight = barcodeList[i].weight
-				var finaWeight = alloWeight.indexOf("KG");
-				var modifyWeight = alloWeight.substring(0, finaWeight)
-				context += barcodeList[i].workorder + "@" + (modifyWeight * 1000) + "$"
+				var modifyWeight = alloWeight;
+				context += barcodeList[i].workorder + "@" + barcodeList[i].req_no + "@" + (modifyWeight) + "$"
 			}
 			context = context.substring(0, context.length - 1)
-			console.log(context)
+			//console.log(context)
+			var lUserCode = $("#pickMaterial").val()
+			var i = lUserCode.indexOf(";")
+			var final = lUserCode.substring(i + 1, lUserCode.length)
+			//console.log(final)
 			var materialCode = $("#materialCode").val()
 			var PrinterCode = $("#printCode").val()
 			var BinCode = $("#positionCode").val()
-			var LLUsercode = $("#pickMaterial").val()
-			var PrintType = $('input:radio[name="radio1"]:checked').val()
-			var WS = Number(endNum) * 1000
-			console.log(WS)
-			jQueryWeb("Ylbarcode_split01", {
+			var LLUsercode = final
+			var PrintType = $('input:radio[name="radio2"]:checked').val()
+			var WS = Number(endNum)
+			//console.log(WS)
+			jQueryWeb("WS_ZS_LL_PRINT", {
+				"LL_Type": type, //领用类型
 				"Barcode": materialCode,
 				"PrinterCode": PrinterCode,
 				"BinCode": BinCode,
@@ -321,27 +526,46 @@
 				"PrintType": PrintType,
 				"Context": context,
 				"WS": WS,
+				"Unit": item_Unit,
 				"UserCode": api_localStorageGet("code")
 			}, function(xmlHttpRequest, status) {
 				if (status = 'success') {
 					var json_obj = $.xml2json(xmlHttpRequest.responseXML)
-					console.log(JSON.stringify(json_obj))
-					if(json_obj.indexOf('NG')!=-1){
+					//console.log(JSON.stringify(json_obj))
+					if (json_obj.indexOf('NG') != -1) {
 						mui.alert(json_obj)
-					}else{
+					} else {
 						$("#materialCode").val("")
-						barcodeList=[]
+						barcodeList = []
 						document.getElementById('resultlist').innerHTML = template('result-template', {
 							"record": barcodeList
 						});
+						totalWeight = 0;
+						allocated = 0;
+						endNum = 0;
+						$("#materialCode").val("")
+						document.getElementById('addDiv').classList.add('mui-hidden');
 						mui.alert("操作成功")
+
 					}
-					
+
 				}
 
 
 			})
 		})
+
+		function getInitData() {
+			if (api_localStorageGet("returnUser") != null) {
+				$("#pickMaterial").val(api_localStorageGet("returnUser"))
+			}
+			if (api_localStorageGet("printCode") != null) {
+				$("#printCode").val(api_localStorageGet("printCode"))
+			}
+			if (api_localStorageGet("pickMaterial") != null) {
+				$("#pickMaterial").val(api_localStorageGet("pickMaterial"))
+			}
+		}
 
 		function clicked(url, f1, urlId) {
 			OpenWindow(f1, url, {
@@ -349,5 +573,9 @@
 				inputId: f1
 			});
 		};
+
+		mui.ready(function() {
+			$("#positionCode").val("D1201")
+		})
 	</script>
 </html>

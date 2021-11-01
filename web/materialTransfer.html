@@ -3,7 +3,7 @@
 
 	<head>
 		<meta charset="utf-8">
-		<title>注塑原料转单</title>
+		<title>注塑转单</title>
 		<meta name="viewport"
 			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="css/mui.css" rel="stylesheet" />
@@ -33,7 +33,7 @@
 	<body>
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-			<h1 class="mui-title">注塑原料转单</h1>
+			<h1 class="mui-title">注塑转单</h1>
 		</header>
 		<div class="mui-content">
 			<form class="mui-input-group">
@@ -42,11 +42,11 @@
 						onclick="clicked('commom/saomiao.html','materialCode','web/materialTransfer.html');">原料条码:</label>
 					<input type="text" id="materialCode" class="mui-input-clear" placeholder="请扫描">
 				</div>
-				<div class="mui-input-row">
+				<!-- <div class="mui-input-row">
 					<label
 						onclick="clicked('commom/saomiao.html','returnMachine','web/materialTransfer.html');">转去机台:</label>
 					<input type="text" id="returnMachine" class="mui-input-clear" placeholder="请扫描">
-				</div>
+				</div> -->
 				<div class="mui-input-row">
 					<label
 						onclick="clicked('commom/saomiao.html','rturnOrder','web/materialTransfer.html');">转去工单:</label>
@@ -58,12 +58,11 @@
 					<input type="text" id="elecScale" class="mui-input" style="width: 50%;float: left;font-size: 17px;">
 					<button type="button" id="getElecScale"
 						style="width:14%; height: inherit;font-size: 12px;color: #000000;"
-						class="mui-btn-grey">读取</button>
+						class="mui-btn-blue">读取</button>
 				</div>
 				<div class="mui-input-row">
 					<label>重量:</label>
-					<input type="text" id="weight" readonly="readonly" class="mui-input"
-						style="width: 50%;float: left;">
+					<input type="text" id="weight" class="mui-input" style="width: 50%;float: left;">
 					<select id="weightUnit" class="mui-select" style="width:12%; height: inherit;">
 						<option value="KG">KG</option>
 						<option value="G">G</option>
@@ -74,8 +73,6 @@
 			<div class="mui-content-padded" align="center">
 				<button type="button" style="margin-top: 0.625rem;" class="mui-btn mui-btn-blue"
 					data-loading-icon="mui-spinner mui-spinner-custom" id="transferOrder">转单</button>
-				<button type="button" style="margin-top: 0.9375rem;" class="mui-btn mui-btn-warning"
-					id="close">关闭</button>
 			</div>
 		</div>
 		<!-- <div class="mui-content-padded" align="center">
@@ -100,9 +97,6 @@
 			document.getElementById(inputId).value = e.detail.barcode
 		});
 		mui.plusReady(function() {
-			document.getElementById("close").addEventListener('tap', function() {
-				OpenWindow('main', 'main.html', {})
-			})
 			getScaleNoAndWeight();
 		})
 		//读取电子秤
@@ -128,24 +122,47 @@
 		})
 
 		$("#transferOrder").click(function() {
-			var rawMaterial=$("#materialCode").val();
-			var returnMachine=$("#returnMachine").val();
-			var returnOrder=$("#returnOrder").val();
-			var unit= $("#weightUnit option:selected").text();
-			
-			// jQueryWeb("PDA_ZS_WLChangeMoLineCode",{
-			// 	"WlCode": rawMaterial,
-			// 	"ToLineCode": returnMachine,
-			// 	"ToMo": returnOrder,
-			// 	"Weight": $("#weight").val(),
-			// 	"Unit": Unit,
-			// 	"UserCode": api_localStorageGet("code")
-				
-			// })
-			mui.alert(rawMaterial+";"+returnMachine+";"+returnOrder+";"+unit+";"+api_localStorageGet("code"))
+			var rawMaterial = $("#materialCode").val();
+			//var returnMachine = $("#returnMachine").val();
+			var returnOrder = $("#returnOrder").val();
+			var unit = $("#weightUnit option:selected").text();
+
+			jQueryWeb("WS_ZS_ZD", {
+				"taskNo": returnOrder,
+				"barcode": rawMaterial,
+				"qty": $("#weight").val(),
+				"userCode": api_localStorageGet("code")
+			}, function(xmlHttpRequest, statu) {
+				if (statu == 'success') {
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					//错误结果返回处理
+					var result = JSON.stringify(json_obj.diffgram);
+					if (result.indexOf('ResultInfo') != -1) {
+						mui.alert(json_obj.diffgram.DocumentElement.ResultInfo.Result);
+						$("#materialCode").val("")
+						return false;
+					}
+					/* var data = json_obj.diffgram.NewDataSet.Table;
+					var arr = {}; //元素组成
+					arr["barcode"] = data.BARCODE;
+					arr["goodsNo"] = data.ITEM_NO;
+					arr["type"] = data.FTYPE;
+					//arr["purchaseNo"] = data.PO_NO;
+					arr["weight"] = data.QTY;
+					arr["unit"] = data.UNIT;
+					barcodeList.push(arr);
+					//console.log(JSON.stringify(barcodeList))
+					document.getElementById('code_list').innerHTML = template('code-template', {
+						"record": barcodeList
+					}); */
+					mui.alert("转单成功")
+					$("#materialCode").val("")
+					$("#weight").val("");
+				}
+			})
 
 		})
-		
+
 		$("#weightUnit").change(function() {
 			var selected = $(this).children('option:selected').val();
 			api_localStorageSave("selected", selected);
@@ -156,21 +173,52 @@
 			if (api_localStorageGet("ScaleMAC") != null) {
 				$("#elecScale").val(api_localStorageGet("ScaleMAC"));
 			}
-			if (api_localStorageGet("selected") != null) {
-				$("#weightUnit").val(api_localStorageGet("selected"));
-				// console.log(api_localStorageGet("selected"))
-				// api_localStorageSave("selected","");
-			} else {
-				$("#weightUnit").val("KG")
-			}
 		}
-
-
-
 
 		$('#materialCode').bind('keyup', function(event) {
 			if (event.keyCode == "13") { //输入回车执行
+				jQueryWeb("YlBarcodeInfo_ZS", {
+						"chType": 6,
+						"inBarcode": $("#materialCode").val(),
+						"Condition": ""
+					},				
+					function(xmlHttpRequest, status) {
+						if (status == 'success') {
+							var json_obj = $.xml2json(xmlHttpRequest.responseXML)
+				
+							//错误结果返回处理
+							var result = JSON.stringify(json_obj.diffgram);
+							if (result.indexOf('ResultInfo') != -1) {
+								mui.alert(json_obj.diffgram.DocumentElement.ResultInfo.Result);
+								$("#materialCode").val("")
+								return false;
+							}
+							/* var data = json_obj.diffgram.NewDataSet.Table
+							console.log(JSON.stringify(data))
+							var arr = {}; //元素组成
+							arr["barcode"] = data.BARCODE;
+							arr["itemNo"] = data.ITEM_NO;
+							arr["material"] = data.MATERIALS_TYPE;
+							arr["qty"] = data.QTY;
+							arr["unit"] = data.UNIT;
+							// arr["taskNo"] = data.TASK_NO
+							// arr["itemQty"] = data.ITEM_QTY
+							// arr["itemUnit"] = data.ITEM_UNIT
+							barcodeList.push(arr);
+							document.getElementById('code_list').innerHTML = template('code-template', {
+								"record": barcodeList
+							}); */
+						} else {
+							mui.alert("YlBarcodeInfo_ZS 连接失败")
+						}
+					})
+					$("#returnOrder").focus()
+			}
+		});
 
+		$('#returnOrder').bind('keyup', function(event) {
+			if (event.keyCode == "13") { //输入回车执行
+				$("#elecScale").focus()
 			}
 		});
 
