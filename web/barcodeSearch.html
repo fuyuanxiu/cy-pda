@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<<<<<<< HEAD
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport"
@@ -53,6 +54,54 @@
 
 			</div>
 			<div id="resultlist">
+=======
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>注塑条码查询</title>
+	<script src="../js/jquery-1.11.1.js"></script>
+	<script src="../js/jquery.xml2json.js.js"></script> 
+	<script src="../js/template-web.js"></script>
+    <script src="../js/mui.min.js"></script>
+    <script src="../js/api.js"></script>
+    <link href="../css/mui.min.css" rel="stylesheet"/>
+    <!--选择器-->
+    <script src="../js/mui.picker.js"></script>
+    <script src="../js/mui.poppicker.js"></script> 
+    <link href="../css/mui.picker.css" rel="stylesheet" />
+    <link href="../css/mui.poppicker.css" rel="stylesheet" />
+    <!--end选择器-->
+    <style type="text/css">
+        .mui-content{margin-top: 12px;}
+        .mui-btn{width: 80px;}
+	    .ulcss{
+	    	margin-top: 0.625rem;
+	    }
+	    .acss a{
+	    	text-align: center;
+	    	color: #fff;
+	    	text-decoration: none;
+	    	/* background-color: rgb(100,149,237); */
+	    }
+		
+    </style>
+</head>
+<body>
+    <header class="mui-bar mui-bar-nav">
+		<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		<h1 class="mui-title">注塑条码查询</h1>
+    </header>
+    <div class="mui-content">
+		<div class="mui-input-group">
+			<div class="mui-input-row">
+				<label>扫描条码:</label>
+				<input id="tonCode" type="text" class="mui-input" style="width: 40%;float: left;" placeholder="请扫描">
+				<!-- <button type="button" id="but"  style="width: 25%;height: inherit;float: left;background-color: #007AFF;" class="mui-btn-blue">查询</button> -->
+			</div>
+				
+		</div>
+		<div id="resultlist">
+>>>>>>> 6d08396cc9529e0e06beab8ca67041510dccb98c
 			</div>
 			<script id='result-template' type="text/template">
 				<% for(var i in record){ var item=record[i];%>
@@ -82,6 +131,7 @@
 			</div>
 			<%}%>
 		</script>
+<<<<<<< HEAD
 		</div>
 		<script type="text/javascript" charset="utf-8">
 			mui.init();
@@ -193,3 +243,112 @@
 		</script>
 	</body>
 </html>
+=======
+		
+		
+		<!-- <div id="resultlist">
+		
+		</div> -->
+		
+    </div>
+	<script type="text/javascript" charset="utf-8">
+		mui.init();
+		var listData = [];
+        mui.plusReady(function(){
+			  
+        });
+		// $("#but").click(function(){
+		// 	getRecord()
+		// })
+		$("#tonCode").bind('keyup',function(e){
+			if(e.keyCode==13){
+				getRecord()
+				$("#tonCode").val("")
+			}
+		})
+		
+		　　　　
+		
+		
+		function getRecord(){
+			jQueryWeb("YlBarcodeInfo_ZS" , {
+				
+				"inBarcode": $("#tonCode").val(),
+				"chType": "2",
+			},function(xmlHttpRequest, status) {
+				// console.log(JSON.stringify(xmlHttpRequest))
+				// console.log(status)
+				// console.log($("#tonCode").val())
+				if (status == 'success') {
+					for (var i = 0; i < listData.length; i++) {
+						if (listData[i].barcode == $("#tonCode").val()) {
+							mui.alert("不能查询重复条码");
+							$("#tonCode").val("")
+							return false;
+						}
+					}
+					var json_obj = $.xml2json(xmlHttpRequest.responseXML);
+					var data = json_obj.diffgram.NewDataSet;
+					// console.log(JSON.stringify(json_obj))
+					if (data != undefined) {
+						
+						// if (JSON.stringify(data.Table).toString().substring(0, 1) == '{') {
+						// 	listData = [data.Table]
+						// } else {
+						// 	listData = data.Table
+						// }
+						var arr = []; //元素组成
+						 if(data.Table.length>1){
+							 for (var i = 0; i <=data.Table.length-1; i++) {
+							 // console.log(data.Table[i].清洗时间)
+							     var arr1={};
+							 	arr1["barcode"] = data.Table[i].BARCODE;
+							 	arr1["type"] = data.Table[i].MATERIALS_TYPE;
+							 	arr1["itemNo"] = data.Table[i].ITEM_NO;
+							 	arr1["weight"] = data.Table[i].QTY;
+								arr1["unit"] = data.Table[i].UNIT;
+								arr1["itemName"] = data.Table[i].ITEM_NAME;
+								arr1["model"] = data.Table[i].MODEL;
+								arr1["taskNo"] = data.Table[i].BIND_TASK_NO;
+								arr1["lineName"] = data.Table[i].BIND_LINE_NAME;
+								arr1["bindQty"] = data.Table[i].BIND_QTY;
+								arr1["bindUnit"] = data.Table[i].BIND_UNIT;
+							 	arr.push(arr1);
+							 }
+						 }else{
+							  var arr1={};
+							arr1["barcode"] = data.Table[i].BARCODE;
+							arr1["type"] = data.Table[i].MATERIALS_TYPE;
+							arr1["itemNo"] = data.Table[i].ITEM_NO;
+							arr1["weight"] = data.Table[i].QTY;
+							arr1["unit"] = data.Table[i].UNIT;
+							arr1["itemName"] = data.Table[i].ITEM_NAME;
+							arr1["model"] = data.Table[i].MODEL;
+							arr1["taskNo"] = data.Table[i].BIND_TASK_NO;
+							arr1["lineName"] = data.Table[i].BIND_LINE_NAME;
+							arr1["bindQty"] = data.Table[i].BIND_QTY;
+							arr1["bindUnit"] = data.Table[i].BIND_UNIT;
+							 arr.push(arr1);
+						 }
+						
+						
+						// listData.push(arr);
+						document.getElementById('resultlist').innerHTML = template('result-template', {
+							"record": arr
+						});
+						// arr["unit"]= data.单位;
+						
+						// console.log(JSON.stringify(listData))
+						
+					} else {
+						mui.alert("无吨桶信息");
+					}
+				} else {
+					mui.alert("连接失败")
+				}
+			})
+		}
+    </script>
+</body>
+</html>
+>>>>>>> 6d08396cc9529e0e06beab8ca67041510dccb98c
