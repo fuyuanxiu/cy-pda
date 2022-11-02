@@ -68,11 +68,8 @@
 		<div class="mui-content">
 			<form class="mui-input-group">
 				<div class="mui-input-row">
-<<<<<<< HEAD
 					<label>物料类型:</label>
-=======
 					<label>原料类型:</label>
->>>>>>> 6d08396cc9529e0e06beab8ca67041510dccb98c
 					<select id="materialType" class="mui-select">
 					</select>
 				</div>
@@ -86,10 +83,6 @@
 						style="width: 51%;float: left;">
 					<button type="button" id="getSupplier" style="width:13%; height: inherit;"
 						class="mui-btn-primary">...</button>
-				</div>
-				<div class="mui-input-row" id="ispono" hidden="">
-					<label>采购订单:</label>
-					<input type="text" id="pono" class="mui-input-clear" placeholder="请输入采购订单">
 				</div>
 				<div class="mui-input-row">
 					<label>采购订单:</label>
@@ -226,27 +219,12 @@
 						$("#elecWeight").hide()
 					}else{
 						$("#elecWeight").show()
-					}
-<<<<<<< HEAD
 					
-					if(selectedType == "色母"){
-						$("#weightUnit").val("G")
-					}else{
-						$("#weightUnit").val("KG")
-					}
-					
-						if (selectedType == "原材料" || selectedType == "色粉") {
-							$("#isPrint").show()					
-						} //else {
-							//$("#isPrint").hide()
-						//}
-=======
 						if (selectedType == "原材料" || selectedType == "色粉") {
 							$("#isPrint").show()					
 						} else {
 							$("#isPrint").hide()
 						}
->>>>>>> 6d08396cc9529e0e06beab8ca67041510dccb98c
 						$("#printNum").val(1)
 					} else if (selectedType == '请选择') {
 						$("#weight").attr("readOnly", false)
